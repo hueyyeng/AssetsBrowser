@@ -30,8 +30,8 @@ class AssetsBrowser(QtGui.QMainWindow, ui_main.Ui_MainWindow):
         # Create New Asset Button
         self.pushBtnNew.clicked.connect(self.showAssetDialog)
 
-        # Feedback CheckBox
-        self.checkBoxFeedback.clicked.connect(functions.createdir_feedback)
+        # Show Debug CheckBox
+        self.checkBoxDebug.clicked.connect(functions.show_debug)
 
         # Project List Dropdown ComboBox
         self.fsm = QtGui.QFileSystemModel()

@@ -64,7 +64,7 @@ def project_list(self):
     # return path_list
 
 
-def createdir_feedback():
+def show_debug():
     widget = QtGui.QWidget()
     spam = os.getcwd()
     QtGui.QMessageBox.information(widget, "Information", spam)

@@ -65,7 +65,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>2</number>
+     <number>3</number>
     </property>
     <widget class="QWidget" name="tabBG">
      <attribute name="title">
@@ -168,7 +168,7 @@
         <number>1</number>
        </property>
        <property name="text">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Assets Browser v0.1.0&lt;br/&gt;Last updated: 19 July 2017&lt;/p&gt;&lt;p&gt;Placeholder text. Need to figure out a way to read in external HTML file to keep the Python script lean for easier coding/debugging.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Assets Browser v0.1.0&lt;br/&gt;Last updated: 30 July 2017&lt;/p&gt;&lt;p&gt;Placeholder text. Need to figure out a way to read in external HTML file to keep the Python script lean for easier coding/debugging.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
@@ -193,7 +193,7 @@
      <string>Create New Asset</string>
     </property>
    </widget>
-   <widget class="QCheckBox" name="checkBoxFeedback">
+   <widget class="QCheckBox" name="checkBoxDebug">
     <property name="enabled">
      <bool>true</bool>
     </property>
@@ -212,7 +212,7 @@
      </sizepolicy>
     </property>
     <property name="text">
-     <string>&amp;Create Feedback folder?</string>
+     <string>Show Debug Window</string>
     </property>
    </widget>
    <widget class="QLabel" name="labelProject">
