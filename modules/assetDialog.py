@@ -20,6 +20,9 @@ class AssetDialog(QtGui.QDialog, ui_asset.Ui_AssetDialog):
 
         self.previewGroup.clicked.connect(self.preview)
 
+        # Set BG radio button as default choice
+        self.catBG.setChecked(True)
+
         # Create a radioButton list using Qt findChildren which returns
         # the type that we wanted (in this case, QRadioButton)
         radioButton = self.catGroup.findChildren(QtGui.QRadioButton)
@@ -37,6 +40,7 @@ class AssetDialog(QtGui.QDialog, ui_asset.Ui_AssetDialog):
 
             # Connect each radioButton to category_checked when clicked
             each.clicked.connect(category_checked)
+            each.clicked.connect(self.preview)
 
         # Regex are used to limit the range of acceptable characters to
         # prevent accidental non-acceptable input by the user.
@@ -54,22 +58,28 @@ class AssetDialog(QtGui.QDialog, ui_asset.Ui_AssetDialog):
         # Using the New-style Signal to connect assetLineEdit to fixCase method
         # whenever Qt detects textChanged
         self.assetLineEdit.textChanged[str].connect(self.fixCase)
+        self.assetLineEdit.textChanged[str].connect(self.preview)
 
     # Create a method that will be called when assetLineEdit.textChanged occurs.
     # The "text" argument can be anything like "spam", "ham", or etc as long
     # the relevant parameter are appropriately rename like (spam.toUpper()).
     def fixCase(self, text):
-        self.assetLineEdit.setText(text.toUpper()) # Convert to Uppercase
+        self.assetLineEdit.setText(text.toUpper())  # Convert to Uppercase
 
     def new_asset(self):
         print self.catBtnGroup.checkedButton().text()
 
+    # A checkable group that has a non-editable text field to preview the asset's
+    # name. Since both the category radio buttons and the assetLineEdit emit a
+    # signal to this method, it allows the text field to "dynamically" update.
     def preview(self):
         if self.previewGroup.isChecked():
-            ham = str(self.catBtnGroup.checkedButton().text())
+            self.previewText.clear()  # Clear the text field for every signal to create "illusion" of dynamic update
 
-            prefix = ham[0].lower()
-            suffix = str(self.assetLineEdit.text())
+            cat = str(self.catBtnGroup.checkedButton().text())
+
+            prefix = cat[0].lower()  # Slice the first letter of the selected category radio and make it lowercase
+            suffix = str(self.assetLineEdit.text())  # Retrieve the assetLineEdit text as string
 
             asset_name = 'The asset name will be ' + (prefix + suffix) + '.' + \
                          '\nEnsure the asset name is correct before proceeding.'
@@ -77,6 +87,11 @@ class AssetDialog(QtGui.QDialog, ui_asset.Ui_AssetDialog):
             self.previewText.appendPlainText(asset_name)
         else:
             self.previewText.clear()
+
+    def spam(self):
+        egg = 'Spam!'
+        ham = egg*2
+        print ham
 
 
 if __name__ == '__main__':

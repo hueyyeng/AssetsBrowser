@@ -1,6 +1,7 @@
 .DS_Store
 .project
 .idea
+*.*psd
 *.*pyc
 
 # Personal
