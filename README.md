@@ -26,7 +26,7 @@ the necessary dependencies has been installed.
 
 ## Requirements
 * **[Python  2.7.xx](https://www.python.org/)** - Tested on 2.7.13
-* **[PyQt4](https://sourceforge.net/projects/pyqt/files/PyQt4/)** - Tested on 4.11.4 for Python 2.7 x32
+* **[PyQt4](https://riverbankcomputing.com/software/pyqt/intro)** - Tested on 4.11.4 for Python 2.7 x32
 
 _While this codes has been tested in a Windows environment only, it should work without any
 issues on Linux/OSX environment._

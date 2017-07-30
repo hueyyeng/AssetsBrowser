@@ -107,7 +107,7 @@ class Ui_PrefsDialog(object):
         self.projectpath_tool.setToolTip(_translate("PrefsDialog", "Choose directory", None))
         self.projectpath_tool.setText(_translate("PrefsDialog", "...", None))
         self.desc_check.setText(_translate("PrefsDialog", "Show Description Panel", None))
-        self.debug_check.setText(_translate("PrefsDialog", "Show Debug Log", None))
+        self.debug_check.setText(_translate("PrefsDialog", "Enable Debug Log", None))
         self.theme_label.setText(_translate("PrefsDialog", "Theme:", None))
         self.theme_radio1.setText(_translate("PrefsDialog", "Default", None))
         self.theme_radio2.setText(_translate("PrefsDialog", "Plastique", None))

@@ -42,7 +42,7 @@ class Prefs(QtGui.QDialog, ui_prefs.Ui_PrefsDialog):
         self.projectpath_tool.clicked.connect(self.browseprojectpath)
 
         self.desc_check.clicked.connect(self.showdescription)
-        self.debug_check.clicked.connect(self.showdebug)
+        self.debug_check.clicked.connect(self.enabledebug)
         self.theme_radio1.clicked.connect(self.theme_default)
         self.theme_radio2.clicked.connect(self.theme_plastique)
 
@@ -89,9 +89,7 @@ class Prefs(QtGui.QDialog, ui_prefs.Ui_PrefsDialog):
 
         applyprojpath()
 
-        self.accept()
-
-        return True  # For MainWindow to execute restart_app when prefsDialog OK
+        self.accept()  # For MainWindow to execute restart_app when prefsDialog OK
 
     def browseprojectpath(self):
         path = str(QtGui.QFileDialog.getExistingDirectory(
@@ -116,7 +114,7 @@ class Prefs(QtGui.QDialog, ui_prefs.Ui_PrefsDialog):
         else:
             print 'Description Panel OFF'
 
-    def showdebug(self):
+    def enabledebug(self):
         if self.debug_check.isChecked():
             print 'Debugger ON'
         else:

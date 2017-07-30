@@ -97,7 +97,7 @@
    <item row="2" column="0">
     <widget class="QCheckBox" name="debug_check">
      <property name="text">
-      <string>Show Debug Log</string>
+      <string>Enable Debug Log</string>
      </property>
     </widget>
    </item>

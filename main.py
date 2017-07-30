@@ -27,6 +27,9 @@ class AssetsBrowser(QtGui.QMainWindow, ui_main.Ui_MainWindow):
         theme = prefsConfig.get_setting(prefsConfig.INI_PATH, 'UI', 'Theme')
         QtGui.QApplication.setStyle(QtGui.QStyleFactory.create(theme))
 
+        # Declare var that are only used outside of __init__
+        self.window = ''
+
         # Create New Asset Button
         self.pushBtnNew.clicked.connect(self.showAssetDialog)
 
@@ -115,7 +118,14 @@ class AssetsBrowser(QtGui.QMainWindow, ui_main.Ui_MainWindow):
 
     def showAssetDialog(self):
         self.window = assetDialog.AssetDialog()
-        self.window.exec_()
+        spam = self.window.exec_()
+
+        # If Create, execute spam to create the new asset folders
+        if spam:
+            egg = self.window.create_asset()
+            print 'Creating ' + egg + ' asset... NOT!'
+        else:
+            print 'Aborting Create New Asset...'
 
 
 if __name__ == "__main__":

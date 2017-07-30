@@ -15,9 +15,8 @@ class AssetDialog(QtGui.QDialog, ui_asset.Ui_AssetDialog):
         self.thread = ''
 
         # Buttons Action
-        self.btnCreate.clicked.connect(self.new_asset)
+        self.btnCreate.clicked.connect(self.create_asset)
         self.btnCancel.clicked.connect(self.close)
-
         self.previewGroup.clicked.connect(self.preview)
 
         # Set BG radio button as default choice
@@ -66,8 +65,11 @@ class AssetDialog(QtGui.QDialog, ui_asset.Ui_AssetDialog):
     def fixCase(self, text):
         self.assetLineEdit.setText(text.toUpper())  # Convert to Uppercase
 
-    def new_asset(self):
-        print self.catBtnGroup.checkedButton().text()
+    def create_asset(self):
+        asset_name = self.preview()
+        self.accept()
+
+        return asset_name
 
     # A checkable group that has a non-editable text field to preview the asset's
     # name. Since both the category radio buttons and the assetLineEdit emit a
@@ -81,17 +83,16 @@ class AssetDialog(QtGui.QDialog, ui_asset.Ui_AssetDialog):
             prefix = cat[0].lower()  # Slice the first letter of the selected category radio and make it lowercase
             suffix = str(self.assetLineEdit.text())  # Retrieve the assetLineEdit text as string
 
-            asset_name = 'The asset name will be ' + (prefix + suffix) + '.' + \
-                         '\nEnsure the asset name is correct before proceeding.'
+            asset_name = (prefix + suffix)
 
-            self.previewText.appendPlainText(asset_name)
+            asset_previewtext = 'The asset name will be ' + asset_name + '.' + \
+                                '\nEnsure the asset name is correct before proceeding.'
+
+            self.previewText.appendPlainText(asset_previewtext)
+
+            return asset_name
         else:
             self.previewText.clear()
-
-    def spam(self):
-        egg = 'Spam!'
-        ham = egg*2
-        print ham
 
 
 if __name__ == '__main__':
