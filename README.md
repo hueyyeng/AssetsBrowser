@@ -24,17 +24,22 @@ based on the project.
 Since this code is written in Python, it can be easily deployed to any workstations provided
 the necessary dependencies has been installed.
 
-## Requirements
+## Features
+* Navigate assets based on projects from a dropdown list.
+* Create new assets using dialog with options.
+* _IN PROGRESS:_ Integrated help file for assets as reference for artists.
+
+## Usage
+Requirements
 * **[Python  2.7.xx](https://www.python.org/)** - Tested on 2.7.13
 * **[PyQt4](https://riverbankcomputing.com/software/pyqt/intro)** - Tested on 4.11.4 for Python 2.7 x32
 
 _While this codes has been tested in a Windows environment only, it should work without any
 issues on Linux/OSX environment._
 
-## Features
-* Navigate assets based on projects from a dropdown list.
-* Create new assets using dialog with options.
-* _IN PROGRESS:_ Integrated help file for assets as reference for artists.
+1. Clone or download the repository.
+2. Extract to your chosen destination.
+3. Run `main.py`
 
 ## License
 

@@ -3,6 +3,7 @@ import sys
 from PyQt4 import QtGui
 from PyQt4 import QtCore
 from ui import ui_asset
+from modules import functions
 
 
 class AssetDialog(QtGui.QDialog, ui_asset.Ui_AssetDialog):

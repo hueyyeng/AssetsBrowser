@@ -10,11 +10,11 @@ from modules import prefsConfig
 projectPath = prefsConfig.get_setting(prefsConfig.INI_PATH, 'Settings', 'ProjectPath')
 
 
-def createdir_asset(path, response):
-    asset_name = response                   # Declare name of Asset to work with
+def createdir_asset(path, asset):
+    asset_name = asset                      # Declare name of Asset to work with
     asset_path = str(path)                  # Declare path where Asset directory is to be located
     full_path = (asset_path + asset_name)   # Concatenate Asset full path
-    print ('Creating ' + full_path)
+    print ('Assets will be created at ' + full_path)
 
     # Check whether Asset directory already exist
     if os.path.exists(full_path):
@@ -43,6 +43,7 @@ def createdir_asset(path, response):
 
 def project_list(self):
     projectName = self.comboBox.currentText()
+    path = (projectPath + projectName + "/Assets/")
 
     def spam(column, category):
         path_list = (projectPath + projectName + "/Assets/" + category)
@@ -60,8 +61,8 @@ def project_list(self):
     spam(self.columnViewCH, 'CH')
     spam(self.columnViewFX, 'FX')
 
-    # Return path_list for use in assetDialog.py
-    # return path_list
+    # Return path for use in assetDialog.py
+    return path
 
 
 def show_debug():

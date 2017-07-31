@@ -122,8 +122,11 @@ class AssetsBrowser(QtGui.QMainWindow, ui_main.Ui_MainWindow):
 
         # If Create, execute spam to create the new asset folders
         if spam:
-            egg = self.window.create_asset()
-            print 'Creating ' + egg + ' asset... NOT!'
+            asset_name = self.window.create_asset()
+            path_asset = functions.project_list(self)
+            functions.createdir_asset(path_asset, asset_name)
+
+            print 'Creating ' + asset_name + ' asset...'
         else:
             print 'Aborting Create New Asset...'
 
