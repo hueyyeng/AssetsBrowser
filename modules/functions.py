@@ -10,6 +10,12 @@ from modules import prefsConfig
 projectPath = prefsConfig.get_setting(prefsConfig.INI_PATH, 'Settings', 'ProjectPath')
 
 
+class EmittingStream(QtCore.QObject):
+    textWritten = QtCore.pyqtSignal(str)
+
+    def write(self, text):
+        self.textWritten.emit(str(text))
+
 def createdir_asset(path, asset):
     asset_name = asset                      # Declare name of Asset to work with
     asset_path = str(path)                  # Declare path where Asset directory is to be located
@@ -65,10 +71,16 @@ def project_list(self):
     return path
 
 
-def show_debug():
-    widget = QtGui.QWidget()
-    spam = os.getcwd()
-    QtGui.QMessageBox.information(widget, "Information", spam)
+def show_debug(self):
+    # widget = QtGui.QWidget()
+    # spam = os.getcwd()
+    # QtGui.QMessageBox.information(widget, "Information", spam)
+
+    if self.checkBoxDebug.isChecked():
+        self.textEdit.clear()
+        self.textEdit.setVisible(True)
+    else:
+        self.textEdit.setVisible(False)
 
 
 def always_on_top(self):

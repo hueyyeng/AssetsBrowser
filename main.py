@@ -17,24 +17,26 @@ projectPath = prefsDialog.projpath
 
 
 class AssetsBrowser(QtGui.QMainWindow, ui_main.Ui_MainWindow):
-    def __init__(self, parent = None):
+    def __init__(self, parent = None, **kwargs):
         super(AssetsBrowser, self).__init__(parent)
         self.setupUi(self)
         self.setWindowIcon(QtGui.QIcon('icons/logo.ico'))
         self.setWindowTitle('Assets Browser [PID: %d]' % QtGui.QApplication.applicationPid())
 
+        # Install the custom output stream for debug log
+        sys.stdout = functions.EmittingStream(textWritten = self.debug_stdout)
+
         # Initialise the chosen theme from INI file
         theme = prefsConfig.get_setting(prefsConfig.INI_PATH, 'UI', 'Theme')
         QtGui.QApplication.setStyle(QtGui.QStyleFactory.create(theme))
 
-        # Declare var that are only used outside of __init__
-        self.window = ''
-
         # Create New Asset Button
         self.pushBtnNew.clicked.connect(self.showAssetDialog)
 
-        # Show Debug CheckBox
-        self.checkBoxDebug.clicked.connect(functions.show_debug)
+        # Show Debug CheckBox and Disabled the Debug textEdit
+        self.checkBoxDebug.clicked.connect(lambda: functions.show_debug(self))
+
+        self.textEdit.setVisible(False)
 
         # Project List Dropdown ComboBox
         self.fsm = QtGui.QFileSystemModel()
@@ -66,6 +68,7 @@ class AssetsBrowser(QtGui.QMainWindow, ui_main.Ui_MainWindow):
         # Ensure external attributes are defined in __init__
         self.columnView = None
         self.fsm = None
+        self.window = None
 
         # Create ColumnView Tabs using columnview_tab function
         BG = self.columnViewBG
@@ -129,6 +132,18 @@ class AssetsBrowser(QtGui.QMainWindow, ui_main.Ui_MainWindow):
             print 'Creating ' + asset_name + ' asset...'
         else:
             print 'Aborting Create New Asset...'
+
+    def __del__(self):
+        # Restore sys.stdout for debug log
+        sys.stdout = sys.__stdout__
+
+    def debug_stdout(self, text):
+        # Append stdout to the QTextEdit for debug log
+        cursor = self.textEdit.textCursor()
+        cursor.movePosition(QtGui.QTextCursor.End)
+        cursor.insertText(text)
+        self.textEdit.setTextCursor(cursor)
+        self.textEdit.ensureCursorVisible()
 
 
 if __name__ == "__main__":

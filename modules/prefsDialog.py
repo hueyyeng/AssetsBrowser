@@ -19,7 +19,7 @@ class Prefs(QtGui.QDialog, ui_prefs.Ui_PrefsDialog):
         # Retrieve ProjectPath value from projpath
         self.projectpath_line.setText(projpath)
 
-        # Created this class to allow inheritance from parent class (Prefs)
+        # Create config_check to reduce DRY (Don't Repeat Yourself)
         desc = self.desc_check
         debug = self.debug_check
 
@@ -95,7 +95,7 @@ class Prefs(QtGui.QDialog, ui_prefs.Ui_PrefsDialog):
         path = str(QtGui.QFileDialog.getExistingDirectory(
             self,
             'Choose Directory',
-            os.path.expanduser('~'),  # Default to the home folder
+            os.path.expanduser('~'),        # Default to the home folder
             QtGui.QFileDialog.ShowDirsOnly  # Filter list to Directory only
             )
         )
@@ -106,7 +106,9 @@ class Prefs(QtGui.QDialog, ui_prefs.Ui_PrefsDialog):
             QtGui.QMessageBox.warning(widget, 'Warning', txt)
             self.projectpath_line.setText(defaultpath)
         else:
-            self.projectpath_line.setText(path)  # Update the Line textbox with the newly chosen path
+            newpath = path.replace('\\', '/')       # Replace Windows style to UNIX style separator
+            self.projectpath_line.setText(newpath)  # Update the Line textbox with the newly chosen path
+
 
     def showdescription(self):
         if self.desc_check.isChecked():

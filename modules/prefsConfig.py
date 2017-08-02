@@ -10,10 +10,7 @@ INI_PATH = (ROOT_DIR + INI_FILE)
 
 
 def create_config(INI_PATH):
-    """
-    Create a config file
-    """
-
+    # Create a config file with default value
     config = ConfigParser.ConfigParser()
     config.optionxform = str
 
@@ -33,10 +30,7 @@ def create_config(INI_PATH):
 
 
 def get_config(INI_PATH):
-    """
-    Returns the config object
-    """
-
+    # Returns the config object
     if not os.path.exists(INI_PATH):
         # create_config(INI_PATH)
         print 'ERROR INI FILE NOT FOUND'
@@ -48,10 +42,7 @@ def get_config(INI_PATH):
 
 
 def get_setting(INI_PATH, section, setting):
-    """
-    Print out a setting
-    """
-
+    # Print out a setting
     config = get_config(INI_PATH)
     value = config.get(section, setting)
     # print '{section} {setting} is {value}'.format(
@@ -60,10 +51,7 @@ def get_setting(INI_PATH, section, setting):
 
 
 def update_setting(INI_PATH, section, setting, value):
-    """
-    Update a setting
-    """
-
+    # Update a setting
     config = get_config(INI_PATH)
     config.set(section, setting, value)
     with open(INI_PATH, 'wb') as config_file:
@@ -71,15 +59,14 @@ def update_setting(INI_PATH, section, setting, value):
 
 
 def delete_setting(INI_PATH, section, setting):
-    """
-    Delete a setting
-    """
+    # Delete a setting
     config = get_config(INI_PATH)
     config.set(section ,setting)
     with open(INI_PATH, 'wb') as config_file:
         config.write(config_file)
 
 
+# Uncomment the below to run this script manually to generate the INI
 # if __name__ == '__main__':
 #     get_setting(INI_PATH, 'Settings', 'ProjectPath')
 #     get_setting(INI_PATH, 'UI', 'Theme')
