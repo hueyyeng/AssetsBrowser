@@ -4,10 +4,11 @@
 *.*psd
 *.*pyc
 
-# Personal
+# Project Files
 _old
 _bak
 tests
+settings.ini
 
 # Windows thumbnail cache files
 Thumbs.db
