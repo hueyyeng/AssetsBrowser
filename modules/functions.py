@@ -10,12 +10,15 @@ from modules import prefsConfig
 projectPath = prefsConfig.get_setting(prefsConfig.INI_PATH, 'Settings', 'ProjectPath')
 
 
+# Emit PyQt signal to debug's textEdit
 class EmittingStream(QtCore.QObject):
     textWritten = QtCore.pyqtSignal(str)
 
     def write(self, text):
         self.textWritten.emit(str(text))
 
+
+# Create directories for new asset
 def createdir_asset(path, asset):
     asset_name = asset                      # Declare name of Asset to work with
     asset_path = str(path)                  # Declare path where Asset directory is to be located
@@ -47,6 +50,7 @@ def createdir_asset(path, asset):
                 os.mkdir(os.path.join(full_path, folder))
 
 
+# Retrieve directories in INI ProjectPath dropdown list and update the categories tabs
 def project_list(self):
     projectName = self.comboBox.currentText()
     path = (projectPath + projectName + "/Assets/")
@@ -65,17 +69,13 @@ def project_list(self):
 
     spam(self.columnViewBG, 'BG')
     spam(self.columnViewCH, 'CH')
-    spam(self.columnViewFX, 'FX')
+    # spam(self.columnViewFX, 'FX')
 
     # Return path for use in assetDialog.py
     return path
 
 
 def show_debug(self):
-    # widget = QtGui.QWidget()
-    # spam = os.getcwd()
-    # QtGui.QMessageBox.information(widget, "Information", spam)
-
     if self.checkBoxDebug.isChecked():
         self.textEdit.clear()
         self.textEdit.setVisible(True)
@@ -95,6 +95,20 @@ def always_on_top(self):
     self.show()
 
 
+# Repurpose from https://stackoverflow.com/a/32009595/8337847
+# Alternative solution is to use hurry.filesize https://pypi.python.org/pypi/hurry.filesize/
+def get_filesize(size, precision=2):
+    suffixes = ['B', 'KB', 'MB', 'GB', 'TB']
+    suffixIndex = 0
+
+    while size > 1024 and suffixIndex < 4:
+        suffixIndex += 1    # Increment the index of the suffix
+        size = size/1024    # Apply the division
+
+    # Return using String formatting. f for float and s for string.
+    return "%.*f %s" % (precision, size, suffixes[suffixIndex])
+
+
 def close_app():
     sys.exit()
 
@@ -106,3 +120,10 @@ def restart_app():
 # When testing or in doubt, it's HAM time!
 def ham():
     print 'HAM! HAM! HAM!'
+
+
+# Show CWD (Current Work Directory) as a QMessageBox
+def spam():
+    widget = QtGui.QWidget()
+    spam = os.getcwd()
+    QtGui.QMessageBox.information(widget, "Information", spam)

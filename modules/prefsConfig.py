@@ -32,8 +32,9 @@ def create_config(INI_PATH):
 def get_config(INI_PATH):
     # Returns the config object
     if not os.path.exists(INI_PATH):
-        # create_config(INI_PATH)
+        create_config(INI_PATH)
         print 'ERROR INI FILE NOT FOUND'
+        print ('Creating INI file at ' + INI_PATH)
 
     config = ConfigParser.ConfigParser()
     config.optionxform=str
