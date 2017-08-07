@@ -45,6 +45,7 @@ class AssetsBrowser(QtGui.QMainWindow, ui_main.Ui_MainWindow):
 
         self.comboBox.setModel(self.fsm)
         self.comboBox.setRootModelIndex(rootindex)
+        self.comboBox.setCurrentIndex(0)
         self.comboBox.activated[str].connect(self.comboProjectList)
 
         # -----------------------------------------------------------------------------
@@ -54,10 +55,9 @@ class AssetsBrowser(QtGui.QMainWindow, ui_main.Ui_MainWindow):
         self.actionAbout.triggered.connect(self.showAboutDialog)
         self.actionQuit.triggered.connect(functions.close_app)
 
-        # When we need to call a function from imported modules that inherit
-        # the QMainWindow but located outside its scope, use 'lambda:'
-        # followed by the function to allow for proper execution as though
-        # it is defined within the same class for easier code maintenance
+        # When calling functions from imported modules that inherit the QMainWindow
+        # but located outside its scope, use 'lambda:' followed by the function to
+        # as though it was defined within the same class for easier code maintenance
         self.actionAlwaysOnTop.triggered.connect(lambda: functions.always_on_top(self))
 
         # -----------------------------------------------------------------------------
@@ -82,24 +82,80 @@ class AssetsBrowser(QtGui.QMainWindow, ui_main.Ui_MainWindow):
         self.columnview_tab(BG)
         self.columnview_tab(CH)
         # self.columnview_tab(FX)
+        # ^ FX tab temporarily comment out for debugging
 
-        # Preview Pane for QColumnView
-        preview_pane = QtGui.QWidget()
+        # -----------------------------------------------------------------------------
+
+        # previewWidget for QColumnView
+        previewWidget = QtGui.QWidget()
+
+        # TEXT LABELS STARTS HERE #
+        
+        # File Category Labels
+        catName = QtGui.QLabel('Name: ')
+        catSize = QtGui.QLabel('Size: ')
+        catType = QtGui.QLabel('Type: ')
+        catDate = QtGui.QLabel('Modified: ')
+
+        # File Attributes Labels
         self.filename = QtGui.QLabel()
         self.filesize = QtGui.QLabel()
         self.filetype = QtGui.QLabel()
         self.filedate = QtGui.QLabel()
 
-        preview_layout = QtGui.QGridLayout(preview_pane)
-        preview_layout.addWidget(self.filename, 0, 0)
-        preview_layout.addWidget(self.filesize, 1, 0)
-        preview_layout.addWidget(self.filetype, 2, 0)
-        preview_layout.addWidget(self.filedate, 3, 0)
-        # preview_layout.setRowStretch(2, 1)
+        # Align Right for Prefix Labels
+        align_right = QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter
+        
+        catName.setAlignment(align_right)
+        catSize.setAlignment(align_right)
+        catType.setAlignment(align_right)
+        catDate.setAlignment(align_right)
 
-        CH.setPreviewWidget(preview_pane)
+        # File Attributes Layout
+        sublayout_text = QtGui.QGridLayout()
 
-    # Function for creating new ColumnView tab to reduce copy paste codes for several categories
+        sublayout_text.addWidget(catName, 0, 0)
+        sublayout_text.addWidget(catSize, 1, 0)
+        sublayout_text.addWidget(catType, 2, 0)
+        sublayout_text.addWidget(catDate, 3, 0)
+
+        # File Attributes Value for Preview Pane
+        sublayout_text.addWidget(self.filename, 0, 1)
+        sublayout_text.addWidget(self.filesize, 1, 1)
+        sublayout_text.addWidget(self.filetype, 2, 1)
+        sublayout_text.addWidget(self.filedate, 3, 1)
+
+        # Arrange layout to upper part of widget
+        sublayout_text.setRowStretch(4, 1)
+        
+        # TEXT LABELS ENDS HERE #
+
+        # --------------------- #
+
+        # THUMBNAILS START HERE #
+        
+        # Preview Thumbnails (pvThumbs) WIP
+        self.pvThumbs = QtGui.QLabel()
+        self.pvThumbs.setPixmap(QtGui.QPixmap('icons/about.png'))
+
+        sublayout_pic = QtGui.QVBoxLayout()
+        sublayout_pic.addWidget(self.pvThumbs)
+        sublayout_pic.setAlignment(QtCore.Qt.AlignCenter)
+        
+        # THUMBNAILS ENDS HERE #
+
+        # -------------------- #
+
+        # Set Preview Pane to QColumnView setPreviewWidget
+        preview_pane = QtGui.QVBoxLayout(previewWidget)
+        preview_pane.addLayout(sublayout_pic)
+        preview_pane.addLayout(sublayout_text)
+        
+        CH.setPreviewWidget(previewWidget)
+
+        # -----------------------------------------------------------------------------
+
+    # Function for creating new ColumnView tab to reduce DRY for several categories
     def columnview_tab(self, viewmode):
         self.columnView = viewmode
 
@@ -113,7 +169,7 @@ class AssetsBrowser(QtGui.QMainWindow, ui_main.Ui_MainWindow):
 
         self.columnView.clicked.connect(self.columnview_clicked)
 
-    # Print selected item attributes in Model View
+    # Return selected item attributes in Model View for Preview Pane
     @QtCore.pyqtSlot(QtCore.QModelIndex)
     def columnview_clicked(self, index):
         indexItem = self.fsm.index(index.row(), 0, index.parent())
@@ -123,15 +179,20 @@ class AssetsBrowser(QtGui.QMainWindow, ui_main.Ui_MainWindow):
         fileType = str(self.fsm.type(indexItem))
         fileDate = self.fsm.lastModified(indexItem)
 
-        fileNameLabel = ('\n' + fileName)
+        fileNameLabel = fileName
         fileSizeLabel = functions.get_filesize(fileSize)
         fileTypeLabel = fileType
-        fileDateLabel = fileDate.toString('yyyy/MM/dd')
+        fileDateLabel = fileDate.toString('yyyy/MM/dd' + ' ' + 'h:m AP')
 
         self.filename.setText(fileNameLabel)
         self.filesize.setText(fileSizeLabel)
         self.filetype.setText(fileTypeLabel)
         self.filedate.setText(fileDateLabel)
+
+        print fileNameLabel
+        print fileSizeLabel
+        print fileTypeLabel
+        print fileDateLabel
 
     # Choose from comboBox list of Projects that are defined in INI ProjectPath
     def comboProjectList(self):
