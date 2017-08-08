@@ -3,7 +3,6 @@ import sys
 from PyQt4 import QtGui
 from PyQt4 import QtCore
 from ui import ui_main
-# from ui import ui_preview
 from modules import functions
 from modules import assetDialog
 from modules import aboutDialog
@@ -18,7 +17,7 @@ projectPath = prefsDialog.projpath
 
 
 class AssetsBrowser(QtGui.QMainWindow, ui_main.Ui_MainWindow):
-    def __init__(self, parent = None, **kwargs):
+    def __init__(self, parent = None):
         super(AssetsBrowser, self).__init__(parent)
         self.setupUi(self)
         self.setWindowIcon(QtGui.QIcon('icons/logo.ico'))
@@ -46,7 +45,7 @@ class AssetsBrowser(QtGui.QMainWindow, ui_main.Ui_MainWindow):
         self.comboBox.setModel(self.fsm)
         self.comboBox.setRootModelIndex(rootindex)
         self.comboBox.setCurrentIndex(0)
-        self.comboBox.activated[str].connect(self.comboProjectList)
+        self.comboBox.activated[str].connect(lambda: functions.project_list(self))
 
         # -----------------------------------------------------------------------------
 
@@ -98,11 +97,11 @@ class AssetsBrowser(QtGui.QMainWindow, ui_main.Ui_MainWindow):
         catDate = QtGui.QLabel('Modified: ')
 
         # File Attributes Labels
-        self.filename = QtGui.QLabel()
-        self.filesize = QtGui.QLabel()
-        self.filetype = QtGui.QLabel()
-        self.filedate = QtGui.QLabel()
-
+        self.filename = QtGui.QLabel()  # To access variables between methods BUT in
+        self.filesize = QtGui.QLabel()  # the same class, put the prefix self e.g.
+        self.filetype = QtGui.QLabel()  # (self.varnamehere) instead of (varnamehere)
+        self.filedate = QtGui.QLabel()  # so the value can be updated in another method
+  #
         # Align Right for Prefix Labels
         align_right = QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter
         
@@ -136,7 +135,7 @@ class AssetsBrowser(QtGui.QMainWindow, ui_main.Ui_MainWindow):
         
         # Preview Thumbnails (pvThumbs) WIP
         self.pvThumbs = QtGui.QLabel()
-        self.pvThumbs.setPixmap(QtGui.QPixmap('icons/about.png'))
+        # self.pvThumbs.setPixmap(QtGui.QPixmap())
 
         sublayout_pic = QtGui.QVBoxLayout()
         sublayout_pic.addWidget(self.pvThumbs)
@@ -172,31 +171,57 @@ class AssetsBrowser(QtGui.QMainWindow, ui_main.Ui_MainWindow):
     # Return selected item attributes in Model View for Preview Pane
     @QtCore.pyqtSlot(QtCore.QModelIndex)
     def columnview_clicked(self, index):
+        # Selected file/directory
         indexItem = self.fsm.index(index.row(), 0, index.parent())
 
+        # Retrieve File Attributes
         fileName = str(self.fsm.fileName(indexItem))
         fileSize = self.fsm.size(indexItem)
         fileType = str(self.fsm.type(indexItem))
         fileDate = self.fsm.lastModified(indexItem)
 
+        # Format the File Attributes into String
         fileNameLabel = fileName
         fileSizeLabel = functions.get_filesize(fileSize)
-        fileTypeLabel = fileType
+        fileTypeLabel = fileType.upper()  # Convert fileType to UPPERCASE
         fileDateLabel = fileDate.toString('yyyy/MM/dd' + ' ' + 'h:m AP')
 
+        # Assign the File Attributes' String into respective labels
         self.filename.setText(fileNameLabel)
         self.filesize.setText(fileSizeLabel)
         self.filetype.setText(fileTypeLabel)
         self.filedate.setText(fileDateLabel)
 
+        # For Debug Panel (feel free to comment/remove it)
         print fileNameLabel
         print fileSizeLabel
         print fileTypeLabel
         print fileDateLabel
 
-    # Choose from comboBox list of Projects that are defined in INI ProjectPath
-    def comboProjectList(self):
-        functions.project_list(self)
+        # Retrieve filePath for Thumbnail Preview in __init__
+        picPath = self.fsm.filePath(indexItem)
+        picType = fileType[0:-5]
+
+        picTypes = ['jpg', 'jpeg', 'bmp', 'png', 'gif', 'bmp', 'ico', 'tga', 'tif', 'tiff']
+
+        # Generate thumbnails for Preview Pane
+        for each in picTypes:
+            if each.lower() == picType.lower():
+                max_size = 250  # Thumbnails max size in pixels
+
+                tb = QtGui.QPixmap(picPath)
+                tb_scaled = tb.scaled(max_size, max_size,
+                                      QtCore.Qt.KeepAspectRatio,
+                                      QtCore.Qt.SmoothTransformation)
+
+                self.pvThumbs.setPixmap(tb_scaled)
+                break
+            else:
+                fileInfo = QtCore.QFileInfo(picPath)  # Retrieve info like icons, path, etc
+                fileIcon = QtGui.QFileIconProvider().icon(fileInfo)
+                icon = fileIcon.pixmap(128, 128, QtGui.QIcon.Normal, QtGui.QIcon.On)
+
+                self.pvThumbs.setPixmap(icon)
 
     def showAboutDialog(self):
         self.window = aboutDialog.About()
@@ -206,7 +231,7 @@ class AssetsBrowser(QtGui.QMainWindow, ui_main.Ui_MainWindow):
         self.window = prefsDialog.Prefs()
         spam = self.window.exec_()
 
-        # When OK, restart app to reinitialize new INI settings
+        # If OK, restart app to reinitialize new INI settings
         if spam:
             functions.restart_app()
 
