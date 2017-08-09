@@ -39,7 +39,7 @@ def createdir_asset(path, asset):
     folder5 = "WIP"
     folderList = [folder1, folder2, folder3, folder4, folder5]
 
-    # Check whether child folder exists & creates if not
+    # Check if child folder exists & creates if None
     if os.path.exists(folder1):
         pass
     else:
@@ -50,26 +50,32 @@ def createdir_asset(path, asset):
                 os.mkdir(os.path.join(full_path, folder))
 
 
-# Retrieve directories in INI ProjectPath dropdown list and update the categories tabs
+# Retrieve directories in INI ProjectPath comboBox and update the categories tabs
 def project_list(self):
     projectName = self.comboBox.currentText()
     path = (projectPath + projectName + "/Assets/")
 
-    def spam(column, category):
+    def update_tabs(columnview, category):
         path_list = (projectPath + projectName + "/Assets/" + category)
         print path_list
 
         self.fsm = QtGui.QFileSystemModel()
         self.fsm.setReadOnly(False)
 
-        rootindex = self.fsm.setRootPath(path_list)
+        self.rootindex = self.fsm.setRootPath(path_list)
 
-        column.setModel(self.fsm)
-        column.setRootIndex(rootindex)
+        tab = columnview
 
-    spam(self.columnViewBG, 'BG')
-    spam(self.columnViewCH, 'CH')
-    # spam(self.columnViewFX, 'FX')
+        tab.setModel(self.fsm)
+        tab.setRootIndex(self.rootindex)
+
+        # List for Column Width for QColumnView
+        colwidth = [150, 150, 150]
+        tab.setColumnWidths(colwidth)
+
+    update_tabs(self.columnViewBG, 'BG')
+    update_tabs(self.columnViewCH, 'CH')
+    update_tabs(self.columnViewFX, 'FX')
 
     # Return path for use in assetDialog.py
     return path
@@ -85,18 +91,16 @@ def show_debug(self):
 
 def always_on_top(self):
     if self.actionAlwaysOnTop.isChecked():
-        self.setWindowFlags(
-            self.windowFlags() | QtCore.Qt.WindowStaysOnTopHint)
+        self.setWindowFlags(self.windowFlags() | QtCore.Qt.WindowStaysOnTopHint)
         print "Always on Top Enabled"
     else:
-        self.setWindowFlags(
-            self.windowFlags() & ~QtCore.Qt.WindowStaysOnTopHint)
+        self.setWindowFlags(self.windowFlags() & ~QtCore.Qt.WindowStaysOnTopHint)
         print "Always on Top Disabled"
     self.show()
 
 
 # Repurpose from https://stackoverflow.com/a/32009595/8337847
-# Alternative solution is to use hurry.filesize https://pypi.python.org/pypi/hurry.filesize/
+# Alternative way - hurry.filesize https://pypi.python.org/pypi/hurry.filesize/
 def get_filesize(size, precision=2):
     suffixes = ['B', 'KB', 'MB', 'GB', 'TB']
     suffixIndex = 0

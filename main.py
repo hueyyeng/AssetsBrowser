@@ -39,11 +39,11 @@ class AssetsBrowser(QtGui.QMainWindow, ui_main.Ui_MainWindow):
         self.textEdit.setVisible(False)
 
         # Project List Dropdown ComboBox
-        self.fsm = QtGui.QFileSystemModel()
-        rootindex = self.fsm.setRootPath(projectPath)
+        self.comboBox.fsm = QtGui.QFileSystemModel()
+        self.comboBox.rootindex = self.comboBox.fsm.setRootPath(projectPath)
 
-        self.comboBox.setModel(self.fsm)
-        self.comboBox.setRootModelIndex(rootindex)
+        self.comboBox.setModel(self.comboBox.fsm)
+        self.comboBox.setRootModelIndex(self.comboBox.rootindex)
         self.comboBox.setCurrentIndex(0)
         self.comboBox.activated[str].connect(lambda: functions.project_list(self))
 
@@ -61,167 +61,150 @@ class AssetsBrowser(QtGui.QMainWindow, ui_main.Ui_MainWindow):
 
         # -----------------------------------------------------------------------------
 
-        # List for Column Width for QColumnView
-        colwidth = [150, 150, 150]
-
         # Ensure external attributes are defined in __init__
-        self.columnView = None
-        self.fsm = None
         self.window = None
 
-        # Create ColumnView Tabs using columnview_tab function
+        # -----------------------------------------------------------------------------
+
+        # Create ColumnView Tabs using columnview_tabs function
         BG = self.columnViewBG
         CH = self.columnViewCH
         FX = self.columnViewFX
 
-        BG.setColumnWidths(colwidth)
-        CH.setColumnWidths(colwidth)
-        FX.setColumnWidths(colwidth)
+        self.columnview_tabs(BG)
+        self.columnview_tabs(CH)
+        self.columnview_tabs(FX)
 
-        self.columnview_tab(BG)
-        self.columnview_tab(CH)
-        # self.columnview_tab(FX)
-        # ^ FX tab temporarily comment out for debugging
+    # Function for creating new ColumnView tab to reduce DRY for categories
+    def columnview_tabs(self, category):
+        tab = category
 
-        # -----------------------------------------------------------------------------
+        tab.fsm = QtGui.QFileSystemModel()
+        tab.fsm.setReadOnly(False)
 
-        # previewWidget for QColumnView
+        tab.rootindex = tab.fsm.setRootPath(projectPath)
+
+        tab.setModel(tab.fsm)
+        tab.setRootIndex(tab.rootindex)
+
+        # Return selected item attributes in Model View for Preview Pane
+        @QtCore.pyqtSlot(QtCore.QModelIndex)
+        def get_fileinfo(index):
+            indexItem = tab.fsm.index(index.row(), 0, index.parent())
+
+            # Retrieve File Attributes
+            fileName = str(tab.fsm.fileName(indexItem))
+            fileSize = tab.fsm.size(indexItem)
+            fileType = str(tab.fsm.type(indexItem))
+            fileDate = tab.fsm.lastModified(indexItem)
+
+            # Format the File Attributes into String
+            fileNameLabel = fileName
+            fileSizeLabel = functions.get_filesize(fileSize)
+            fileTypeLabel = fileType.upper()  # Convert fileType to UPPERCASE
+            fileDateLabel = fileDate.toString('yyyy/MM/dd' + ' ' + 'h:m AP')
+
+            # Assign the File Attributes' String into respective labels
+            tab.filename.setText(fileNameLabel)
+            tab.filesize.setText(fileSizeLabel)
+            tab.filetype.setText(fileTypeLabel)
+            tab.filedate.setText(fileDateLabel)
+
+            # For Debug Panel (feel free to comment/remove it)
+            print fileNameLabel
+            print fileSizeLabel
+            print fileTypeLabel
+            print fileDateLabel
+
+            # Retrieve filePath for Thumbnail Preview in __init__
+            picPath = tab.fsm.filePath(indexItem)
+            picType = fileType[0:-5]
+
+            picTypes = ['jpg', 'jpeg', 'bmp', 'png', 'gif', 'bmp', 'ico', 'tga', 'tif', 'tiff']
+
+            # Generate thumbnails for Preview Pane
+            for each in picTypes:
+                if each.lower() == picType.lower():
+                    max_size = 250  # Thumbnails max size in pixels
+
+                    tb = QtGui.QPixmap(picPath)
+                    tb_scaled = tb.scaled(max_size, max_size,
+                                          QtCore.Qt.KeepAspectRatio,
+                                          QtCore.Qt.SmoothTransformation)
+
+                    tab.pvThumbs.setPixmap(tb_scaled)
+                    break
+                else:
+                    fileInfo = QtCore.QFileInfo(picPath)  # Retrieve info like icons, path, etc
+                    fileIcon = QtGui.QFileIconProvider().icon(fileInfo)
+                    icon = fileIcon.pixmap(128, 128, QtGui.QIcon.Normal, QtGui.QIcon.On)
+
+                    tab.pvThumbs.setPixmap(icon)
+
+        tab.clicked.connect(get_fileinfo)
+
+        def preview(previewWidget, tab):
+
+            # -------------------- TEXT LABELS STARTS HERE -------------------- #
+
+            # File Category Labels
+            catName = QtGui.QLabel('Name: ')
+            catSize = QtGui.QLabel('Size: ')
+            catType = QtGui.QLabel('Type: ')
+            catDate = QtGui.QLabel('Modified: ')
+
+            # File Attributes Labels
+            tab.filename = QtGui.QLabel()
+            tab.filesize = QtGui.QLabel()
+            tab.filetype = QtGui.QLabel()
+            tab.filedate = QtGui.QLabel()
+
+            # Align Right for Prefix Labels
+            align_right = QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter
+
+            catName.setAlignment(align_right)
+            catSize.setAlignment(align_right)
+            catType.setAlignment(align_right)
+            catDate.setAlignment(align_right)
+
+            # File Attributes Layout
+            sublayout_text = QtGui.QGridLayout()
+
+            sublayout_text.addWidget(catName, 0, 0)
+            sublayout_text.addWidget(catSize, 1, 0)
+            sublayout_text.addWidget(catType, 2, 0)
+            sublayout_text.addWidget(catDate, 3, 0)
+
+            # File Attributes Value for Preview Pane
+            sublayout_text.addWidget(tab.filename, 0, 1)
+            sublayout_text.addWidget(tab.filesize, 1, 1)
+            sublayout_text.addWidget(tab.filetype, 2, 1)
+            sublayout_text.addWidget(tab.filedate, 3, 1)
+
+            # Arrange layout to upper part of widget
+            sublayout_text.setRowStretch(4, 1)
+
+            # -------------------- THUMBNAILS STARTS HERE -------------------- #
+
+            # Preview Thumbnails (pvThumbs) WIP
+            tab.pvThumbs = QtGui.QLabel()
+            tab.pvThumbs.setPixmap(QtGui.QPixmap())
+
+            sublayout_pic = QtGui.QVBoxLayout()
+            sublayout_pic.addWidget(tab.pvThumbs)
+            sublayout_pic.setAlignment(QtCore.Qt.AlignCenter)
+
+            # -------------------- PREVIEW PANE STARTS HERE -------------------- #
+
+            # Set Preview Pane to QColumnView setPreviewWidget
+            preview_pane = QtGui.QVBoxLayout(previewWidget)
+            preview_pane.addLayout(sublayout_pic)
+            preview_pane.addLayout(sublayout_text)
+
+            tab.setPreviewWidget(previewWidget)
+
         previewWidget = QtGui.QWidget()
-
-        # TEXT LABELS STARTS HERE #
-        
-        # File Category Labels
-        catName = QtGui.QLabel('Name: ')
-        catSize = QtGui.QLabel('Size: ')
-        catType = QtGui.QLabel('Type: ')
-        catDate = QtGui.QLabel('Modified: ')
-
-        # File Attributes Labels
-        self.filename = QtGui.QLabel()  # To access variables between methods BUT in
-        self.filesize = QtGui.QLabel()  # the same class, put the prefix self e.g.
-        self.filetype = QtGui.QLabel()  # (self.varnamehere) instead of (varnamehere)
-        self.filedate = QtGui.QLabel()  # so the value can be updated in another method
-  #
-        # Align Right for Prefix Labels
-        align_right = QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter
-        
-        catName.setAlignment(align_right)
-        catSize.setAlignment(align_right)
-        catType.setAlignment(align_right)
-        catDate.setAlignment(align_right)
-
-        # File Attributes Layout
-        sublayout_text = QtGui.QGridLayout()
-
-        sublayout_text.addWidget(catName, 0, 0)
-        sublayout_text.addWidget(catSize, 1, 0)
-        sublayout_text.addWidget(catType, 2, 0)
-        sublayout_text.addWidget(catDate, 3, 0)
-
-        # File Attributes Value for Preview Pane
-        sublayout_text.addWidget(self.filename, 0, 1)
-        sublayout_text.addWidget(self.filesize, 1, 1)
-        sublayout_text.addWidget(self.filetype, 2, 1)
-        sublayout_text.addWidget(self.filedate, 3, 1)
-
-        # Arrange layout to upper part of widget
-        sublayout_text.setRowStretch(4, 1)
-        
-        # TEXT LABELS ENDS HERE #
-
-        # --------------------- #
-
-        # THUMBNAILS START HERE #
-        
-        # Preview Thumbnails (pvThumbs) WIP
-        self.pvThumbs = QtGui.QLabel()
-        # self.pvThumbs.setPixmap(QtGui.QPixmap())
-
-        sublayout_pic = QtGui.QVBoxLayout()
-        sublayout_pic.addWidget(self.pvThumbs)
-        sublayout_pic.setAlignment(QtCore.Qt.AlignCenter)
-        
-        # THUMBNAILS ENDS HERE #
-
-        # -------------------- #
-
-        # Set Preview Pane to QColumnView setPreviewWidget
-        preview_pane = QtGui.QVBoxLayout(previewWidget)
-        preview_pane.addLayout(sublayout_pic)
-        preview_pane.addLayout(sublayout_text)
-        
-        CH.setPreviewWidget(previewWidget)
-
-        # -----------------------------------------------------------------------------
-
-    # Function for creating new ColumnView tab to reduce DRY for several categories
-    def columnview_tab(self, viewmode):
-        self.columnView = viewmode
-
-        self.fsm = QtGui.QFileSystemModel()
-        self.fsm.setReadOnly(False)
-
-        rootindex = self.fsm.setRootPath(projectPath)
-
-        self.columnView.setModel(self.fsm)
-        self.columnView.setRootIndex(rootindex)
-
-        self.columnView.clicked.connect(self.columnview_clicked)
-
-    # Return selected item attributes in Model View for Preview Pane
-    @QtCore.pyqtSlot(QtCore.QModelIndex)
-    def columnview_clicked(self, index):
-        # Selected file/directory
-        indexItem = self.fsm.index(index.row(), 0, index.parent())
-
-        # Retrieve File Attributes
-        fileName = str(self.fsm.fileName(indexItem))
-        fileSize = self.fsm.size(indexItem)
-        fileType = str(self.fsm.type(indexItem))
-        fileDate = self.fsm.lastModified(indexItem)
-
-        # Format the File Attributes into String
-        fileNameLabel = fileName
-        fileSizeLabel = functions.get_filesize(fileSize)
-        fileTypeLabel = fileType.upper()  # Convert fileType to UPPERCASE
-        fileDateLabel = fileDate.toString('yyyy/MM/dd' + ' ' + 'h:m AP')
-
-        # Assign the File Attributes' String into respective labels
-        self.filename.setText(fileNameLabel)
-        self.filesize.setText(fileSizeLabel)
-        self.filetype.setText(fileTypeLabel)
-        self.filedate.setText(fileDateLabel)
-
-        # For Debug Panel (feel free to comment/remove it)
-        print fileNameLabel
-        print fileSizeLabel
-        print fileTypeLabel
-        print fileDateLabel
-
-        # Retrieve filePath for Thumbnail Preview in __init__
-        picPath = self.fsm.filePath(indexItem)
-        picType = fileType[0:-5]
-
-        picTypes = ['jpg', 'jpeg', 'bmp', 'png', 'gif', 'bmp', 'ico', 'tga', 'tif', 'tiff']
-
-        # Generate thumbnails for Preview Pane
-        for each in picTypes:
-            if each.lower() == picType.lower():
-                max_size = 250  # Thumbnails max size in pixels
-
-                tb = QtGui.QPixmap(picPath)
-                tb_scaled = tb.scaled(max_size, max_size,
-                                      QtCore.Qt.KeepAspectRatio,
-                                      QtCore.Qt.SmoothTransformation)
-
-                self.pvThumbs.setPixmap(tb_scaled)
-                break
-            else:
-                fileInfo = QtCore.QFileInfo(picPath)  # Retrieve info like icons, path, etc
-                fileIcon = QtGui.QFileIconProvider().icon(fileInfo)
-                icon = fileIcon.pixmap(128, 128, QtGui.QIcon.Normal, QtGui.QIcon.On)
-
-                self.pvThumbs.setPixmap(icon)
+        preview(previewWidget, tab)
 
     def showAboutDialog(self):
         self.window = aboutDialog.About()
