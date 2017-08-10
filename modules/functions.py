@@ -53,21 +53,20 @@ def createdir_asset(path, asset):
 # Retrieve directories in INI ProjectPath comboBox and update the categories tabs
 def project_list(self):
     projectName = self.comboBox.currentText()
-    path = (projectPath + projectName + "/Assets/")
 
     def update_tabs(columnview, category):
-        path_list = (projectPath + projectName + "/Assets/" + category)
-        print path_list
-
-        self.fsm = QtGui.QFileSystemModel()
-        self.fsm.setReadOnly(False)
-
-        self.rootindex = self.fsm.setRootPath(path_list)
+        newpath = (projectPath + projectName + "/Assets/" + category)
+        print newpath
 
         tab = columnview
 
-        tab.setModel(self.fsm)
-        tab.setRootIndex(self.rootindex)
+        tab.fsm = QtGui.QFileSystemModel()
+        tab.fsm.setReadOnly(False)
+
+        tab.rootindex = tab.fsm.setRootPath(newpath)
+
+        tab.setModel(tab.fsm)
+        tab.setRootIndex(tab.rootindex)
 
         # List for Column Width for QColumnView
         colwidth = [150, 150, 150]
@@ -78,6 +77,7 @@ def project_list(self):
     update_tabs(self.columnViewFX, 'FX')
 
     # Return path for use in assetDialog.py
+    path = (projectPath + projectName + "/Assets/")
     return path
 
 

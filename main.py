@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import os
 import sys
 from PyQt4 import QtGui
 from PyQt4 import QtCore
@@ -61,28 +62,31 @@ class AssetsBrowser(QtGui.QMainWindow, ui_main.Ui_MainWindow):
 
         # -----------------------------------------------------------------------------
 
-        # Ensure external attributes are defined in __init__
+        # Ensure external attributes are explicitly defined in __init__
         self.window = None
 
         # -----------------------------------------------------------------------------
 
         # Create ColumnView Tabs using columnview_tabs function
-        BG = self.columnViewBG
-        CH = self.columnViewCH
-        FX = self.columnViewFX
-
-        self.columnview_tabs(BG)
-        self.columnview_tabs(CH)
-        self.columnview_tabs(FX)
-
+        self.columnview_tabs(self.columnViewBG, 'BG')
+        self.columnview_tabs(self.columnViewCH, 'CH')
+        self.columnview_tabs(self.columnViewFX, 'FX')
+        
     # Function for creating new ColumnView tab to reduce DRY for categories
-    def columnview_tabs(self, category):
-        tab = category
+    def columnview_tabs(self, columnview, category):
+
+        # Select top most project from Project comboBox as default project
+        projectName = (os.listdir(projectPath))[0]
+        defaultpath = (projectPath + projectName + "/Assets/" + category)
+
+        print defaultpath
+        
+        tab = columnview
 
         tab.fsm = QtGui.QFileSystemModel()
         tab.fsm.setReadOnly(False)
 
-        tab.rootindex = tab.fsm.setRootPath(projectPath)
+        tab.rootindex = tab.fsm.setRootPath(defaultpath)
 
         tab.setModel(tab.fsm)
         tab.setRootIndex(tab.rootindex)
@@ -141,8 +145,10 @@ class AssetsBrowser(QtGui.QMainWindow, ui_main.Ui_MainWindow):
 
                     tab.pvThumbs.setPixmap(icon)
 
+        # When an item clicked in the columnView tab, execute get_fileinfo method
         tab.clicked.connect(get_fileinfo)
 
+        # Preview widget layout and features goes here as a function
         def preview(previewWidget, tab):
 
             # -------------------- TEXT LABELS STARTS HERE -------------------- #
