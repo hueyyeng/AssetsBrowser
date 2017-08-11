@@ -1,9 +1,16 @@
 # -*- coding: utf-8 -*-
+import os
 import sys
 from PyQt4 import QtGui
 from PyQt4 import QtCore
 from ui import ui_asset
-from modules import functions
+from modules import prefsConfig
+
+
+# Declare var here first for use in methods below
+CURRENTPROJECT = prefsConfig.CURRENTPROJECT
+PROJECTPATH = prefsConfig.PROJECTPATH
+INI_PATH = prefsConfig.INI_PATH
 
 
 class AssetDialog(QtGui.QDialog, ui_asset.Ui_AssetDialog):
@@ -12,9 +19,6 @@ class AssetDialog(QtGui.QDialog, ui_asset.Ui_AssetDialog):
         self.setupUi(self)
         self.setWindowIcon(QtGui.QIcon('icons/logo.ico'))
 
-        # Declare var that are only used outside of __init__
-        self.thread = ''
-
         # Buttons Action
         self.btnCreate.clicked.connect(self.create_asset)
         self.btnCancel.clicked.connect(self.close)
@@ -22,6 +26,9 @@ class AssetDialog(QtGui.QDialog, ui_asset.Ui_AssetDialog):
 
         # Set BG radio button as default choice
         self.catBG.setChecked(True)
+
+        # Disable Create button to prevent user from creating without inputting asset name
+        self.btnCreate.setDisabled(True)
 
         # Create a radioButton list using Qt findChildren which returns
         # the type that we wanted (in this case, QRadioButton)
@@ -55,29 +62,63 @@ class AssetDialog(QtGui.QDialog, ui_asset.Ui_AssetDialog):
         # either QValidator or QRegExpValidator as argument
         self.assetLineEdit.setValidator(self.validator)
 
-        # Using the New-style Signal to connect assetLineEdit to fixCase method
+        # Using the New-style Signal to connect assetLineEdit to fix_case method
         # whenever Qt detects textChanged
-        self.assetLineEdit.textChanged[str].connect(self.fixCase)
+        self.assetLineEdit.textChanged[str].connect(self.fix_case)
         self.assetLineEdit.textChanged[str].connect(self.preview)
 
     # Create a method that will be called when assetLineEdit.textChanged occurs.
     # The "text" argument can be anything like "spam", "ham", or etc as long
     # the relevant parameter are appropriately rename like (spam.toUpper()).
-    def fixCase(self, text):
+    def fix_case(self, text):
         self.assetLineEdit.setText(text.toUpper())  # Convert to Uppercase
 
+    # Create asset with preconfigure directories structure
     def create_asset(self):
-        asset_name = self.preview()
-        self.accept()
+        project = CURRENTPROJECT()
+        category = str(self.catBtnGroup.checkedButton().text())
 
-        return asset_name
+        asset_name = str(self.preview())
+        asset_path = (PROJECTPATH + project + "/Assets/" + category)
+        full_path = (asset_path + '/' + asset_name)
 
-    # A checkable group that has a non-editable text field to preview the asset's
+        # Check whether Asset directory already exist
+        if os.path.exists(full_path):
+            widget = QtGui.QWidget()
+            text = 'ERROR! Asset already exists!'
+            QtGui.QMessageBox.warning(widget, 'Warning', text)
+        else:
+            os.mkdir(full_path, 0755)
+            print ('Assets will be created at ' + full_path)
+
+            # Declare names for child folders
+            folder1 = "Scenes"
+            folder2 = "Textures"
+            folder3 = "References"
+            folder4 = None
+            folder5 = "WIP"
+            folders = [folder1, folder2, folder3, folder4, folder5]
+
+            for folder in folders:
+                if folder is None:
+                    pass
+                else:
+                    os.mkdir(os.path.join(full_path, folder))
+
+            self.accept()
+
+    # A checkable group that has non-editable text field to preview the asset's
     # name. Since both the category radio buttons and the assetLineEdit emit a
     # signal to this method, it allows the text field to "dynamically" update.
     def preview(self):
-        if self.previewGroup.isChecked():
+        project = CURRENTPROJECT()
+
+        checked = self.previewGroup.isChecked()
+        length = len(self.assetLineEdit.text())
+
+        if checked and length == 3:
             self.previewText.clear()  # Clear the text field for every signal to create "illusion" of dynamic update
+            self.btnCreate.setDisabled(False)  # Enabled Create button
 
             cat = str(self.catBtnGroup.checkedButton().text())
 
@@ -86,14 +127,35 @@ class AssetDialog(QtGui.QDialog, ui_asset.Ui_AssetDialog):
 
             asset_name = (prefix + suffix)
 
-            asset_previewtext = 'The asset name will be ' + asset_name + '.' + \
-                                '\nEnsure the asset name is correct before proceeding.'
+            asset_text = 'The asset name will be ' + asset_name + '.' + \
+                         '\nEnsure the asset name is correct before proceeding.' + \
+                         '\nProject path: ' + project
 
-            self.previewText.appendPlainText(asset_previewtext)
+            self.previewText.appendPlainText(asset_text)
 
             return asset_name
+
+        elif checked and length != 3:
+            self.previewText.clear()
+            self.btnCreate.setDisabled(True)
+
+            warning_text = 'ENSURE ASSET NAME IS THREE CHARACTERS LENGTH!'
+            self.previewText.appendPlainText(warning_text)
+
         else:
             self.previewText.clear()
+            self.btnCreate.setDisabled(True)
+
+
+def showAssetDialog():
+    window = AssetDialog()
+    spam = window.exec_()
+
+    # If Create, execute spam to create the new asset folders
+    if spam:
+        print 'Creating new asset...'
+    else:
+        print 'Aborting Create New Asset...'
 
 
 if __name__ == '__main__':

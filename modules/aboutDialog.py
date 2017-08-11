@@ -16,6 +16,10 @@ class About(QtGui.QDialog, ui_about.Ui_AboutDialog):
         self.labelGraphic.setPixmap(QtGui.QPixmap('icons/about.png'))
 
 
+def showAboutDialog():
+    window = About()
+    window.exec_()
+
 if __name__ == '__main__':
     app = QtGui.QApplication(sys.argv)
     window = About()

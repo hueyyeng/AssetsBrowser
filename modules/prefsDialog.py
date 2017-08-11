@@ -3,11 +3,15 @@ import os
 import sys
 from PyQt4 import QtGui
 from ui import ui_prefs
+from modules import functions
 from modules import prefsConfig
 
-# Declare path var here first for use in methods below
-defaultpath = prefsConfig.get_setting(prefsConfig.INI_PATH, 'Settings', 'ProjectPath')
-projpath = defaultpath
+
+# Declare var here first for use in methods below
+DEFAULTPATH = prefsConfig.DEFAULTPATH
+PROJECTPATH = prefsConfig.PROJECTPATH
+INI_PATH = prefsConfig.INI_PATH
+THEME = prefsConfig.THEME
 
 
 class Prefs(QtGui.QDialog, ui_prefs.Ui_PrefsDialog):
@@ -16,24 +20,24 @@ class Prefs(QtGui.QDialog, ui_prefs.Ui_PrefsDialog):
         self.setupUi(self)
         self.setWindowIcon(QtGui.QIcon('icons/logo.ico'))
 
-        # Retrieve ProjectPath value from projpath
-        self.projectpath_line.setText(projpath)
+        # Retrieve ProjectPath value from PROJECTPATH
+        self.projectpath_line.setText(PROJECTPATH)
 
         # Create config_check to reduce DRY (Don't Repeat Yourself)
         desc = self.desc_check
-        debug = self.debug_check
+        # debug = self.debug_check  # TEMP DISABLE
 
         def config_check(ui, section, setting, value):
-            if prefsConfig.get_setting(prefsConfig.INI_PATH, section, setting) == value:
+            if prefsConfig.get_setting(INI_PATH, section, setting) == value:
                 ui.setChecked(True)
             else:
                 ui.setChecked(False)
 
         config_check(desc, 'Settings', 'ShowDescriptionPanel', 'True')
-        config_check(debug, 'Settings', 'ShowDebugLog', 'True')
+        # config_check(debug, 'Settings', 'ShowDebugLog', 'True')  # TEMP DISABLE
 
         # Checked the relevant radio button for Theme at runtime
-        if prefsConfig.get_setting(prefsConfig.INI_PATH, 'UI', 'Theme') == 'windowsvista':
+        if THEME == 'windowsvista':
             self.theme_radio1.setChecked(True)
         else:
             self.theme_radio2.setChecked(True)
@@ -49,7 +53,7 @@ class Prefs(QtGui.QDialog, ui_prefs.Ui_PrefsDialog):
         self.btn_ok.clicked.connect(self.apply)
         self.btn_cancel.clicked.connect(self.reject)
 
-        prefsConfig.get_config(prefsConfig.INI_PATH)
+        prefsConfig.get_config(INI_PATH)
 
     def apply(self):
         # Variables for apply function
@@ -61,9 +65,9 @@ class Prefs(QtGui.QDialog, ui_prefs.Ui_PrefsDialog):
         # Function as reusable code for CheckBox elements
         def apply_checkbox(ui, param):
             if ui.isChecked():
-                prefsConfig.update_setting(prefsConfig.INI_PATH, 'Settings', param, 'True')
+                prefsConfig.update_setting(INI_PATH, 'Settings', param, 'True')
             else:
-                prefsConfig.update_setting(prefsConfig.INI_PATH, 'Settings', param, 'False')
+                prefsConfig.update_setting(INI_PATH, 'Settings', param, 'False')
 
         # Assign apply_checkbox function with description and debug parameters
         apply_checkbox(desc, desc_param)
@@ -72,22 +76,22 @@ class Prefs(QtGui.QDialog, ui_prefs.Ui_PrefsDialog):
         # Theme function as radio toggle
         def apply_theme():
             if self.theme_radio1.isChecked():
-                prefsConfig.update_setting(prefsConfig.INI_PATH, 'UI', 'Theme', 'windowsvista')
+                prefsConfig.update_setting(INI_PATH, 'UI', 'Theme', 'windowsvista')
             else:
-                prefsConfig.update_setting(prefsConfig.INI_PATH, 'UI', 'Theme', 'Plastique')
+                prefsConfig.update_setting(INI_PATH, 'UI', 'Theme', 'Plastique')
 
             # Apply Theme to MainWindow
-            theme = prefsConfig.get_setting(prefsConfig.INI_PATH, 'UI', 'Theme')
+            theme = prefsConfig.get_setting(INI_PATH, 'UI', 'Theme')
             QtGui.QApplication.setStyle(QtGui.QStyleFactory.create(theme))
 
         apply_theme()
 
         # Update the Project Path in the INI file
-        def applyprojpath():
+        def applyprojectpath():
             path = self.projectpath_line.text()
-            prefsConfig.update_setting(prefsConfig.INI_PATH, 'Settings', 'ProjectPath', path)
+            prefsConfig.update_setting(INI_PATH, 'Settings', 'ProjectPath', path)
 
-        applyprojpath()
+        applyprojectpath()
 
         self.accept()  # For MainWindow to execute restart_app when prefsDialog OK
 
@@ -104,11 +108,10 @@ class Prefs(QtGui.QDialog, ui_prefs.Ui_PrefsDialog):
             widget = QtGui.QWidget()
             txt = 'Please choose a directory!'
             QtGui.QMessageBox.warning(widget, 'Warning', txt)
-            self.projectpath_line.setText(defaultpath)
+            self.projectpath_line.setText(DEFAULTPATH)
         else:
             newpath = path.replace('\\', '/')       # Replace Windows style to UNIX style separator
             self.projectpath_line.setText(newpath)  # Update the Line textbox with the newly chosen path
-
 
     def showdescription(self):
         if self.desc_check.isChecked():
@@ -129,6 +132,15 @@ class Prefs(QtGui.QDialog, ui_prefs.Ui_PrefsDialog):
     def theme_plastique(self):
         self.theme_radio2.setChecked(True)
         print 'Plastique Theme'
+
+
+def showPrefsDialog():
+    window = Prefs()
+    spam = window.exec_()
+
+    # If OK, restart app to reinitialize new INI settings
+    if spam:
+        functions.restart_app()
 
 
 if __name__ == '__main__':

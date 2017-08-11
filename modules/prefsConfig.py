@@ -3,7 +3,6 @@ import os
 import ConfigParser
 
 
-# ROOT_DIR = os.path.abspath(os.path.dirname(__file__))
 ROOT_DIR = ''
 INI_FILE = 'settings.ini'
 INI_PATH = (ROOT_DIR + INI_FILE)
@@ -18,7 +17,7 @@ def create_config(INI_PATH):
 
     config.set('Settings', 'ProjectPath', 'P:/')
     config.set('Settings', 'ShowDescriptionPanel', 'True')
-    config.set('Settings', 'ShowDebugLog', 'False')
+    config.set('Settings', 'CurrentProject', '')
 
     config.add_section('UI')
 
@@ -65,6 +64,22 @@ def delete_setting(INI_PATH, section, setting):
     config.set(section ,setting)
     with open(INI_PATH, 'wb') as config_file:
         config.write(config_file)
+
+
+def current_project():
+    # Retrieve CurrentProject
+    project = get_setting(INI_PATH, 'Settings', 'CurrentProject')
+    return project
+
+
+# -------------------------------------------------------------------
+
+DEFAULTPATH = get_setting(INI_PATH, 'Settings', 'ProjectPath')
+PROJECTPATH = DEFAULTPATH
+CURRENTPROJECT = current_project
+THEME = get_setting(INI_PATH, 'UI', 'Theme')
+
+# -------------------------------------------------------------------
 
 
 # Uncomment the below to run this script manually to generate the INI
