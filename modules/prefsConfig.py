@@ -14,8 +14,9 @@ def create_config(INI_PATH):
     config.optionxform = str
 
     config.add_section('Settings')
+    home = os.path.expanduser('~')  # Defaults to home directory
 
-    config.set('Settings', 'ProjectPath', 'P:/')
+    config.set('Settings', 'ProjectPath', home.replace('\\', '/'))
     config.set('Settings', 'ShowDescriptionPanel', 'True')
     config.set('Settings', 'CurrentProject', '')
 

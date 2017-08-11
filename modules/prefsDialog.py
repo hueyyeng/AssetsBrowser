@@ -58,9 +58,9 @@ class Prefs(QtGui.QDialog, ui_prefs.Ui_PrefsDialog):
     def apply(self):
         # Variables for apply function
         desc = self.desc_check
-        debug = self.debug_check
+        # debug = self.debug_check
         desc_param = 'ShowDescriptionPanel'
-        debug_param = 'ShowDebugLog'
+        # debug_param = 'ShowDebugLog'
 
         # Function as reusable code for CheckBox elements
         def apply_checkbox(ui, param):
@@ -71,7 +71,7 @@ class Prefs(QtGui.QDialog, ui_prefs.Ui_PrefsDialog):
 
         # Assign apply_checkbox function with description and debug parameters
         apply_checkbox(desc, desc_param)
-        apply_checkbox(debug, debug_param)
+        # apply_checkbox(debug, debug_param)
 
         # Theme function as radio toggle
         def apply_theme():
@@ -99,7 +99,7 @@ class Prefs(QtGui.QDialog, ui_prefs.Ui_PrefsDialog):
         path = str(QtGui.QFileDialog.getExistingDirectory(
             self,
             'Choose Directory',
-            os.path.expanduser('~'),        # Default to the home folder
+            os.path.expanduser('~'),        # Defaults to home directory
             QtGui.QFileDialog.ShowDirsOnly  # Filter list to Directory only
             )
         )
