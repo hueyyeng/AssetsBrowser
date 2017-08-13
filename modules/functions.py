@@ -39,6 +39,10 @@ def columnview_tabs(columnview, category):
     tab.setModel(tab.fsm)
     tab.setRootIndex(tab.rootindex)
 
+    # List for Column Width for QColumnView
+    colwidth = [150]
+    tab.setColumnWidths(colwidth)
+
     # Return selected item attributes in Model View for Preview Pane
     @QtCore.pyqtSlot(QtCore.QModelIndex)
     def get_fileinfo(index):
@@ -79,7 +83,7 @@ def columnview_tabs(columnview, category):
             if each.lower() == picType.lower():
                 max_size = 250  # Thumbnails max size in pixels
 
-                tb = QtGui.QPixmap(picPath)
+                tb = QtGui.QPixmap(picPath, '1')  # Hopefully a workaround on macOS JPG error
                 tb_scaled = tb.scaled(max_size, max_size,
                                       QtCore.Qt.KeepAspectRatio,
                                       QtCore.Qt.SmoothTransformation)
@@ -181,7 +185,7 @@ def project_list(self):
         tab.setRootIndex(tab.rootindex)
 
         # List for Column Width for QColumnView
-        colwidth = [150, 150, 150]
+        colwidth = [150]
         tab.setColumnWidths(colwidth)
 
     update_tabs(self.columnViewBG, 'BG')

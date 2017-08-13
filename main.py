@@ -2,6 +2,7 @@
 import os
 import sys
 from PyQt4 import QtGui
+from PyQt4 import QtCore
 from ui import ui_main
 from modules import functions
 from modules import assetDialog
@@ -22,6 +23,11 @@ class AssetsBrowser(QtGui.QMainWindow, ui_main.Ui_MainWindow):
         self.setupUi(self)
         self.setWindowIcon(QtGui.QIcon('icons/logo.ico'))
         self.setWindowTitle('Assets Browser [PID: %d]' % QtGui.QApplication.applicationPid())
+        self.setWindowFlags(QtCore.Qt.WindowMinimizeButtonHint | QtCore.Qt.WindowMaximizeButtonHint)
+
+        splitter_size = [150, 500]
+
+        self.splitter.setSizes(splitter_size)
 
         # Dialog Window
         about = aboutDialog.showAboutDialog

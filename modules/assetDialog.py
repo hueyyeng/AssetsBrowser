@@ -129,7 +129,7 @@ class AssetDialog(QtGui.QDialog, ui_asset.Ui_AssetDialog):
 
             asset_text = 'The asset name will be ' + asset_name + '.' + \
                          '\nEnsure the asset name is correct before proceeding.' + \
-                         '\nProject path: ' + project
+                         '\n\nProject: ' + project
 
             self.previewText.appendPlainText(asset_text)
 
