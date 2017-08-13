@@ -1,6 +1,6 @@
 # Assets Browser
 
-**Assets Browser** is a Python app that are designed to manage assets for 3DCG/VFX pipeline.
+**Assets Browser** is a Python app that are designed to manage and browse assets for 3DCG/VFX pipeline.
 
 This is still an ongoing progress and minor bugs are expected.
 
@@ -34,8 +34,10 @@ Requirements
 * **[Python  2.7.xx](https://www.python.org/)** - Tested on 2.7.13
 * **[PyQt4](https://riverbankcomputing.com/software/pyqt/intro)** - Tested on 4.11.4 for Python 2.7 x32
 
-_While this codes has been tested in a Windows environment only, it should work without any
+_While this codes has been tested in a Windows environment only, it should work without \*much\*
 issues on Linux/OSX environment._
+
+**2017/08/13: Looks like there are known issues with JPEG preview and the UI layout on macOS which will be resolve in future update.**
 
 1. Clone or download the repository.
 2. Extract to your chosen destination.
