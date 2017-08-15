@@ -29,6 +29,12 @@ class AssetsBrowser(QtGui.QMainWindow, ui_main.Ui_MainWindow):
 
         self.splitter.setSizes(splitter_size)
 
+        # Help Tab
+        help_path = 'ui/help/help.html'
+        help_html = open(help_path, "rb").read()
+        self.labelHelp.setText(help_html)
+
+
         # Dialog Window
         about = aboutDialog.showAboutDialog
         asset = assetDialog.showAssetDialog
