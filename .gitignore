@@ -7,8 +7,10 @@
 # Project Files
 _old
 _bak
+build
 tests
 settings.ini
+setup.py
 
 # Windows thumbnail cache files
 Thumbs.db
