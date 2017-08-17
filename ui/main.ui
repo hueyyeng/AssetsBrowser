@@ -144,7 +144,30 @@
          </widget>
         </item>
         <item>
-         <widget class="QTextEdit" name="textEdit"/>
+         <widget class="QTextEdit" name="textEdit">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+            <horstretch>0</horstretch>
+            <verstretch>1</verstretch>
+           </sizepolicy>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="textSpacer">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeType">
+           <enum>QSizePolicy::MinimumExpanding</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
         </item>
         <item>
          <widget class="QLabel" name="labelCredits">
@@ -170,10 +193,11 @@
        <zorder>labelProject</zorder>
        <zorder>textEdit</zorder>
        <zorder>comboBox</zorder>
+       <zorder>textSpacer</zorder>
       </widget>
       <widget class="QTabWidget" name="tabWidget">
        <property name="currentIndex">
-        <number>3</number>
+        <number>0</number>
        </property>
        <widget class="QWidget" name="tabBG">
         <attribute name="title">
@@ -216,6 +240,40 @@
         <layout class="QHBoxLayout" name="horizontalLayout_4">
          <item>
           <widget class="QColumnView" name="columnViewFX">
+           <property name="alternatingRowColors">
+            <bool>false</bool>
+           </property>
+           <property name="resizeGripsVisible">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="tabProps">
+        <attribute name="title">
+         <string>Props</string>
+        </attribute>
+        <layout class="QHBoxLayout" name="horizontalLayout_7">
+         <item>
+          <widget class="QColumnView" name="columnViewProps">
+           <property name="alternatingRowColors">
+            <bool>false</bool>
+           </property>
+           <property name="resizeGripsVisible">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="tabVehicles">
+        <attribute name="title">
+         <string>Vehicles</string>
+        </attribute>
+        <layout class="QHBoxLayout" name="horizontalLayout_8">
+         <item>
+          <widget class="QColumnView" name="columnViewVehicles">
            <property name="alternatingRowColors">
             <bool>false</bool>
            </property>
