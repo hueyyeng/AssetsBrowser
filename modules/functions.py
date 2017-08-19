@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 import os
 import sys
+import subprocess
+import platform
 from PyQt4 import QtGui
 from PyQt4 import QtCore
 from modules import prefsConfig
@@ -18,6 +20,11 @@ class EmittingStream(QtCore.QObject):
 
     def write(self, text):
         self.textWritten.emit(str(text))
+
+
+# File/Directory Path Dictionary for easy access for any methods
+selected_path = {'Path': ''}
+file_manager = {'Windows': 'Explorer', 'Darwin': 'Finder', 'Linux': 'File Manager'}
 
 
 # Create new ColumnView tabs to reduce DRY for categories
@@ -41,24 +48,13 @@ def columnview_tabs(columnview, category):
         tab.setModel(tab.fsm)
         tab.setRootIndex(tab.rootindex)
 
-        # ContextMenu (Right Click Menu) Test
-        tab.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
-
-        quitAction = QtGui.QAction('Quit', tab)
-        quitAction.triggered.connect(QtGui.QApplication.quit)
-        tab.addAction(quitAction)
-
-        spamAction = QtGui.QAction('SPAM', tab)
-        spamAction.triggered.connect(spam)
-        tab.addAction(spamAction)
-
-        hamAction = QtGui.QAction('HAM', tab)
-        hamAction.triggered.connect(ham)
-        tab.addAction(hamAction)
+        # ====================================================
 
         # List for Column Width for QColumnView
         colwidth = [150]
         tab.setColumnWidths(colwidth)
+
+        # ====================================================
 
         # Return selected item attributes in Model View for Preview Pane
         @QtCore.pyqtSlot(QtCore.QModelIndex)
@@ -70,6 +66,9 @@ def columnview_tabs(columnview, category):
             fileSize = tab.fsm.size(indexItem)
             fileType = str(tab.fsm.type(indexItem))
             fileDate = tab.fsm.lastModified(indexItem)
+
+            # global filePath
+            filePath = str(tab.fsm.filePath(indexItem))
 
             # Format the File Attributes into String
             fileNameLabel = fileName
@@ -88,6 +87,8 @@ def columnview_tabs(columnview, category):
             print fileSizeLabel
             print fileTypeLabel
             print fileDateLabel
+
+            selected_path['Path'] = filePath
 
             # Retrieve filePath for Thumbnail Preview in __init__
             picPath = tab.fsm.filePath(indexItem)
@@ -114,8 +115,35 @@ def columnview_tabs(columnview, category):
 
                     tab.pvThumbs.setPixmap(icon)
 
+            return filePath
+
+        # ====================================================
+
         # When an item clicked in the columnView tab, execute get_fileinfo method
         tab.clicked.connect(get_fileinfo)
+
+        # ====================================================
+
+        # ContextMenu (Right Click Menu) Test
+        tab.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
+
+        quitAction = QtGui.QAction('Quit', tab)
+        quitAction.triggered.connect(QtGui.QApplication.quit)
+        tab.addAction(quitAction)
+
+        # spamAction = QtGui.QAction('SPAM', tab)
+        # spamAction.triggered.connect(spam)
+        # tab.addAction(spamAction)
+        #
+        # hamAction = QtGui.QAction('HAM', tab)
+        # hamAction.triggered.connect(ham)
+        # tab.addAction(hamAction)
+
+        revealAction = QtGui.QAction(('Reveal in ' + file_manager[platform.system()]), tab)
+        revealAction.triggered.connect(lambda: reveal_os(selected_path['Path']))
+        tab.addAction(revealAction)
+
+        # ====================================================
 
         # Preview widget layout and features goes here as a function
         def preview(previewWidget, tab):
@@ -177,6 +205,8 @@ def columnview_tabs(columnview, category):
             preview_pane.addLayout(sublayout_text)
 
             tab.setPreviewWidget(previewWidget)
+
+        # ====================================================
 
         previewWidget = QtGui.QWidget()
         preview(previewWidget, tab)
@@ -268,6 +298,27 @@ def close_app():
 
 def restart_app():
     os.execv(sys.executable, [sys.executable] + sys.argv)
+
+
+def reveal_os(path):
+    system = platform.system()
+
+    if system == 'Windows':
+        winpath = path.replace("/", "\\")
+        if os.path.isdir(path):
+            cmd = str('explorer /e,' + winpath)
+            subprocess.call(cmd)
+        elif os.path.exists(path):
+            cmd = str('explorer /select,' + winpath)
+            subprocess.call(cmd)
+        else:
+            print 'YOLOOOOOOO'
+    elif system == 'Darwin':  # OSX/macOS
+        pass
+    elif system == 'Linux':
+        pass
+    else:
+        print 'FILE/DIRECTORY IS NOT VALID!'
 
 
 # When testing or in doubt, it's HAM time!
