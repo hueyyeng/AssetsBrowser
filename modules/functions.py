@@ -96,12 +96,20 @@ def columnview_tabs(columnview, category):
 
             picTypes = ['jpg', 'jpeg', 'bmp', 'png', 'gif', 'bmp', 'ico', 'tga', 'tif', 'tiff']
 
+            # JPEG and GIF format are broken with PyQt4 for macOS/OSX so
+            # a workaround by omitting the format from thumbnail preview
+            system = platform.system()
+            if system == 'Darwin':
+                picTypes.remove('jpg')
+                picTypes.remove('jpeg')
+                picTypes.remove('gif')
+
             # Generate thumbnails for Preview Pane
             for each in picTypes:
                 if each.lower() == picType.lower():
                     max_size = 250  # Thumbnails max size in pixels
 
-                    tb = QtGui.QPixmap(picPath, '1')  # Hopefully a workaround on macOS JPG error
+                    tb = QtGui.QPixmap(picPath)
                     tb_scaled = tb.scaled(max_size, max_size,
                                           QtCore.Qt.KeepAspectRatio,
                                           QtCore.Qt.SmoothTransformation)
@@ -313,10 +321,16 @@ def reveal_os(path):
             subprocess.call(cmd)
         else:
             print 'YOLOOOOOOO'
+
     elif system == 'Darwin':  # OSX/macOS
-        pass
+        subprocess.call(['open', '-R', path])
+
+        # Alternative method for older OSX?
+        # subprocess.Popen(['open', '-R', '%s' % (path)])
+
     elif system == 'Linux':
-        pass
+        subprocess.Popen(['xdg-open', path])
+
     else:
         print 'FILE/DIRECTORY IS NOT VALID!'
 
@@ -327,7 +341,7 @@ def ham():
 
 
 # Show CWD (Current Work Directory) as a QMessageBox
-def spam():
+def show_cwd():
     widget = QtGui.QWidget()
-    spam = os.getcwd()
-    QtGui.QMessageBox.information(widget, "Information", spam)
+    cwd = os.getcwd()
+    QtGui.QMessageBox.information(widget, "Information", cwd)

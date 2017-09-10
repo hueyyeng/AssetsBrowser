@@ -53,8 +53,14 @@ class AssetsBrowser(QtGui.QMainWindow, ui_main.Ui_MainWindow):
         self.comboBox.setCurrentIndex(0)  # Set to top directory from PROJECTPATH
         self.comboBox.activated[str].connect(lambda: functions.project_list(self))
 
-        project = (os.listdir(PROJECTPATH))[0]  # Retrieve top directory from PROJECTPATH
-        prefsConfig.update_setting(INI_PATH, 'Settings', 'CurrentProject', project)
+        projects = []
+
+        for item in os.listdir(PROJECTPATH):
+            if not item.startswith('.') and os.path.isdir(os.path.join(PROJECTPATH, item)):
+                projects.append(item)
+
+        # Use the first index of projects list as default project during app startup
+        prefsConfig.update_setting(INI_PATH, 'Settings', 'CurrentProject', projects[0])
 
         # -----------------------------------------------------------------------------
 
