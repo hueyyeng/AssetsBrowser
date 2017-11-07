@@ -3,9 +3,10 @@ import os
 import sys
 import subprocess
 import platform
-from PyQt4 import QtGui
-from PyQt4 import QtCore
 from modules import prefsConfig
+from PyQt5 import QtGui
+from PyQt5 import QtCore
+from PyQt5 import QtWidgets
 
 
 # Retrieve PROJECTPATH value from INI
@@ -35,12 +36,12 @@ def columnview_tabs(columnview, category):
     defaultpath = (PROJECTPATH + project + "/Assets/" + category)
 
     if os.path.isdir(defaultpath):
-        print defaultpath
+        print (defaultpath)
         columnview.setEnabled(True)
 
         tab = columnview
 
-        tab.fsm = QtGui.QFileSystemModel()
+        tab.fsm = QtWidgets.QFileSystemModel()
         tab.fsm.setReadOnly(False)
 
         tab.rootindex = tab.fsm.setRootPath(defaultpath)
@@ -83,10 +84,10 @@ def columnview_tabs(columnview, category):
             tab.filedate.setText(fileDateLabel)
 
             # For Debug Panel (feel free to comment/remove it)
-            print fileNameLabel
-            print fileSizeLabel
-            print fileTypeLabel
-            print fileDateLabel
+            print (fileNameLabel)
+            print (fileSizeLabel)
+            print (fileTypeLabel)
+            print (fileDateLabel)
 
             selected_path['Path'] = filePath
 
@@ -118,7 +119,7 @@ def columnview_tabs(columnview, category):
                     break
                 else:
                     fileInfo = QtCore.QFileInfo(picPath)  # Retrieve info like icons, path, etc
-                    fileIcon = QtGui.QFileIconProvider().icon(fileInfo)
+                    fileIcon = QtWidgets.QFileIconProvider().icon(fileInfo)
                     icon = fileIcon.pixmap(128, 128, QtGui.QIcon.Normal, QtGui.QIcon.On)
 
                     tab.pvThumbs.setPixmap(icon)
@@ -135,8 +136,8 @@ def columnview_tabs(columnview, category):
         # ContextMenu (Right Click Menu) Test
         tab.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
 
-        quitAction = QtGui.QAction('Quit', tab)
-        quitAction.triggered.connect(QtGui.QApplication.quit)
+        quitAction = QtWidgets.QAction('Quit', tab)
+        quitAction.triggered.connect(QtWidgets.QApplication.quit)
         tab.addAction(quitAction)
 
         # spamAction = QtGui.QAction('SPAM', tab)
@@ -147,7 +148,7 @@ def columnview_tabs(columnview, category):
         # hamAction.triggered.connect(ham)
         # tab.addAction(hamAction)
 
-        revealAction = QtGui.QAction(('Reveal in ' + file_manager[platform.system()]), tab)
+        revealAction = QtWidgets.QAction(('Reveal in ' + file_manager[platform.system()]), tab)
         revealAction.triggered.connect(lambda: reveal_os(selected_path['Path']))
         tab.addAction(revealAction)
 
@@ -159,16 +160,16 @@ def columnview_tabs(columnview, category):
             # -------------------- TEXT LABELS STARTS HERE -------------------- #
 
             # File Category Labels
-            catName = QtGui.QLabel('Name: ')
-            catSize = QtGui.QLabel('Size: ')
-            catType = QtGui.QLabel('Type: ')
-            catDate = QtGui.QLabel('Modified: ')
+            catName = QtWidgets.QLabel('Name: ')
+            catSize = QtWidgets.QLabel('Size: ')
+            catType = QtWidgets.QLabel('Type: ')
+            catDate = QtWidgets.QLabel('Modified: ')
 
             # File Attributes Labels
-            tab.filename = QtGui.QLabel()
-            tab.filesize = QtGui.QLabel()
-            tab.filetype = QtGui.QLabel()
-            tab.filedate = QtGui.QLabel()
+            tab.filename = QtWidgets.QLabel()
+            tab.filesize = QtWidgets.QLabel()
+            tab.filetype = QtWidgets.QLabel()
+            tab.filedate = QtWidgets.QLabel()
 
             # Align Right for Prefix Labels
             align_right = QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter
@@ -179,7 +180,7 @@ def columnview_tabs(columnview, category):
             catDate.setAlignment(align_right)
 
             # File Attributes Layout
-            sublayout_text = QtGui.QGridLayout()
+            sublayout_text = QtWidgets.QGridLayout()
 
             sublayout_text.addWidget(catName, 0, 0)
             sublayout_text.addWidget(catSize, 1, 0)
@@ -198,17 +199,17 @@ def columnview_tabs(columnview, category):
             # -------------------- THUMBNAILS STARTS HERE -------------------- #
 
             # Preview Thumbnails (pvThumbs)
-            tab.pvThumbs = QtGui.QLabel()
+            tab.pvThumbs = QtWidgets.QLabel()
             tab.pvThumbs.setPixmap(QtGui.QPixmap())
 
-            sublayout_pic = QtGui.QVBoxLayout()
+            sublayout_pic = QtWidgets.QVBoxLayout()
             sublayout_pic.addWidget(tab.pvThumbs)
             sublayout_pic.setAlignment(QtCore.Qt.AlignCenter)
 
             # -------------------- PREVIEW PANE STARTS HERE -------------------- #
 
             # Set Preview Pane to QColumnView setPreviewWidget
-            preview_pane = QtGui.QVBoxLayout(previewWidget)
+            preview_pane = QtWidgets.QVBoxLayout(previewWidget)
             preview_pane.addLayout(sublayout_pic)
             preview_pane.addLayout(sublayout_text)
 
@@ -216,7 +217,7 @@ def columnview_tabs(columnview, category):
 
         # ====================================================
 
-        previewWidget = QtGui.QWidget()
+        previewWidget = QtWidgets.QWidget()
         preview(previewWidget, tab)
 
     else:
@@ -233,12 +234,12 @@ def project_list(self):
         newpath = (PROJECTPATH + project + "/Assets/" + category)
 
         if os.path.isdir(newpath):
-            print newpath
+            print (newpath)
             columnview.setEnabled(True)
 
             tab = columnview
 
-            tab.fsm = QtGui.QFileSystemModel()
+            tab.fsm = QtWidgets.QFileSystemModel()
             tab.fsm.setReadOnly(False)
 
             tab.rootindex = tab.fsm.setRootPath(newpath)
@@ -277,10 +278,10 @@ def show_debug(self):
 def always_on_top(self):
     if self.actionAlwaysOnTop.isChecked():
         self.setWindowFlags(self.windowFlags() | QtCore.Qt.WindowStaysOnTopHint)
-        print "Always on Top Enabled"
+        print ("Always on Top Enabled")
     else:
         self.setWindowFlags(self.windowFlags() & ~QtCore.Qt.WindowStaysOnTopHint)
-        print "Always on Top Disabled"
+        print ("Always on Top Disabled")
     self.show()
 
 
@@ -320,7 +321,7 @@ def reveal_os(path):
             cmd = str('explorer /select,' + winpath)
             subprocess.call(cmd)
         else:
-            print 'YOLOOOOOOO'
+            print ('YOLOOOOOOO')
 
     elif system == 'Darwin':  # OSX/macOS
         subprocess.call(['open', '-R', path])
@@ -332,16 +333,29 @@ def reveal_os(path):
         subprocess.Popen(['xdg-open', path])
 
     else:
-        print 'FILE/DIRECTORY IS NOT VALID!'
+        print ('FILE/DIRECTORY IS NOT VALID!')
 
+
+# Overrides font sizes based on platform due to PyQt4 quirks especially on macOS/OSX
+def font_overrides(self):
+    system = platform.system()
+    font = QtGui.QFont()
+
+    if system == 'Darwin':
+        font.setPointSize(8*1.5)
+        self.setFont(font)
+    elif system == 'Linux':
+        font.setPointSize(8*1.25)
+        self.setFont(font)
 
 # When testing or in doubt, it's HAM time!
 def ham():
-    print 'HAM! HAM! HAM!'
+    print ('HAM! HAM! HAM!')
 
 
 # Show CWD (Current Work Directory) as a QMessageBox
 def show_cwd():
-    widget = QtGui.QWidget()
+    widget = QtWidgets.QWidget()
     cwd = os.getcwd()
-    QtGui.QMessageBox.information(widget, "Information", cwd)
+    QtWidgets.QMessageBox.information(widget, "Information", cwd)
+

@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 import os
 import sys
-from PyQt4 import QtGui
+import platform
 from ui import ui_prefs
 from modules import functions
 from modules import prefsConfig
-
+from PyQt5 import QtGui
+from PyQt5 import QtWidgets
 
 # Declare var here first for use in methods below
 DEFAULTPATH = prefsConfig.DEFAULTPATH
@@ -14,7 +15,7 @@ INI_PATH = prefsConfig.INI_PATH
 THEME = prefsConfig.THEME
 
 
-class Prefs(QtGui.QDialog, ui_prefs.Ui_PrefsDialog):
+class Prefs(QtWidgets.QDialog, ui_prefs.Ui_PrefsDialog):
     def __init__(self, parent=None):
         super(Prefs, self).__init__(parent)
         self.setupUi(self)
@@ -37,7 +38,7 @@ class Prefs(QtGui.QDialog, ui_prefs.Ui_PrefsDialog):
         # config_check(debug, 'Settings', 'ShowDebugLog', 'True')  # TEMP DISABLE
 
         # Checked the relevant radio button for Theme at runtime
-        if THEME == 'windowsvista':
+        if THEME == 'Fusion':
             self.theme_radio1.setChecked(True)
         else:
             self.theme_radio2.setChecked(True)
@@ -47,8 +48,8 @@ class Prefs(QtGui.QDialog, ui_prefs.Ui_PrefsDialog):
 
         self.desc_check.clicked.connect(self.showdescription)
         self.debug_check.clicked.connect(self.enabledebug)
-        self.theme_radio1.clicked.connect(self.theme_default)
-        self.theme_radio2.clicked.connect(self.theme_plastique)
+        self.theme_radio1.clicked.connect(self.theme_fusion)
+        self.theme_radio2.clicked.connect(self.theme_windows)
 
         self.btn_ok.clicked.connect(self.apply)
         self.btn_cancel.clicked.connect(self.reject)
@@ -76,13 +77,13 @@ class Prefs(QtGui.QDialog, ui_prefs.Ui_PrefsDialog):
         # Theme function as radio toggle
         def apply_theme():
             if self.theme_radio1.isChecked():
-                prefsConfig.update_setting(INI_PATH, 'UI', 'Theme', 'windowsvista')
+                prefsConfig.update_setting(INI_PATH, 'UI', 'Theme', 'Fusion')
             else:
-                prefsConfig.update_setting(INI_PATH, 'UI', 'Theme', 'Plastique')
+                prefsConfig.update_setting(INI_PATH, 'UI', 'Theme', 'Windows')
 
             # Apply Theme to MainWindow
             theme = prefsConfig.get_setting(INI_PATH, 'UI', 'Theme')
-            QtGui.QApplication.setStyle(QtGui.QStyleFactory.create(theme))
+            QtWidgets.QApplication.setStyle(QtWidgets.QStyleFactory.create(theme))
 
         apply_theme()
 
@@ -96,22 +97,28 @@ class Prefs(QtGui.QDialog, ui_prefs.Ui_PrefsDialog):
         self.accept()  # For MainWindow to execute restart_app when prefsDialog OK
 
     def browseprojectpath(self):
-        path = str(QtGui.QFileDialog.getExistingDirectory(
+        path = str(QtWidgets.QFileDialog.getExistingDirectory(
             self,
             'Choose Directory',
             os.path.expanduser('~'),        # Defaults to home directory
-            QtGui.QFileDialog.ShowDirsOnly  # Filter list to Directory only
+            QtWidgets.QFileDialog.ShowDirsOnly  # Filter list to Directory only
             )
         )
 
         if path == '':  # If user cancel, popup Warning and reuse the original INI ProjectPath
-            widget = QtGui.QWidget()
+            widget = QtWidgets.QWidget()
             txt = 'Please choose a directory!'
-            QtGui.QMessageBox.warning(widget, 'Warning', txt)
+            QtWidgets.QMessageBox.warning(widget, 'Warning', txt)
             self.projectpath_line.setText(DEFAULTPATH)
         else:
-            newpath = path.replace('\\', '/')       # Replace Windows style to UNIX style separator
-            self.projectpath_line.setText(newpath)  # Update the Line textbox with the newly chosen path
+            newpath = path.replace('\\', '/')           # Replace Windows style to UNIX style separator
+            system = platform.system()
+
+            if system != 'Windows':
+                unixpath = (newpath + '/')
+                self.projectpath_line.setText(unixpath)
+            else:
+                self.projectpath_line.setText(newpath)  # Update the Line textbox with the newly chosen path
 
     def showdescription(self):
         if self.desc_check.isChecked():
@@ -125,13 +132,13 @@ class Prefs(QtGui.QDialog, ui_prefs.Ui_PrefsDialog):
         else:
             print 'Debugger OFF'
 
-    def theme_default(self):
+    def theme_fusion(self):
         self.theme_radio1.setChecked(True)
-        print 'Default Theme'
+        print 'Fusion Theme'
 
-    def theme_plastique(self):
+    def theme_windows(self):
         self.theme_radio2.setChecked(True)
-        print 'Plastique Theme'
+        print 'Windows Theme'
 
 
 def showPrefsDialog():
@@ -144,7 +151,7 @@ def showPrefsDialog():
 
 
 if __name__ == '__main__':
-    app = QtGui.QApplication(sys.argv)
+    app = QtWidgets.QApplication(sys.argv)
     window = Prefs()
     window.show()
     sys.exit(app.exec_())

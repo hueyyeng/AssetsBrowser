@@ -1,15 +1,15 @@
 # -*- coding: utf-8 -*-
 import os
 import sys
-from PyQt4 import QtGui
-from PyQt4 import QtCore
 from ui import ui_main
 from modules import functions
 from modules import assetDialog
 from modules import aboutDialog
 from modules import prefsDialog
 from modules import prefsConfig
-
+from PyQt5 import QtGui
+from PyQt5 import QtCore
+from PyQt5 import QtWidgets
 
 # Set Project Path from INI file
 PROJECTPATH = prefsConfig.PROJECTPATH
@@ -17,13 +17,15 @@ INI_PATH = prefsConfig.INI_PATH
 THEME = prefsConfig.THEME
 
 
-class AssetsBrowser(QtGui.QMainWindow, ui_main.Ui_MainWindow):
+class AssetsBrowser(QtWidgets.QMainWindow, ui_main.Ui_MainWindow):
     def __init__(self, parent=None):
         super(AssetsBrowser, self).__init__(parent)
         self.setupUi(self)
         self.setWindowIcon(QtGui.QIcon('icons/logo.ico'))
-        self.setWindowTitle('Assets Browser [PID: %d]' % QtGui.QApplication.applicationPid())
+        self.setWindowTitle('Assets Browser [PID: %d]' % QtWidgets.QApplication.applicationPid())
         self.setWindowFlags(QtCore.Qt.WindowMinimizeButtonHint | QtCore.Qt.WindowMaximizeButtonHint)
+
+        functions.font_overrides(self)
 
         # -----------------------------------------------------------------------------
 
@@ -31,7 +33,7 @@ class AssetsBrowser(QtGui.QMainWindow, ui_main.Ui_MainWindow):
         sys.stdout = functions.EmittingStream(textWritten = self.debug_stdout)
 
         # Initialise the chosen theme from INI file
-        QtGui.QApplication.setStyle(QtGui.QStyleFactory.create(THEME))
+        QtWidgets.QApplication.setStyle(QtWidgets.QStyleFactory.create(THEME))
 
         # -----------------------------------------------------------------------------
 
@@ -45,7 +47,7 @@ class AssetsBrowser(QtGui.QMainWindow, ui_main.Ui_MainWindow):
         # -----------------------------------------------------------------------------
 
         # Project List Dropdown ComboBox
-        self.comboBox.fsm = QtGui.QFileSystemModel()
+        self.comboBox.fsm = QtWidgets.QFileSystemModel()
         self.comboBox.rootindex = self.comboBox.fsm.setRootPath(PROJECTPATH)
 
         self.comboBox.setModel(self.comboBox.fsm)
@@ -111,9 +113,9 @@ class AssetsBrowser(QtGui.QMainWindow, ui_main.Ui_MainWindow):
 
 
 if __name__ == "__main__":
-    app = QtGui.QApplication.instance()
+    app = QtWidgets.QApplication.instance()
     if app is None:
-        app = QtGui.QApplication(sys.argv)
+        app = QtWidgets.QApplication(sys.argv)
     else:
         print('QApplication instance already exists: %s' % str(app))
 

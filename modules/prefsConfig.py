@@ -1,6 +1,12 @@
 # -*- coding: utf-8 -*-
 import os
-import ConfigParser
+import sys
+if sys.version_info[0] < 3:  # Check if Python version is less than 3
+    import ConfigParser
+    config = ConfigParser.ConfigParser()
+else:
+    import configparser
+    config = configparser.ConfigParser()
 
 
 ROOT_DIR = ''
@@ -10,7 +16,6 @@ INI_PATH = (ROOT_DIR + INI_FILE)
 
 def create_config(INI_PATH):
     # Create a config file with default value
-    config = ConfigParser.ConfigParser()
     config.optionxform = str
 
     config.add_section('Settings')
@@ -23,7 +28,7 @@ def create_config(INI_PATH):
     config.add_section('UI')
 
     config.set('UI', 'Font', 'Arial')
-    config.set('UI', 'Theme', 'windowsvista')
+    config.set('UI', 'Theme', 'Fusion')
 
     with open(INI_PATH, 'wb') as config_file:
         config.write(config_file)
@@ -33,10 +38,9 @@ def get_config(INI_PATH):
     # Returns the config object
     if not os.path.exists(INI_PATH):
         create_config(INI_PATH)
-        print 'ERROR INI FILE NOT FOUND'
+        print ('ERROR INI FILE NOT FOUND')
         print ('Creating INI file at ' + INI_PATH)
 
-    config = ConfigParser.ConfigParser()
     config.optionxform=str
     config.read(INI_PATH)
     return config
@@ -88,4 +92,4 @@ THEME = get_setting(INI_PATH, 'UI', 'Theme')
 #     get_setting(INI_PATH, 'Settings', 'ProjectPath')
 #     get_setting(INI_PATH, 'UI', 'Theme')
 #     create_config(INI_PATH)
-#     update_setting(INI_PATH, 'UI', 'Theme', 'windowsvista')
+#     update_setting(INI_PATH, 'UI', 'Theme', 'Fusion')

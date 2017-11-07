@@ -116,7 +116,7 @@
      <item>
       <widget class="QRadioButton" name="theme_radio1">
        <property name="text">
-        <string>Default</string>
+        <string>Default (Fusion)</string>
        </property>
        <property name="shortcut">
         <string/>
@@ -129,7 +129,7 @@
      <item>
       <widget class="QRadioButton" name="theme_radio2">
        <property name="text">
-        <string>Plastique</string>
+        <string>Windows</string>
        </property>
        <property name="shortcut">
         <string/>

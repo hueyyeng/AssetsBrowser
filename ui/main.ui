@@ -34,9 +34,6 @@
   <property name="font">
    <font>
     <pointsize>8</pointsize>
-    <weight>50</weight>
-    <bold>false</bold>
-    <underline>false</underline>
    </font>
   </property>
   <property name="windowTitle">
@@ -95,13 +92,6 @@
        <layout class="QVBoxLayout" name="verticalLayout">
         <item>
          <widget class="QLabel" name="labelProject">
-          <property name="font">
-           <font>
-            <pointsize>8</pointsize>
-            <weight>50</weight>
-            <bold>false</bold>
-           </font>
-          </property>
           <property name="text">
            <string>Project:</string>
           </property>
@@ -171,13 +161,6 @@
         </item>
         <item>
          <widget class="QLabel" name="labelCredits">
-          <property name="font">
-           <font>
-            <pointsize>8</pointsize>
-            <weight>50</weight>
-            <bold>false</bold>
-           </font>
-          </property>
           <property name="text">
            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Huey Yeng © 2017&lt;br/&gt;&lt;a href=&quot;http://taukeke.com&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;http://taukeke.com&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
@@ -336,7 +319,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>21</height>
+     <height>19</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">

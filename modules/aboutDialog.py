@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 import sys
-from PyQt4 import QtGui
 from ui import ui_about
+from PyQt5 import QtGui
+from PyQt5 import QtWidgets
 
 
-class About(QtGui.QDialog, ui_about.Ui_AboutDialog):
+class About(QtWidgets.QDialog, ui_about.Ui_AboutDialog):
 
     def __init__(self, parent=None):
         super(About, self).__init__(parent)
@@ -21,7 +22,7 @@ def showAboutDialog():
     window.exec_()
 
 if __name__ == '__main__':
-    app = QtGui.QApplication(sys.argv)
+    app = QtWidgets.QApplication(sys.argv)
     window = About()
     window.show()
     sys.exit(app.exec_())

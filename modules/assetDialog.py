@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 import os
 import sys
-from PyQt4 import QtGui
-from PyQt4 import QtCore
 from ui import ui_asset
 from modules import prefsConfig
+from PyQt5 import QtGui
+from PyQt5 import QtCore
+from PyQt5 import QtWidgets
 
 
 # Declare var here first for use in methods below
@@ -13,7 +14,7 @@ PROJECTPATH = prefsConfig.PROJECTPATH
 INI_PATH = prefsConfig.INI_PATH
 
 
-class AssetDialog(QtGui.QDialog, ui_asset.Ui_AssetDialog):
+class AssetDialog(QtWidgets.QDialog, ui_asset.Ui_AssetDialog):
     def __init__(self, parent=None):
         super(AssetDialog, self).__init__(parent)
         self.setupUi(self)
@@ -32,7 +33,7 @@ class AssetDialog(QtGui.QDialog, ui_asset.Ui_AssetDialog):
 
         # Create a radioButton list using Qt findChildren which returns
         # the type that we wanted (in this case, QRadioButton)
-        radioButton = self.catGroup.findChildren(QtGui.QRadioButton)
+        radioButton = self.catGroup.findChildren(QtWidgets.QRadioButton)
 
         # Iterate each radioButton in a for loop to reduce code duplication
         for each in radioButton:
@@ -53,10 +54,10 @@ class AssetDialog(QtGui.QDialog, ui_asset.Ui_AssetDialog):
         # prevent accidental non-acceptable input by the user.
         # Search for "regular expression" to know the usage parameter
         # which are often compatible with various languages.
-        regex = QtCore.QRegExp("^[a-zA-Z0-9]+$")
+        regex = QtCore.QRegularExpression("^[a-zA-Z0-9]+$")
 
         # Declare self.validator with QRegExpValidator using regex var as argument
-        self.validator = QtGui.QRegExpValidator(regex, self)
+        self.validator = QtGui.QRegularExpressionValidator(regex, self)
 
         # Qt LineEdit has a setValidator attribute which requires
         # either QValidator or QRegExpValidator as argument
@@ -64,14 +65,13 @@ class AssetDialog(QtGui.QDialog, ui_asset.Ui_AssetDialog):
 
         # Using the New-style Signal to connect assetLineEdit to fix_case method
         # whenever Qt detects textChanged
-        self.assetLineEdit.textChanged[str].connect(self.fix_case)
-        self.assetLineEdit.textChanged[str].connect(self.preview)
+        self.assetLineEdit.textChanged.connect(self.fix_uppercase)
+        self.assetLineEdit.textChanged.connect(self.preview)
 
-    # Create a method that will be called when assetLineEdit.textChanged occurs.
-    # The "text" argument can be anything like "spam", "ham", or etc as long
-    # the relevant parameter are appropriately rename like (spam.toUpper()).
-    def fix_case(self, text):
-        self.assetLineEdit.setText(text.toUpper())  # Convert to Uppercase
+    # Change text to UPPERCASE
+    def fix_uppercase(self):
+        asset_name = self.assetLineEdit.text()
+        self.assetLineEdit.setText(asset_name.upper())
 
     # Create asset with preconfigure directories structure
     def create_asset(self):
@@ -84,11 +84,11 @@ class AssetDialog(QtGui.QDialog, ui_asset.Ui_AssetDialog):
 
         # Check whether Asset directory already exist
         if os.path.exists(full_path):
-            widget = QtGui.QWidget()
+            widget = QtWidgets.QWidget()
             text = 'ERROR! Asset already exists!'
-            QtGui.QMessageBox.warning(widget, 'Warning', text)
+            QtWidgets.QMessageBox.warning(widget, 'Warning', text)
         else:
-            os.mkdir(full_path, 0755)
+            os.mkdir(full_path)
             print ('Assets will be created at ' + full_path)
 
             # Declare names for child folders
@@ -118,7 +118,7 @@ class AssetDialog(QtGui.QDialog, ui_asset.Ui_AssetDialog):
 
         if checked and length == 3:
             self.previewText.clear()  # Clear the text field for every signal to create "illusion" of dynamic update
-            self.btnCreate.setDisabled(False)  # Enabled Create button
+            self.btnCreate.setDisabled(False)  # Enable Create button
 
             cat = str(self.catBtnGroup.checkedButton().text())
 
@@ -153,13 +153,13 @@ def showAssetDialog():
 
     # If Create, execute spam to create the new asset folders
     if spam:
-        print 'Creating new asset...'
+        print ('Creating new asset...')
     else:
-        print 'Aborting Create New Asset...'
+        print ('Aborting Create New Asset...')
 
 
 if __name__ == '__main__':
-    app = QtGui.QApplication(sys.argv)
+    app = QtWidgets.QApplication(sys.argv)
     window = AssetDialog()
     window.show()
     sys.exit(app.exec_())

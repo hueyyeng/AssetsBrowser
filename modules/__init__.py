@@ -20,7 +20,7 @@ __maintainer__ = 'Huey Yeng'
 __email__ = 'huey.yeng.mmu@gmail.com'
 
 # define version information
-__requires__ = ['PyQt4']
+__requires__ = ['PyQt5']
 __version_info__ = (0, 1, 0)
 __version__ = 'v%i.%02i.%02i' % __version_info__
 __revision__ = __version__
