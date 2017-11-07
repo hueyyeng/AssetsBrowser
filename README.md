@@ -4,8 +4,8 @@
 
 This is still an ongoing progress and minor bugs are expected.
 
-Feel free to fork out as I wrote this with Python 2.7 and PyQt4 which has compatibility issue
-with Python 3.0+ and PyQt5 environment.
+Feel free to fork out as I wrote this with Python 2.7 and PyQt5 which has compatibility issue
+with Python 3.0+ and PyQt4 environment.
 
 ## Goals
 During my time working for a small 3DCG studio, the creation of new assets are tedious since
