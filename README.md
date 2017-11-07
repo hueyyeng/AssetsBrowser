@@ -31,10 +31,12 @@ the necessary dependencies has been installed.
 
 ## Usage
 Requirements
-* **[Python  2.7.xx](https://www.python.org/)** - Tested on 2.7.13
-* **[PyQt4](https://riverbankcomputing.com/software/pyqt/intro)** - Tested on 4.11.4 for Python 2.7 x32
+* **[Python  2.7.xx](https://www.python.org/)** - Tested on 2.7.14 x64
+* **[PyQt5](https://riverbankcomputing.com/software/pyqt/intro)** - Tested on 5.7.1 for Python 2.7 x64
 
 _The codes has been tested on Windows 7, macOS Sierra and Lubuntu 17.04 for cross-platform compatibility._
+
+**2017/11/08: Migrated PyQt4 to PyQt5 to comply with VFX Reference Platform CY 2017.**
 
 **2017/09/11: After numerous attempt, looks like PyQt4 for macOS/OSX has broken support for JPEG and GIF format. Broken image format are now omitted from thumbnail preview.**
 
