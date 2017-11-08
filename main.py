@@ -113,13 +113,15 @@ class AssetsBrowser(QtWidgets.QMainWindow, ui_main.Ui_MainWindow):
 
 
 if __name__ == "__main__":
-    app = QtWidgets.QApplication.instance()
-    if app is None:
-        app = QtWidgets.QApplication(sys.argv)
-    else:
-        print('QApplication instance already exists: %s' % str(app))
+    validpath = functions.projectpath_is_valid(INI_PATH, PROJECTPATH)
 
-    window = AssetsBrowser()
-    window.show()
-    sys.exit(app.exec_())
+    if validpath:
+        app = QtWidgets.QApplication.instance()
+        if app is None:
+            app = QtWidgets.QApplication(sys.argv)
+        else:
+            print('QApplication instance already exists: %s' % str(app))
 
+        window = AssetsBrowser()
+        window.show()
+        sys.exit(app.exec_())

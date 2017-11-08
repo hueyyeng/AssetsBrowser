@@ -114,9 +114,12 @@ class Prefs(QtWidgets.QDialog, ui_prefs.Ui_PrefsDialog):
             newpath = path.replace('\\', '/')           # Replace Windows style to UNIX style separator
             system = platform.system()
 
-            if system != 'Windows':
+            if system == 'Linux':
                 unixpath = (newpath + '/')
                 self.projectpath_line.setText(unixpath)
+            elif system == 'Darwin':
+                macpath = (newpath + '/')
+                self.projectpath_line.setText(macpath)
             else:
                 self.projectpath_line.setText(newpath)  # Update the Line textbox with the newly chosen path
 

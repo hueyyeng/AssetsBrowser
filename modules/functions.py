@@ -23,6 +23,34 @@ class EmittingStream(QtCore.QObject):
         self.textWritten.emit(str(text))
 
 
+# Check if PROJECTPATH is valid and reset to home directory if error
+def projectpath_is_valid(INI_PATH, PROJECTPATH):
+    exists = os.path.exists(PROJECTPATH)
+    if exists:
+        print ('Project Path is valid')
+        return True
+    else:
+        home = os.path.expanduser('~')
+        system = platform.system()
+
+        if system == 'Darwin':
+            home = (home + '/')
+
+        prefsConfig.update_setting(INI_PATH, 'Settings', 'ProjectPath', home.replace('\\', '/'))
+
+        a = QtWidgets.QApplication(sys.argv)
+        w = QtWidgets.QWidget()
+        m = QtWidgets.QMessageBox
+
+        warning_text = ("Project Path doesn't exists!"
+                        + "\n\nProject Path has been set to "+ home + " temporarily."
+                        + "\n\nPlease restart Assets Browser.")
+
+        m.warning(w, 'Warning', warning_text, m.Ok)
+
+        w.show()
+
+
 # File/Directory Path Dictionary for easy access for any methods
 selected_path = {'Path': ''}
 file_manager = {'Windows': 'Explorer', 'Darwin': 'Finder', 'Linux': 'File Manager'}
@@ -101,18 +129,20 @@ def columnview_tabs(columnview, category):
             # a workaround by omitting the format from thumbnail preview
             system = platform.system()
             if system == 'Darwin':
-                picTypes.remove('jpg')
-                picTypes.remove('jpeg')
-                picTypes.remove('gif')
+                # picTypes.remove('gif')
+                picTypes.remove('ico')
 
             # Generate thumbnails for Preview Pane
             for each in picTypes:
                 if each.lower() == picType.lower():
+                    print picType
                     max_size = 250  # Thumbnails max size in pixels
 
-                    tb = QtGui.QPixmap(picPath)
+                    # tb = QtGui.QPixmap(picPath)
+                    tb = QtGui.QPixmap()
+                    tb.load(picPath)
                     tb_scaled = tb.scaled(max_size, max_size,
-                                          QtCore.Qt.KeepAspectRatio,
+                                          QtCore.Qt.KeepAspectRatioByExpanding,
                                           QtCore.Qt.SmoothTransformation)
 
                     tab.pvThumbs.setPixmap(tb_scaled)
@@ -321,7 +351,7 @@ def reveal_os(path):
             cmd = str('explorer /select,' + winpath)
             subprocess.call(cmd)
         else:
-            print ('YOLOOOOOOO')
+            print ('Is this a valid OS?')
 
     elif system == 'Darwin':  # OSX/macOS
         subprocess.call(['open', '-R', path])
@@ -336,17 +366,18 @@ def reveal_os(path):
         print ('FILE/DIRECTORY IS NOT VALID!')
 
 
-# Overrides font sizes based on platform due to PyQt4 quirks especially on macOS/OSX
+# Overrides font sizes based on platform due to PyQt quirks especially on macOS/OSX
 def font_overrides(self):
     system = platform.system()
     font = QtGui.QFont()
 
     if system == 'Darwin':
-        font.setPointSize(8*1.5)
+        font.setPointSize(8*1.2)
         self.setFont(font)
     elif system == 'Linux':
-        font.setPointSize(8*1.25)
+        font.setPointSize(8*1.2)
         self.setFont(font)
+
 
 # When testing or in doubt, it's HAM time!
 def ham():
