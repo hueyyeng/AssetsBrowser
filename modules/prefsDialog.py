@@ -38,8 +38,10 @@ class Prefs(QtWidgets.QDialog, ui_prefs.Ui_PrefsDialog):
         # config_check(debug, 'Settings', 'ShowDebugLog', 'True')  # TEMP DISABLE
 
         # Checked the relevant radio button for Theme at runtime
-        if THEME == 'Fusion':
+        system = platform.system()
+        if system != 'Windows':
             self.theme_radio1.setChecked(True)
+            self.theme_radio2.setDisabled(True)
         else:
             self.theme_radio2.setChecked(True)
 
@@ -79,11 +81,11 @@ class Prefs(QtWidgets.QDialog, ui_prefs.Ui_PrefsDialog):
             if self.theme_radio1.isChecked():
                 prefsConfig.update_setting(INI_PATH, 'UI', 'Theme', 'Fusion')
             else:
-                prefsConfig.update_setting(INI_PATH, 'UI', 'Theme', 'Windows')
+                prefsConfig.update_setting(INI_PATH, 'UI', 'Theme', 'WindowsVista')
 
             # Apply Theme to MainWindow
             theme = prefsConfig.get_setting(INI_PATH, 'UI', 'Theme')
-            QtWidgets.QApplication.setStyle(QtWidgets.QStyleFactory.create(theme))
+            QtWidgets.QApplication.setStyle(theme)
 
         apply_theme()
 

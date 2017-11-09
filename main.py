@@ -11,6 +11,12 @@ from PyQt5 import QtGui
 from PyQt5 import QtCore
 from PyQt5 import QtWidgets
 
+if hasattr(QtCore.Qt, 'AA_EnableHighDpiScaling'):
+    QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
+
+if hasattr(QtCore.Qt, 'AA_UseHighDpiPixmaps'):
+    QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True)
+
 # Set Project Path from INI file
 PROJECTPATH = prefsConfig.PROJECTPATH
 INI_PATH = prefsConfig.INI_PATH
@@ -24,6 +30,7 @@ class AssetsBrowser(QtWidgets.QMainWindow, ui_main.Ui_MainWindow):
         self.setWindowIcon(QtGui.QIcon('icons/logo.ico'))
         self.setWindowTitle('Assets Browser [PID: %d]' % QtWidgets.QApplication.applicationPid())
         self.setWindowFlags(QtCore.Qt.WindowMinimizeButtonHint | QtCore.Qt.WindowMaximizeButtonHint)
+        # self.setAttribute(QtCore.Qt.WA_TranslucentBackground, True)
 
         functions.font_overrides(self)
 
@@ -32,8 +39,8 @@ class AssetsBrowser(QtWidgets.QMainWindow, ui_main.Ui_MainWindow):
         # Install the custom output stream for debug log
         sys.stdout = functions.EmittingStream(textWritten = self.debug_stdout)
 
-        # Initialise the chosen theme from INI file
-        QtWidgets.QApplication.setStyle(QtWidgets.QStyleFactory.create(THEME))
+        # Initialise theme from INI file
+        QtWidgets.QApplication.setStyle(THEME)
 
         # -----------------------------------------------------------------------------
 

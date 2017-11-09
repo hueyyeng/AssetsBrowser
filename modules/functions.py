@@ -53,6 +53,7 @@ def projectpath_is_valid(INI_PATH, PROJECTPATH):
 
 # File/Directory Path Dictionary for easy access for any methods
 selected_path = {'Path': ''}
+selected_file = {'File': ''}
 file_manager = {'Windows': 'Explorer', 'Darwin': 'Finder', 'Linux': 'File Manager'}
 
 
@@ -80,7 +81,7 @@ def columnview_tabs(columnview, category):
         # ====================================================
 
         # List for Column Width for QColumnView
-        colwidth = [150]
+        colwidth = [200, 200, 200, 200, 200, 200, 200, 200, 200]
         tab.setColumnWidths(colwidth)
 
         # ====================================================
@@ -96,13 +97,15 @@ def columnview_tabs(columnview, category):
             fileType = str(tab.fsm.type(indexItem))
             fileDate = tab.fsm.lastModified(indexItem)
 
-            # global filePath
             filePath = str(tab.fsm.filePath(indexItem))
+
+            # Split fileType into array for easy formatting
+            ftl = fileType.split(' ')
 
             # Format the File Attributes into String
             fileNameLabel = fileName
             fileSizeLabel = get_filesize(fileSize)
-            fileTypeLabel = fileType.upper()  # Convert fileType to UPPERCASE
+            fileTypeLabel = ftl[0].upper() + ' ' + ftl[1]
             fileDateLabel = fileDate.toString('yyyy/MM/dd' + ' ' + 'h:m AP')
 
             # Assign the File Attributes' String into respective labels
@@ -118,6 +121,8 @@ def columnview_tabs(columnview, category):
             print (fileDateLabel)
 
             selected_path['Path'] = filePath
+            selected_file['File'] = fileName
+            # print selected_file['File']
 
             # Retrieve filePath for Thumbnail Preview in __init__
             picPath = tab.fsm.filePath(indexItem)
@@ -134,15 +139,13 @@ def columnview_tabs(columnview, category):
 
             # Generate thumbnails for Preview Pane
             for each in picTypes:
-                if each.lower() == picType.lower():
-                    print picType
-                    max_size = 250  # Thumbnails max size in pixels
+                max_size = 150  # Thumbnails max size in pixels
 
-                    # tb = QtGui.QPixmap(picPath)
+                if each.lower() == picType.lower():
                     tb = QtGui.QPixmap()
                     tb.load(picPath)
                     tb_scaled = tb.scaled(max_size, max_size,
-                                          QtCore.Qt.KeepAspectRatioByExpanding,
+                                          QtCore.Qt.KeepAspectRatio,
                                           QtCore.Qt.SmoothTransformation)
 
                     tab.pvThumbs.setPixmap(tb_scaled)
@@ -150,7 +153,10 @@ def columnview_tabs(columnview, category):
                 else:
                     fileInfo = QtCore.QFileInfo(picPath)  # Retrieve info like icons, path, etc
                     fileIcon = QtWidgets.QFileIconProvider().icon(fileInfo)
-                    icon = fileIcon.pixmap(128, 128, QtGui.QIcon.Normal, QtGui.QIcon.On)
+                    icon = fileIcon.pixmap(48, 48, QtGui.QIcon.Normal, QtGui.QIcon.Off)
+                    icon_scaled = icon.scaled(max_size, max_size,
+                                              QtCore.Qt.KeepAspectRatio,
+                                              QtCore.Qt.SmoothTransformation)
 
                     tab.pvThumbs.setPixmap(icon)
 
@@ -166,21 +172,21 @@ def columnview_tabs(columnview, category):
         # ContextMenu (Right Click Menu) Test
         tab.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
 
-        quitAction = QtWidgets.QAction('Quit', tab)
-        quitAction.triggered.connect(QtWidgets.QApplication.quit)
-        tab.addAction(quitAction)
-
-        # spamAction = QtGui.QAction('SPAM', tab)
+        # spamAction = QtWidgets.QAction('SPAM', tab)
         # spamAction.triggered.connect(spam)
         # tab.addAction(spamAction)
-        #
-        # hamAction = QtGui.QAction('HAM', tab)
-        # hamAction.triggered.connect(ham)
-        # tab.addAction(hamAction)
+
+        openAction = QtWidgets.QAction('Open', tab)
+        openAction.triggered.connect(lambda: open_file(selected_path['Path']))
+        tab.addAction(openAction)
 
         revealAction = QtWidgets.QAction(('Reveal in ' + file_manager[platform.system()]), tab)
         revealAction.triggered.connect(lambda: reveal_os(selected_path['Path']))
         tab.addAction(revealAction)
+
+        quitAction = QtWidgets.QAction('Quit', tab)
+        quitAction.triggered.connect(QtWidgets.QApplication.quit)
+        tab.addAction(quitAction)
 
         # ====================================================
 
@@ -190,10 +196,10 @@ def columnview_tabs(columnview, category):
             # -------------------- TEXT LABELS STARTS HERE -------------------- #
 
             # File Category Labels
-            catName = QtWidgets.QLabel('Name: ')
-            catSize = QtWidgets.QLabel('Size: ')
-            catType = QtWidgets.QLabel('Type: ')
-            catDate = QtWidgets.QLabel('Modified: ')
+            catName = QtWidgets.QLabel('Name:')
+            catSize = QtWidgets.QLabel('Size:')
+            catType = QtWidgets.QLabel('Type:')
+            catDate = QtWidgets.QLabel('Modified:')
 
             # File Attributes Labels
             tab.filename = QtWidgets.QLabel()
@@ -230,7 +236,6 @@ def columnview_tabs(columnview, category):
 
             # Preview Thumbnails (pvThumbs)
             tab.pvThumbs = QtWidgets.QLabel()
-            tab.pvThumbs.setPixmap(QtGui.QPixmap())
 
             sublayout_pic = QtWidgets.QVBoxLayout()
             sublayout_pic.addWidget(tab.pvThumbs)
@@ -382,6 +387,14 @@ def font_overrides(self):
 # When testing or in doubt, it's HAM time!
 def ham():
     print ('HAM! HAM! HAM!')
+
+
+def open_file(target):
+    system = platform.system()
+    if system == 'Linux':
+        subprocess.call(["xdg-open", target])
+    else:
+        os.startfile(target)
 
 
 # Show CWD (Current Work Directory) as a QMessageBox
