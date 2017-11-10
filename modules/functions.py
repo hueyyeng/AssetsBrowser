@@ -14,47 +14,13 @@ PROJECTPATH = prefsConfig.PROJECTPATH
 CURRENTPROJECT = prefsConfig.CURRENTPROJECT
 INI_PATH = prefsConfig.INI_PATH
 
-
-# Emit PyQt signal to debug's textEdit
-class EmittingStream(QtCore.QObject):
-    textWritten = QtCore.pyqtSignal(str)
-
-    def write(self, text):
-        self.textWritten.emit(str(text))
-
-
-# Check if PROJECTPATH is valid and reset to home directory if error
-def projectpath_is_valid(INI_PATH, PROJECTPATH):
-    exists = os.path.exists(PROJECTPATH)
-    if exists:
-        print ('Project Path is valid')
-        return True
-    else:
-        home = os.path.expanduser('~')
-        system = platform.system()
-
-        if system == 'Darwin':
-            home = (home + '/')
-
-        prefsConfig.update_setting(INI_PATH, 'Settings', 'ProjectPath', home.replace('\\', '/'))
-
-        a = QtWidgets.QApplication(sys.argv)
-        w = QtWidgets.QWidget()
-        m = QtWidgets.QMessageBox
-
-        warning_text = ("Project Path doesn't exists!"
-                        + "\n\nProject Path has been set to "+ home + " temporarily."
-                        + "\n\nPlease restart Assets Browser.")
-
-        m.warning(w, 'Warning', warning_text, m.Ok)
-
-        w.show()
-
-
 # File/Directory Path Dictionary for easy access for any methods
 selected_path = {'Path': ''}
 selected_file = {'File': ''}
 file_manager = {'Windows': 'Explorer', 'Darwin': 'Finder', 'Linux': 'File Manager'}
+
+# Declare global var here
+colwidth = [200, 200, 200, 200, 200, 200, 200, 200, 200]
 
 
 # Create new ColumnView tabs to reduce DRY for categories
@@ -81,7 +47,6 @@ def columnview_tabs(columnview, category):
         # ====================================================
 
         # List for Column Width for QColumnView
-        colwidth = [200, 200, 200, 200, 200, 200, 200, 200, 200]
         tab.setColumnWidths(colwidth)
 
         # ====================================================
@@ -105,7 +70,8 @@ def columnview_tabs(columnview, category):
             # Format the File Attributes into String
             fileNameLabel = fileName
             fileSizeLabel = get_filesize(fileSize)
-            fileTypeLabel = ftl[0].upper() + ' ' + ftl[1]
+            fileTypeLabel = ftl[0].upper() + ' file'
+            # fileTypeLabel = fileType
             fileDateLabel = fileDate.toString('yyyy/MM/dd' + ' ' + 'h:m AP')
 
             # Assign the File Attributes' String into respective labels
@@ -122,6 +88,7 @@ def columnview_tabs(columnview, category):
 
             selected_path['Path'] = filePath
             selected_file['File'] = fileName
+            # print selected_path['Path']
             # print selected_file['File']
 
             # Retrieve filePath for Thumbnail Preview in __init__
@@ -169,24 +136,26 @@ def columnview_tabs(columnview, category):
 
         # ====================================================
 
-        # ContextMenu (Right Click Menu) Test
-        tab.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
+        # ContextMenu (Right Click Menu)
+        tab.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
 
-        # spamAction = QtWidgets.QAction('SPAM', tab)
-        # spamAction.triggered.connect(spam)
-        # tab.addAction(spamAction)
+        def openMenu(position):
+            menu = QtWidgets.QMenu()
 
-        openAction = QtWidgets.QAction('Open', tab)
-        openAction.triggered.connect(lambda: open_file(selected_path['Path']))
-        tab.addAction(openAction)
+            openAction = menu.addAction('Open ' + selected_file['File'])
+            openAction.triggered.connect(lambda: open_file(selected_path['Path']))
 
-        revealAction = QtWidgets.QAction(('Reveal in ' + file_manager[platform.system()]), tab)
-        revealAction.triggered.connect(lambda: reveal_os(selected_path['Path']))
-        tab.addAction(revealAction)
+            revealAction = menu.addAction(('Reveal in ' + file_manager[platform.system()]))
+            revealAction.triggered.connect(lambda: reveal_os(selected_path['Path']))
 
-        quitAction = QtWidgets.QAction('Quit', tab)
-        quitAction.triggered.connect(QtWidgets.QApplication.quit)
-        tab.addAction(quitAction)
+            menu.addSeparator()
+
+            quitAction = menu.addAction("Quit")
+            quitAction.triggered.connect(QtWidgets.QApplication.quit)
+
+            menu.exec_(tab.mapToGlobal(position))
+
+        tab.customContextMenuRequested.connect(openMenu)  # When Right Click, execute openMenu
 
         # ====================================================
 
@@ -282,8 +251,6 @@ def project_list(self):
             tab.setModel(tab.fsm)
             tab.setRootIndex(tab.rootindex)
 
-            # List for Column Width for QColumnView
-            colwidth = [150]
             tab.setColumnWidths(colwidth)
 
         else:
@@ -296,10 +263,44 @@ def project_list(self):
     update_tabs(self.columnViewProps, 'Props')
     update_tabs(self.columnViewVehicles, 'Vehicles')
 
-    # Return project for use in assetDialog.py
-    return project
+
+# Check if PROJECTPATH is valid and reset to home directory if error
+def projectpath_is_valid(INI_PATH, PROJECTPATH):
+    exists = os.path.exists(PROJECTPATH)
+    if exists:
+        print ('Project Path is valid')
+        return True
+    else:
+        home = os.path.expanduser('~')
+        system = platform.system()
+
+        if system == 'Darwin':
+            home = (home + '/')
+
+        prefsConfig.update_setting(INI_PATH, 'Settings', 'ProjectPath', home.replace('\\', '/'))
+
+        a = QtWidgets.QApplication(sys.argv)
+        a.setWindowIcon(QtGui.QIcon('icons/logo.ico'))
+
+        w = QtWidgets.QWidget()
+        m = QtWidgets.QMessageBox
+
+        # Move PyQt Window position to center of the screen
+        qtRectangle = w.frameGeometry()
+        centerPoint = QtWidgets.QDesktopWidget().availableGeometry().center()
+        qtRectangle.moveCenter(centerPoint)
+        w.move(qtRectangle.topLeft())
+
+        warning_text = ("Project Path doesn't exists!"
+                        + "\n\nProject Path has been set to "+ home + " temporarily."
+                        + "\n\nPlease restart Assets Browser.")
+
+        m.warning(w, 'Warning', warning_text, m.Ok)
+
+        w.show()
 
 
+# Toggle Debug Display
 def show_debug(self):
     if self.checkBoxDebug.isChecked():
         self.textEdit.clear()
@@ -310,6 +311,15 @@ def show_debug(self):
         self.textEdit.setEnabled(False)
 
 
+# Emit PyQt signal to debug's textEdit
+class EmittingStream(QtCore.QObject):
+    textWritten = QtCore.pyqtSignal(str)
+
+    def write(self, text):
+        self.textWritten.emit(str(text))
+
+
+# Toggle AlwaysOnTop (works in Windows and Linux)
 def always_on_top(self):
     if self.actionAlwaysOnTop.isChecked():
         self.setWindowFlags(self.windowFlags() | QtCore.Qt.WindowStaysOnTopHint)
@@ -336,14 +346,7 @@ def get_filesize(size, precision=2):
     # https://pypi.python.org/pypi/hurry.filesize/
 
 
-def close_app():
-    sys.exit()
-
-
-def restart_app():
-    os.execv(sys.executable, [sys.executable] + sys.argv)
-
-
+# Reveal in OS function (works across all major platform)
 def reveal_os(path):
     system = platform.system()
 
@@ -365,7 +368,8 @@ def reveal_os(path):
         # subprocess.Popen(['open', '-R', '%s' % (path)])
 
     elif system == 'Linux':
-        subprocess.Popen(['xdg-open', path])
+        dirpath = '/'.join(path.split('/')[0:-1])  # Omit filename from path
+        subprocess.Popen(['xdg-open', dirpath])
 
     else:
         print ('FILE/DIRECTORY IS NOT VALID!')
@@ -380,15 +384,11 @@ def font_overrides(self):
         font.setPointSize(8*1.2)
         self.setFont(font)
     elif system == 'Linux':
-        font.setPointSize(8*1.2)
+        font.setPointSize(8*1.0)
         self.setFont(font)
 
 
-# When testing or in doubt, it's HAM time!
-def ham():
-    print ('HAM! HAM! HAM!')
-
-
+# Open selected file using the OS associated program
 def open_file(target):
     system = platform.system()
     if system == 'Linux':
@@ -402,4 +402,21 @@ def show_cwd():
     widget = QtWidgets.QWidget()
     cwd = os.getcwd()
     QtWidgets.QMessageBox.information(widget, "Information", cwd)
+
+
+# When testing or in doubt, it's HAM time!
+def ham():
+    print ('HAM! HAM! HAM!')
+
+
+# Terminate/Close App
+def close_app():
+    sys.exit()
+
+
+# Restart App (often 99% it doesn't restart in an IDE like PyCharm for a complex
+# PyQt script but it has been tested to work when execute through Python interpreter
+def restart_app():
+    os.execv(sys.executable, [sys.executable] + sys.argv)
+
 

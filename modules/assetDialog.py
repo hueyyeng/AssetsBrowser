@@ -52,8 +52,6 @@ class AssetDialog(QtWidgets.QDialog, ui_asset.Ui_AssetDialog):
 
         # Regex are used to limit the range of acceptable characters to
         # prevent accidental non-acceptable input by the user.
-        # Search for "regular expression" to know the usage parameter
-        # which are often compatible with various languages.
         regex = QtCore.QRegularExpression("^[a-zA-Z0-9]+$")
 
         # Declare self.validator with QRegExpValidator using regex var as argument
@@ -63,8 +61,8 @@ class AssetDialog(QtWidgets.QDialog, ui_asset.Ui_AssetDialog):
         # either QValidator or QRegExpValidator as argument
         self.assetLineEdit.setValidator(self.validator)
 
-        # Using the New-style Signal to connect assetLineEdit to fix_case method
-        # whenever Qt detects textChanged
+        # Using the New-style Signal to connect assetLineEdit
+        # to fix_case method whenever Qt detects textChanged
         self.assetLineEdit.textChanged.connect(self.fix_uppercase)
         self.assetLineEdit.textChanged.connect(self.preview)
 
@@ -97,6 +95,7 @@ class AssetDialog(QtWidgets.QDialog, ui_asset.Ui_AssetDialog):
             folder3 = "References"
             folder4 = None
             folder5 = "WIP"
+
             folders = [folder1, folder2, folder3, folder4, folder5]
 
             for folder in folders:

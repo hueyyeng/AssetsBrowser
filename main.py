@@ -96,8 +96,8 @@ class AssetsBrowser(QtWidgets.QMainWindow, ui_main.Ui_MainWindow):
         self.pushBtnNew.clicked.connect(asset)
 
         # When calling functions from imported modules that inherit the QMainWindow
-        # but located outside its scope, use 'lambda:' followed by the function to
-        # as though it was defined within the same class for easier code maintenance
+        # but located outside its scope, use 'lambda:' followed by the function as
+        # though it was defined within the same class for easier code maintenance
         self.actionAlwaysOnTop.triggered.connect(lambda: functions.always_on_top(self))
 
         # Show Debug CheckBox and Disabled the Debug textEdit
