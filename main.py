@@ -2,6 +2,7 @@
 import os
 import sys
 from ui import ui_main
+from ui import ui_help
 from modules import functions
 from modules import assetDialog
 from modules import aboutDialog
@@ -41,7 +42,6 @@ class AssetsBrowser(QtWidgets.QMainWindow, ui_main.Ui_MainWindow):
 
         # functions.font_overrides(self)
         QtWidgets.QApplication.setStyle(THEME)  # Initialise theme from INI file
-        self.labelCredits.setOpenExternalLinks(True)  # Open URL in QLabel with web browser
 
         # In case it doesn't center on screen properly like in Lubuntu LXDE
         functions.center_screen(self)
@@ -81,10 +81,10 @@ class AssetsBrowser(QtWidgets.QMainWindow, ui_main.Ui_MainWindow):
         self.splitter.setSizes(splitter_size)
 
         # Help Tab
-        help_path = 'ui/help/help.html'
-        help_html = open(help_path, "rb").read()
-        self.labelHelp.setText(help_html)
-        self.labelHelp.setOpenExternalLinks(True)
+        html = 'ui/help/help.html'
+        temp_path = 'file:///' + str(ui_help.help_repath(html))
+        self.textBrowserHelp.setSource(QtCore.QUrl(temp_path))
+
 
         # Dialog Window
         about = aboutDialog.showAboutDialog
