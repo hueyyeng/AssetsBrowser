@@ -1,4 +1,5 @@
 import tempfile
+import platform
 
 
 def help_repath(path):
@@ -12,6 +13,11 @@ def help_repath(path):
         # temp.seek(0)
         # repath = temp.read()
         # print repath
+        h = f.name
 
-    h = f.name
-    return h.replace('\\', '/')
+    system = platform.system()
+
+    if system == 'Windows':
+        h.replace('\\', '/')
+
+    return h
