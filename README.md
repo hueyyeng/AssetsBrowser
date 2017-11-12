@@ -34,7 +34,7 @@ Requirements
 * **[Python  2.7.xx](https://www.python.org/)** - Tested on 2.7.14 x64
 * **[PyQt5](https://riverbankcomputing.com/software/pyqt/intro)** - Tested on 5.9.1 for Python 2.7 x64
 
-_The codes has been tested on Windows 7, macOS Sierra and Lubuntu 17.04 for cross-platform compatibility._
+_The codes has been tested on Windows 7, macOS Sierra and Lubuntu 17.10 for cross-platform compatibility._
 
 **2017/11/09: JPEG and GIF are supported through plugins with the appropriate dylib on macOS/OSX.**
 

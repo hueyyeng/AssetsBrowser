@@ -13,9 +13,11 @@ from PyQt5 import QtWidgets
 
 if hasattr(QtCore.Qt, 'AA_EnableHighDpiScaling'):
     QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
+    print ('High DPI Scaling Enabled')
 
 if hasattr(QtCore.Qt, 'AA_UseHighDpiPixmaps'):
     QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True)
+    print ('High DPI Pixmaps Enabled')
 
 # Set Project Path from INI file
 PROJECTPATH = prefsConfig.PROJECTPATH
@@ -30,17 +32,19 @@ class AssetsBrowser(QtWidgets.QMainWindow, ui_main.Ui_MainWindow):
         self.setWindowIcon(QtGui.QIcon('icons/logo.ico'))
         self.setWindowTitle('Assets Browser [PID: %d]' % QtWidgets.QApplication.applicationPid())
         self.setWindowFlags(QtCore.Qt.WindowMinimizeButtonHint | QtCore.Qt.WindowMaximizeButtonHint)
-        # self.setAttribute(QtCore.Qt.WA_TranslucentBackground, True)
-
-        functions.font_overrides(self)
 
         # -----------------------------------------------------------------------------
 
-        # Install the custom output stream for debug log
-        sys.stdout = functions.EmittingStream(textWritten = self.debug_stdout)
+        # Redirect stdout to QTextEdit widget for debug log
+        sys.stdout = functions.OutLog(self.textEdit, sys.stdout)
+        sys.stderr = functions.OutLog(self.textEdit, sys.stderr, QtGui.QColor(255, 0, 0))
 
-        # Initialise theme from INI file
-        QtWidgets.QApplication.setStyle(THEME)
+        # functions.font_overrides(self)
+        QtWidgets.QApplication.setStyle(THEME)  # Initialise theme from INI file
+        self.labelCredits.setOpenExternalLinks(True)  # Open URL in QLabel with web browser
+
+        # In case it doesn't center on screen properly like in Lubuntu LXDE
+        functions.center_screen(self)
 
         # -----------------------------------------------------------------------------
 
@@ -56,7 +60,6 @@ class AssetsBrowser(QtWidgets.QMainWindow, ui_main.Ui_MainWindow):
         # Project List Dropdown ComboBox
         self.comboBox.fsm = QtWidgets.QFileSystemModel()
         self.comboBox.rootindex = self.comboBox.fsm.setRootPath(PROJECTPATH)
-
         self.comboBox.setModel(self.comboBox.fsm)
         self.comboBox.setRootModelIndex(self.comboBox.rootindex)
         self.comboBox.setCurrentIndex(0)  # Set to top directory from PROJECTPATH
@@ -81,6 +84,7 @@ class AssetsBrowser(QtWidgets.QMainWindow, ui_main.Ui_MainWindow):
         help_path = 'ui/help/help.html'
         help_html = open(help_path, "rb").read()
         self.labelHelp.setText(help_html)
+        self.labelHelp.setOpenExternalLinks(True)
 
         # Dialog Window
         about = aboutDialog.showAboutDialog
@@ -105,18 +109,6 @@ class AssetsBrowser(QtWidgets.QMainWindow, ui_main.Ui_MainWindow):
         self.textEdit.clear()
         self.textEdit.setHidden(True)
         self.textEdit.setEnabled(False)
-
-    def __del__(self):
-        # Restore sys.stdout for debug log
-        sys.stdout = sys.__stdout__
-
-    def debug_stdout(self, text):
-        # Append stdout to the QTextEdit for debug log
-        cursor = self.textEdit.textCursor()
-        cursor.movePosition(QtGui.QTextCursor.End)
-        cursor.insertText(text)
-        self.textEdit.setTextCursor(cursor)
-        self.textEdit.ensureCursorVisible()
 
 
 if __name__ == "__main__":

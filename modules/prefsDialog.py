@@ -39,9 +39,12 @@ class Prefs(QtWidgets.QDialog, ui_prefs.Ui_PrefsDialog):
 
         # Checked the relevant radio button for Theme at runtime
         system = platform.system()
-        if system != 'Windows':
+        # theme = prefsConfig.get_setting(INI_PATH, 'UI', 'Theme')
+        if system != 'Windows' and THEME == 'Fusion':
             self.theme_radio1.setChecked(True)
             self.theme_radio2.setDisabled(True)
+        elif THEME == 'Fusion':
+            self.theme_radio1.setChecked(True)
         else:
             self.theme_radio2.setChecked(True)
 

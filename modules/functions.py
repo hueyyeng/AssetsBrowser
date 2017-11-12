@@ -97,8 +97,7 @@ def columnview_tabs(columnview, category):
 
             picTypes = ['jpg', 'jpeg', 'bmp', 'png', 'gif', 'bmp', 'ico', 'tga', 'tif', 'tiff']
 
-            # JPEG and GIF format are broken with PyQt4 for macOS/OSX so
-            # a workaround by omitting the format from thumbnail preview
+            # Omit format that doesn't on specific OS
             system = platform.system()
             if system == 'Darwin':
                 # picTypes.remove('gif')
@@ -311,12 +310,33 @@ def show_debug(self):
         self.textEdit.setEnabled(False)
 
 
-# Emit PyQt signal to debug's textEdit
-class EmittingStream(QtCore.QObject):
-    textWritten = QtCore.pyqtSignal(str)
+# Redirect stdout to QTextEdit widget. Example usage:
+# sys.stdout = OutLog( edit, sys.stdout)
+# sys.stderr = OutLog( edit, sys.stderr, QtGui.QColor(255,0,0) )
+class OutLog:
+    def __init__(self, edit, out=None, color=None):
+        """(edit, out=None, color=None) -> can write stdout, stderr to a QTextEdit.
+        edit = QTextEdit
+        out = alternate stream ( can be the original sys.stdout )
+        color = alternate color (i.e. color stderr a different color)
+        """
+        self.edit = edit
+        self.out = None
+        self.color = color
 
-    def write(self, text):
-        self.textWritten.emit(str(text))
+    def write(self, m):
+        if self.color:
+            tc = self.edit.textColor()
+            self.edit.setTextColor(self.color)
+
+        self.edit.moveCursor(QtGui.QTextCursor.End)
+        self.edit.insertPlainText(m)
+
+        if self.color:
+            self.edit.setTextColor(tc)
+
+        if self.out:
+            self.out.write(m)
 
 
 # Toggle AlwaysOnTop (works in Windows and Linux)
@@ -328,6 +348,13 @@ def always_on_top(self):
         self.setWindowFlags(self.windowFlags() & ~QtCore.Qt.WindowStaysOnTopHint)
         print ("Always on Top Disabled")
     self.show()
+
+
+# Center PyQt Window on screen
+def center_screen(self):
+    resolution = QtWidgets.QDesktopWidget().screenGeometry()
+    self.move((resolution.width() / 2) - (self.frameSize().width() / 2),
+              (resolution.height() / 2) - (self.frameSize().height() / 2))
 
 
 # Repurpose from https://stackoverflow.com/a/32009595/8337847
@@ -418,5 +445,3 @@ def close_app():
 # PyQt script but it has been tested to work when execute through Python interpreter
 def restart_app():
     os.execv(sys.executable, [sys.executable] + sys.argv)
-
-
