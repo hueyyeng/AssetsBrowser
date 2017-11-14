@@ -12,13 +12,6 @@ from PyQt5 import QtGui
 from PyQt5 import QtCore
 from PyQt5 import QtWidgets
 
-if hasattr(QtCore.Qt, 'AA_EnableHighDpiScaling'):
-    QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
-    print ('High DPI Scaling Enabled')
-
-if hasattr(QtCore.Qt, 'AA_UseHighDpiPixmaps'):
-    QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True)
-    print ('High DPI Pixmaps Enabled')
 
 # Set Project Path from INI file
 PROJECTPATH = prefsConfig.PROJECTPATH
@@ -30,9 +23,9 @@ class AssetsBrowser(QtWidgets.QMainWindow, ui_main.Ui_MainWindow):
     def __init__(self, parent=None):
         super(AssetsBrowser, self).__init__(parent)
         self.setupUi(self)
-        self.setWindowIcon(QtGui.QIcon('icons/logo.ico'))
         self.setWindowTitle('Assets Browser [PID: %d]' % QtWidgets.QApplication.applicationPid())
         self.setWindowFlags(QtCore.Qt.WindowMinimizeButtonHint | QtCore.Qt.WindowMaximizeButtonHint)
+        functions.window_icon(self)
 
         # -----------------------------------------------------------------------------
 
@@ -112,6 +105,9 @@ class AssetsBrowser(QtWidgets.QMainWindow, ui_main.Ui_MainWindow):
 
 
 if __name__ == "__main__":
+    functions.highdpi_check()
+    functions.setTaskbarIcon()
+
     validpath = functions.projectpath_is_valid(INI_PATH, PROJECTPATH)
 
     if validpath:

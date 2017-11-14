@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 import os
 import sys
-import subprocess
+import ctypes
 import platform
+import subprocess
 from modules import prefsConfig
 from PyQt5 import QtGui
 from PyQt5 import QtCore
 from PyQt5 import QtWidgets
-
 
 # Retrieve PROJECTPATH value from INI
 PROJECTPATH = prefsConfig.PROJECTPATH
@@ -17,7 +17,9 @@ INI_PATH = prefsConfig.INI_PATH
 # File/Directory Path Dictionary for easy access for any methods
 selected_path = {'Path': ''}
 selected_file = {'File': ''}
-file_manager = {'Windows': 'Explorer', 'Darwin': 'Finder', 'Linux': 'File Manager'}
+file_manager = {'Windows': 'Explorer',
+                'Darwin': 'Finder',
+                'Linux': 'File Manager'}
 
 # Declare global var here
 colwidth = [200, 200, 200, 200, 200, 200, 200, 200, 200]
@@ -38,18 +40,12 @@ def columnview_tabs(columnview, category):
 
         tab.fsm = QtWidgets.QFileSystemModel()
         tab.fsm.setReadOnly(False)
-
         tab.rootindex = tab.fsm.setRootPath(defaultpath)
-
         tab.setModel(tab.fsm)
         tab.setRootIndex(tab.rootindex)
 
-        # ====================================================
-
         # List for Column Width for QColumnView
         tab.setColumnWidths(colwidth)
-
-        # ====================================================
 
         # Return selected item attributes in Model View for Preview Pane
         @QtCore.pyqtSlot(QtCore.QModelIndex)
@@ -116,24 +112,21 @@ def columnview_tabs(columnview, category):
 
                     tab.pvThumbs.setPixmap(tb_scaled)
                     break
+
                 else:
                     fileInfo = QtCore.QFileInfo(picPath)  # Retrieve info like icons, path, etc
                     fileIcon = QtWidgets.QFileIconProvider().icon(fileInfo)
                     icon = fileIcon.pixmap(48, 48, QtGui.QIcon.Normal, QtGui.QIcon.Off)
-                    icon_scaled = icon.scaled(max_size, max_size,
-                                              QtCore.Qt.KeepAspectRatio,
-                                              QtCore.Qt.SmoothTransformation)
+                    # icon_scaled = icon.scaled(max_size, max_size,
+                    #                           QtCore.Qt.KeepAspectRatio,
+                    #                           QtCore.Qt.SmoothTransformation)
 
                     tab.pvThumbs.setPixmap(icon)
 
             return filePath
 
-        # ====================================================
-
         # When an item clicked in the columnView tab, execute get_fileinfo method
         tab.clicked.connect(get_fileinfo)
-
-        # ====================================================
 
         # ContextMenu (Right Click Menu)
         tab.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
@@ -154,9 +147,8 @@ def columnview_tabs(columnview, category):
 
             menu.exec_(tab.mapToGlobal(position))
 
-        tab.customContextMenuRequested.connect(openMenu)  # When Right Click, execute openMenu
-
-        # ====================================================
+        # When Right Click, execute openMenu
+        tab.customContextMenuRequested.connect(openMenu)
 
         # Preview widget layout and features goes here as a function
         def preview(previewWidget, tab):
@@ -217,8 +209,6 @@ def columnview_tabs(columnview, category):
             preview_pane.addLayout(sublayout_text)
 
             tab.setPreviewWidget(previewWidget)
-
-        # ====================================================
 
         previewWidget = QtWidgets.QWidget()
         preview(previewWidget, tab)
@@ -305,6 +295,7 @@ def show_debug(self):
         self.textEdit.clear()
         self.textEdit.setHidden(False)
         self.textEdit.setEnabled(True)
+
     else:
         self.textEdit.setHidden(True)
         self.textEdit.setEnabled(False)
@@ -315,11 +306,6 @@ def show_debug(self):
 # sys.stderr = OutLog( edit, sys.stderr, QtGui.QColor(255,0,0) )
 class OutLog:
     def __init__(self, edit, out=None, color=None):
-        """(edit, out=None, color=None) -> can write stdout, stderr to a QTextEdit.
-        edit = QTextEdit
-        out = alternate stream ( can be the original sys.stdout )
-        color = alternate color (i.e. color stderr a different color)
-        """
         self.edit = edit
         self.out = None
         self.color = color
@@ -344,9 +330,11 @@ def always_on_top(self):
     if self.actionAlwaysOnTop.isChecked():
         self.setWindowFlags(self.windowFlags() | QtCore.Qt.WindowStaysOnTopHint)
         print ("Always on Top Enabled")
+
     else:
         self.setWindowFlags(self.windowFlags() & ~QtCore.Qt.WindowStaysOnTopHint)
         print ("Always on Top Disabled")
+
     self.show()
 
 
@@ -415,6 +403,11 @@ def font_overrides(self):
         self.setFont(font)
 
 
+# Set Icon for PyQt Window for consistent look
+def window_icon(self):
+    self.setWindowIcon(QtGui.QIcon('icons/file.png'))
+
+
 # Open selected file using the OS associated program
 def open_file(target):
     system = platform.system()
@@ -422,6 +415,24 @@ def open_file(target):
         subprocess.call(["xdg-open", target])
     else:
         os.startfile(target)
+
+
+# Check High DPI Support
+def highdpi_check():
+    if hasattr(QtCore.Qt, 'AA_EnableHighDpiScaling'):
+        QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
+        print ('High DPI Scaling Enabled')
+
+    if hasattr(QtCore.Qt, 'AA_UseHighDpiPixmaps'):
+        QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True)
+        print ('High DPI Pixmaps Enabled')
+
+
+# Workaround to show setWindowIcon on Win7 taskbar instead of default Python icon
+def setTaskbarIcon():
+    if platform.system() == 'Windows':
+        myappid = u'taukeke.python.assetsbrowser'  # arbitrary string
+        ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
 
 
 # Show CWD (Current Work Directory) as a QMessageBox
@@ -441,7 +452,7 @@ def close_app():
     sys.exit()
 
 
-# Restart App (often 99% it doesn't restart in an IDE like PyCharm for a complex
-# PyQt script but it has been tested to work when execute through Python interpreter
+# Restart App (often 99% it doesn't restart in an IDE like PyCharm for complex
+# script but it has been tested to work when execute through Python interpreter
 def restart_app():
     os.execv(sys.executable, [sys.executable] + sys.argv)

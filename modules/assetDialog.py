@@ -3,6 +3,7 @@ import os
 import sys
 from ui import ui_asset
 from modules import prefsConfig
+from modules import functions
 from PyQt5 import QtGui
 from PyQt5 import QtCore
 from PyQt5 import QtWidgets
@@ -18,7 +19,7 @@ class AssetDialog(QtWidgets.QDialog, ui_asset.Ui_AssetDialog):
     def __init__(self, parent=None):
         super(AssetDialog, self).__init__(parent)
         self.setupUi(self)
-        self.setWindowIcon(QtGui.QIcon('icons/logo.ico'))
+        functions.window_icon(self)
 
         # Buttons Action
         self.btnCreate.clicked.connect(self.create_asset)
@@ -35,23 +36,17 @@ class AssetDialog(QtWidgets.QDialog, ui_asset.Ui_AssetDialog):
         # the type that we wanted (in this case, QRadioButton)
         radioButton = self.catGroup.findChildren(QtWidgets.QRadioButton)
 
-        # Iterate each radioButton in a for loop to reduce code duplication
+        # Iterate each radioButton in a for loop to reduce code duplication (DRY)
         for each in radioButton:
 
-            # Define a method to return the text value of the radio buttons
-            # when checked. In this case, the radio buttons are grouped using
-            # QButtonGroup in QtDesigner so we can use the checkedButton()
-            # attribute as QGroupBox lack such feature
-            def category_checked():
-                category = self.catBtnGroup.checkedButton().text()
-                print (category + ' is selected.')
+            def category_checked():                                 # Return text value of radio button when checked.
+                category = self.catBtnGroup.checkedButton().text()  # The radioButton are QButtonGroup so we can use
+                print (category + ' is selected.')                  # checkedButton() as QGroupBox lack such feature
 
-            # Connect each radioButton to category_checked when clicked
             each.clicked.connect(category_checked)
             each.clicked.connect(self.preview)
 
-        # Regex are used to limit the range of acceptable characters to
-        # prevent accidental non-acceptable input by the user.
+        # Limit the range of acceptable characters input by the user
         regex = QtCore.QRegularExpression("^[a-zA-Z0-9]+$")
 
         # Declare self.validator with QRegExpValidator using regex var as argument
@@ -61,8 +56,7 @@ class AssetDialog(QtWidgets.QDialog, ui_asset.Ui_AssetDialog):
         # either QValidator or QRegExpValidator as argument
         self.assetLineEdit.setValidator(self.validator)
 
-        # Using the New-style Signal to connect assetLineEdit
-        # to fix_case method whenever Qt detects textChanged
+        # Runs fix_uppercase and preview whenever Qt detects textChanged
         self.assetLineEdit.textChanged.connect(self.fix_uppercase)
         self.assetLineEdit.textChanged.connect(self.preview)
 
@@ -82,9 +76,14 @@ class AssetDialog(QtWidgets.QDialog, ui_asset.Ui_AssetDialog):
 
         # Check whether Asset directory already exist
         if os.path.exists(full_path):
-            widget = QtWidgets.QWidget()
-            text = 'ERROR! Asset already exists!'
-            QtWidgets.QMessageBox.warning(widget, 'Warning', text)
+            msg = QtWidgets.QMessageBox()
+            msg.setIcon(QtWidgets.QMessageBox.Warning)
+            msg.setWindowTitle('Warning')
+            msg.setText('ERROR! Asset already exists!')
+            msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
+            functions.window_icon(msg)
+            msg.exec_()
+
         else:
             os.mkdir(full_path)
             print ('Assets will be created at ' + full_path)

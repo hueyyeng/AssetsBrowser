@@ -5,7 +5,6 @@ import platform
 from ui import ui_prefs
 from modules import functions
 from modules import prefsConfig
-from PyQt5 import QtGui
 from PyQt5 import QtWidgets
 
 # Declare var here first for use in methods below
@@ -19,7 +18,7 @@ class Prefs(QtWidgets.QDialog, ui_prefs.Ui_PrefsDialog):
     def __init__(self, parent=None):
         super(Prefs, self).__init__(parent)
         self.setupUi(self)
-        self.setWindowIcon(QtGui.QIcon('icons/logo.ico'))
+        functions.window_icon(self)
 
         # Retrieve ProjectPath value from PROJECTPATH
         self.projectpath_line.setText(PROJECTPATH)
