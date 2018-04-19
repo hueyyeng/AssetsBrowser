@@ -72,7 +72,6 @@ def delete_setting(INI_PATH, section, setting):
 
 
 def current_project():
-    # Retrieve CurrentProject
     project = get_setting(INI_PATH, 'Settings', 'CurrentProject')
     return project
 
@@ -81,7 +80,7 @@ def current_project():
 
 DEFAULTPATH = get_setting(INI_PATH, 'Settings', 'ProjectPath')
 PROJECTPATH = DEFAULTPATH
-CURRENTPROJECT = current_project()
+CURRENTPROJECT = get_setting(INI_PATH, 'Settings', 'CurrentProject')
 THEME = get_setting(INI_PATH, 'UI', 'Theme')
 
 # -------------------------------------------------------------------
