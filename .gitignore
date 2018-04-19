@@ -3,6 +3,7 @@
 .idea
 *.*psd
 *.*pyc
+*.*pyw
 
 # Project Files
 _old

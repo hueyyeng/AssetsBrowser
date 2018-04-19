@@ -36,14 +36,6 @@ Requirements
 
 _The codes has been tested on Windows 7, macOS Sierra and Lubuntu 17.10 for cross-platform compatibility._
 
-**2017/11/09: JPEG and GIF are supported through plugins with the appropriate dylib on macOS/OSX.**
-
-**2017/11/08: Migrated PyQt4 to PyQt5 to comply with VFX Reference Platform CY 2017.**
-
-**2017/09/11: ~~After numerous attempt, looks like PyQt4 for macOS/OSX has broken support for JPEG and GIF format. Broken image format are now omitted from thumbnail preview.~~**
-
-**2017/08/13: ~~Looks like there are known issues with JPEG preview and the UI layout on macOS which will be resolve in future update.~~**
-
 1. Clone or download the repository.
 2. Extract to your chosen destination.
 3. Run `main.py`

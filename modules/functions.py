@@ -11,7 +11,6 @@ from PyQt5 import QtWidgets
 
 # Retrieve PROJECTPATH value from INI
 PROJECTPATH = prefsConfig.PROJECTPATH
-CURRENTPROJECT = prefsConfig.CURRENTPROJECT
 INI_PATH = prefsConfig.INI_PATH
 
 # File/Directory Path Dictionary for easy access for any methods
@@ -23,6 +22,27 @@ file_manager = {'Windows': 'Explorer',
 
 # Declare global var here
 colwidth = [200, 200, 200, 200, 200, 200, 200, 200, 200]
+
+
+# Create Tabs Dynamically from Assets' List
+def create_tabs(self):
+    for each in self.category:
+        self.tab = QtWidgets.QWidget()
+
+        self.columnView = QtWidgets.QColumnView(self.tab)
+        self.assets["columnView{0}".format(each)] = self.columnView
+        self.columnView.setAlternatingRowColors(False)
+        self.columnView.setResizeGripsVisible(True)
+
+        self.horizontalLayout = QtWidgets.QHBoxLayout(self.tab)
+        self.horizontalLayout.setContentsMargins(0, 0, 0, 0)
+        self.horizontalLayout.addWidget(self.columnView)
+
+        self.tabWidget.addTab(self.tab, each)
+        columnview_tabs(self.columnView, each)
+
+    # keys = sorted(self.assets.keys())
+    # print keys
 
 
 # Create new ColumnView tabs to reduce DRY for categories
@@ -151,7 +171,7 @@ def columnview_tabs(columnview, category):
         tab.customContextMenuRequested.connect(openMenu)
 
         # Preview widget layout and features goes here as a function
-        def preview(previewWidget, tab):
+        def preview(widget, preview_tab):
 
             # -------------------- TEXT LABELS STARTS HERE -------------------- #
 
@@ -162,10 +182,10 @@ def columnview_tabs(columnview, category):
             catDate = QtWidgets.QLabel('Modified:')
 
             # File Attributes Labels
-            tab.filename = QtWidgets.QLabel()
-            tab.filesize = QtWidgets.QLabel()
-            tab.filetype = QtWidgets.QLabel()
-            tab.filedate = QtWidgets.QLabel()
+            preview_tab.filename = QtWidgets.QLabel()
+            preview_tab.filesize = QtWidgets.QLabel()
+            preview_tab.filetype = QtWidgets.QLabel()
+            preview_tab.filedate = QtWidgets.QLabel()
 
             # Align Right for Prefix Labels
             align_right = QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter
@@ -184,10 +204,10 @@ def columnview_tabs(columnview, category):
             sublayout_text.addWidget(catDate, 3, 0)
 
             # File Attributes Value for Preview Pane
-            sublayout_text.addWidget(tab.filename, 0, 1)
-            sublayout_text.addWidget(tab.filesize, 1, 1)
-            sublayout_text.addWidget(tab.filetype, 2, 1)
-            sublayout_text.addWidget(tab.filedate, 3, 1)
+            sublayout_text.addWidget(preview_tab.filename, 0, 1)
+            sublayout_text.addWidget(preview_tab.filesize, 1, 1)
+            sublayout_text.addWidget(preview_tab.filetype, 2, 1)
+            sublayout_text.addWidget(preview_tab.filedate, 3, 1)
 
             # Arrange layout to upper part of widget
             sublayout_text.setRowStretch(4, 1)
@@ -195,23 +215,23 @@ def columnview_tabs(columnview, category):
             # -------------------- THUMBNAILS STARTS HERE -------------------- #
 
             # Preview Thumbnails (pvThumbs)
-            tab.pvThumbs = QtWidgets.QLabel()
+            preview_tab.pvThumbs = QtWidgets.QLabel()
 
             sublayout_pic = QtWidgets.QVBoxLayout()
-            sublayout_pic.addWidget(tab.pvThumbs)
+            sublayout_pic.addWidget(preview_tab.pvThumbs)
             sublayout_pic.setAlignment(QtCore.Qt.AlignCenter)
 
             # -------------------- PREVIEW PANE STARTS HERE -------------------- #
 
             # Set Preview Pane to QColumnView setPreviewWidget
-            preview_pane = QtWidgets.QVBoxLayout(previewWidget)
+            preview_pane = QtWidgets.QVBoxLayout(widget)
             preview_pane.addLayout(sublayout_pic)
             preview_pane.addLayout(sublayout_text)
 
-            tab.setPreviewWidget(previewWidget)
+            preview_tab.setPreviewWidget(widget)
 
-        previewWidget = QtWidgets.QWidget()
-        preview(previewWidget, tab)
+        preview_widget = QtWidgets.QWidget()
+        preview(preview_widget, tab)
 
     else:
         print (defaultpath + " doesn't exists!")
@@ -246,11 +266,13 @@ def project_list(self):
             print (newpath + " doesn't exists!")
             columnview.setDisabled(True)
 
-    update_tabs(self.columnViewBG, 'BG')
-    update_tabs(self.columnViewCH, 'CH')
-    update_tabs(self.columnViewFX, 'FX')
-    update_tabs(self.columnViewProps, 'Props')
-    update_tabs(self.columnViewVehicles, 'Vehicles')
+    cats = self.category
+    views = sorted(self.assets.values())
+
+    # Using Python zip lists to pair values at the same list index
+    # This allows for dynamic instead of hard coded lists
+    for view, cat in zip(views, cats):
+        update_tabs(view, cat)
 
 
 # Check if PROJECTPATH is valid and reset to home directory if error
@@ -291,14 +313,16 @@ def projectpath_is_valid(INI_PATH, PROJECTPATH):
 
 # Toggle Debug Display
 def show_debug(self):
+    t = self.textEdit
+    
     if self.checkBoxDebug.isChecked():
-        self.textEdit.clear()
-        self.textEdit.setHidden(False)
-        self.textEdit.setEnabled(True)
+        t.clear()
+        t.setHidden(False)
+        t.setEnabled(True)
 
     else:
-        self.textEdit.setHidden(True)
-        self.textEdit.setEnabled(False)
+        t.setHidden(True)
+        t.setEnabled(False)
 
 
 # Redirect stdout to QTextEdit widget. Example usage:
@@ -442,11 +466,6 @@ def show_cwd():
     QtWidgets.QMessageBox.information(widget, "Information", cwd)
 
 
-# When testing or in doubt, it's HAM time!
-def ham():
-    print ('HAM! HAM! HAM!')
-
-
 # Terminate/Close App
 def close_app():
     sys.exit()
@@ -456,3 +475,13 @@ def close_app():
 # script but it has been tested to work when execute through Python interpreter
 def restart_app():
     os.execv(sys.executable, [sys.executable] + sys.argv)
+
+
+# When testing or in doubt, it's HAM time!
+def ham():
+    print ('HAM! HAM! HAM!')
+
+
+# SPAM
+def spam():
+    print ('SPAM IS LIFE')

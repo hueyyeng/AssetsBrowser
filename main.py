@@ -14,6 +14,7 @@ from PyQt5 import QtWidgets
 
 
 # Set Project Path from INI file
+CURRENTPROJECT = prefsConfig.CURRENTPROJECT
 PROJECTPATH = prefsConfig.PROJECTPATH
 INI_PATH = prefsConfig.INI_PATH
 THEME = prefsConfig.THEME
@@ -41,15 +42,6 @@ class AssetsBrowser(QtWidgets.QMainWindow, ui_main.Ui_MainWindow):
 
         # -----------------------------------------------------------------------------
 
-        # Create ColumnView tabs using columnview_tabs function
-        functions.columnview_tabs(self.columnViewBG, 'BG')
-        functions.columnview_tabs(self.columnViewCH, 'CH')
-        functions.columnview_tabs(self.columnViewFX, 'FX')
-        functions.columnview_tabs(self.columnViewProps, 'Props')
-        functions.columnview_tabs(self.columnViewVehicles, 'Vehicles')
-
-        # -----------------------------------------------------------------------------
-
         # Project List Dropdown ComboBox
         self.comboBox.fsm = QtWidgets.QFileSystemModel()
         self.comboBox.rootindex = self.comboBox.fsm.setRootPath(PROJECTPATH)
@@ -69,6 +61,23 @@ class AssetsBrowser(QtWidgets.QMainWindow, ui_main.Ui_MainWindow):
 
         # -----------------------------------------------------------------------------
 
+        # Create list and dictionary for ColumnView tabs
+        self.category = []  # List
+        self.assets = {}  # Dictionary
+
+        # Declare ASSETSPATH var to populate self.category list
+        ASSETSPATH = (PROJECTPATH + CURRENTPROJECT + "/Assets/")
+
+        for item in os.listdir(ASSETSPATH):
+            if not item.startswith('_') and not item.startswith('.')\
+                    and os.path.isdir(os.path.join(ASSETSPATH, item)):
+                        self.category.append(item)
+
+        # Generate Tabs using create_tabs
+        functions.create_tabs(self)
+
+        # -----------------------------------------------------------------------------
+
         # Splitter Size Config
         splitter_size = [150, 500]
         self.splitter.setSizes(splitter_size)
@@ -77,7 +86,6 @@ class AssetsBrowser(QtWidgets.QMainWindow, ui_main.Ui_MainWindow):
         html = 'ui/help/help.html'
         temp_path = 'file:///' + str(ui_help.help_repath(html))
         self.textBrowserHelp.setSource(QtCore.QUrl(temp_path))
-
 
         # Dialog Window
         about = aboutDialog.showAboutDialog

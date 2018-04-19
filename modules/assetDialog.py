@@ -67,7 +67,7 @@ class AssetDialog(QtWidgets.QDialog, ui_asset.Ui_AssetDialog):
 
     # Create asset with preconfigure directories structure
     def create_asset(self):
-        project = CURRENTPROJECT()
+        project = CURRENTPROJECT
         category = str(self.catBtnGroup.checkedButton().text())
 
         asset_name = str(self.preview())
@@ -109,7 +109,7 @@ class AssetDialog(QtWidgets.QDialog, ui_asset.Ui_AssetDialog):
     # name. Since both the category radio buttons and the assetLineEdit emit a
     # signal to this method, it allows the text field to "dynamically" update.
     def preview(self):
-        project = CURRENTPROJECT()
+        project = CURRENTPROJECT
 
         checked = self.previewGroup.isChecked()
         length = len(self.assetLineEdit.text())
