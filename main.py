@@ -13,8 +13,7 @@ from PyQt5 import QtCore
 from PyQt5 import QtWidgets
 
 
-# Set Project Path from INI file
-CURRENTPROJECT = prefsConfig.CURRENTPROJECT
+# Set Path from INI file
 PROJECTPATH = prefsConfig.PROJECTPATH
 INI_PATH = prefsConfig.INI_PATH
 THEME = prefsConfig.THEME
@@ -47,7 +46,7 @@ class AssetsBrowser(QtWidgets.QMainWindow, ui_main.Ui_MainWindow):
         self.comboBox.rootindex = self.comboBox.fsm.setRootPath(PROJECTPATH)
         self.comboBox.setModel(self.comboBox.fsm)
         self.comboBox.setRootModelIndex(self.comboBox.rootindex)
-        self.comboBox.setCurrentIndex(0)  # Set to top directory from PROJECTPATH
+        self.comboBox.setCurrentIndex(1)
         self.comboBox.activated[str].connect(lambda: functions.project_list(self))
 
         projects = []
@@ -56,8 +55,8 @@ class AssetsBrowser(QtWidgets.QMainWindow, ui_main.Ui_MainWindow):
             if not item.startswith('.') and os.path.isdir(os.path.join(PROJECTPATH, item)):
                 projects.append(item)
 
-        # Use the first index of projects list as default project during app startup
         prefsConfig.update_setting(INI_PATH, 'Settings', 'CurrentProject', projects[0])
+        c = prefsConfig.current_project()
 
         # -----------------------------------------------------------------------------
 
@@ -65,16 +64,17 @@ class AssetsBrowser(QtWidgets.QMainWindow, ui_main.Ui_MainWindow):
         self.category = []  # List
         self.assets = {}  # Dictionary
 
-        # Declare ASSETSPATH var to populate self.category list
-        ASSETSPATH = (PROJECTPATH + CURRENTPROJECT + "/Assets/")
+        cats = self.category
+        ASSETSPATH = (PROJECTPATH + c + "/Assets/")
 
+        # Populate self.category list of Assets folder
         for item in os.listdir(ASSETSPATH):
             if not item.startswith('_') and not item.startswith('.')\
                     and os.path.isdir(os.path.join(ASSETSPATH, item)):
-                        self.category.append(item)
+                        cats.append(item)
 
         # Generate Tabs using create_tabs
-        functions.create_tabs(self)
+        functions.create_tabs(self, cats, c)
 
         # -----------------------------------------------------------------------------
 
@@ -116,7 +116,7 @@ if __name__ == "__main__":
     functions.highdpi_check()
     functions.setTaskbarIcon()
 
-    validpath = functions.projectpath_is_valid(INI_PATH, PROJECTPATH)
+    validpath = functions.projectpath_valid(INI_PATH, PROJECTPATH)
 
     if validpath:
         app = QtWidgets.QApplication.instance()
