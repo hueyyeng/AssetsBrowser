@@ -9,11 +9,11 @@ from PyQt5 import QtGui
 from PyQt5 import QtCore
 from PyQt5 import QtWidgets
 
-# Retrieve PROJECTPATH value from INI
+# Set Path from INI file
 PROJECTPATH = prefsConfig.PROJECTPATH
 INI_PATH = prefsConfig.INI_PATH
 
-# File/Directory Path Dictionary for easy access for any methods
+# File/Directory Path Dictionary for easy access by any methods
 selected_path = {'Path': ''}
 selected_file = {'File': ''}
 file_manager = {'Windows': 'Explorer',
@@ -25,8 +25,11 @@ colwidth = [200, 200, 200, 200, 200, 200, 200, 200, 200]
 
 
 # Create Tabs Dynamically from Assets' List
-def create_tabs(self):
-    for each in self.category:
+def create_tabs(self, category, projectname):
+    c = category
+    p = projectname
+
+    for each in c:
         self.tab = QtWidgets.QWidget()
 
         self.columnView = QtWidgets.QColumnView(self.tab)
@@ -39,21 +42,21 @@ def create_tabs(self):
         self.horizontalLayout.addWidget(self.columnView)
 
         self.tabWidget.addTab(self.tab, each)
-        columnview_tabs(self.columnView, each)
 
+        columnview_tabs(self.columnView, each, p)
+
+    # DEBUG USE
     # keys = sorted(self.assets.keys())
-    # print keys
+    # print (keys)
 
 
-# Create new ColumnView tabs to reduce DRY for categories
-def columnview_tabs(columnview, category):
-
-    # Select top most project from Project comboBox as default project
-    project = (os.listdir(PROJECTPATH))[0]
+# Create new ColumnView tabs to for each categories
+def columnview_tabs(columnview, category, projectname):
+    project = projectname
     defaultpath = (PROJECTPATH + project + "/Assets/" + category)
 
     if os.path.isdir(defaultpath):
-        print (defaultpath)
+        # print ("Load..." + defaultpath)
         columnview.setEnabled(True)
 
         tab = columnview
@@ -238,8 +241,37 @@ def columnview_tabs(columnview, category):
         columnview.setDisabled(True)
 
 
-# Retrieve directories in PROJECTPATH comboBox and update the categories tabs
+# Retrieve directories in PROJECTPATH comboBox, clear existing tabs and create new tabs
 def project_list(self):
+    project = self.comboBox.currentText()
+    prefsConfig.update_setting(INI_PATH, 'Settings', 'CurrentProject', project)
+
+    # Clear all tabs except Help
+    count = 0
+
+    while count < 10:
+        count = count + 1
+        self.tabWidget.removeTab(1)
+
+    # Force clear existing self.category and self.assets value
+    self.category = []
+    self.assets = {}
+
+    cat = self.category
+    ASSETSPATH = (PROJECTPATH + project + "/Assets/")
+
+    for item in os.listdir(ASSETSPATH):
+        if not item.startswith('_') and not item.startswith('.')\
+                and os.path.isdir(os.path.join(ASSETSPATH, item)):
+                    cat.append(item)
+
+    # Generate Tabs automagically
+    create_tabs(self, cat, project)
+
+
+# Retrieve directories in PROJECTPATH comboBox and update the categories tabs
+# OLD LEGACY DO NOT USE WILL BE REMOVED
+def project_list_OLD(self):
     project = self.comboBox.currentText()
     prefsConfig.update_setting(INI_PATH, 'Settings', 'CurrentProject', project)
 
@@ -276,7 +308,7 @@ def project_list(self):
 
 
 # Check if PROJECTPATH is valid and reset to home directory if error
-def projectpath_is_valid(INI_PATH, PROJECTPATH):
+def projectpath_valid(INI_PATH, PROJECTPATH):
     exists = os.path.exists(PROJECTPATH)
     if exists:
         print ('Project Path is valid')
@@ -311,10 +343,18 @@ def projectpath_is_valid(INI_PATH, PROJECTPATH):
         w.show()
 
 
+# Clear Layout?
+def clear_layout(layout):
+    while layout.count():
+        child = layout.takeAt(0)
+        if child.widget():
+            child.widget().deleteLater()
+
+
 # Toggle Debug Display
 def show_debug(self):
     t = self.textEdit
-    
+
     if self.checkBoxDebug.isChecked():
         t.clear()
         t.setHidden(False)
@@ -480,8 +520,3 @@ def restart_app():
 # When testing or in doubt, it's HAM time!
 def ham():
     print ('HAM! HAM! HAM!')
-
-
-# SPAM
-def spam():
-    print ('SPAM IS LIFE')
