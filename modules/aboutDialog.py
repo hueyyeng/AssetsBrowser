@@ -2,8 +2,7 @@
 import sys
 from modules import functions
 from ui import ui_about
-from PyQt5 import QtGui
-from PyQt5 import QtWidgets
+from PyQt5 import QtGui, QtWidgets
 
 
 class About(QtWidgets.QDialog, ui_about.Ui_AboutDialog):
@@ -18,9 +17,10 @@ class About(QtWidgets.QDialog, ui_about.Ui_AboutDialog):
         self.labelGraphic.setPixmap(QtGui.QPixmap('icons/about.png'))
 
 
-def showAboutDialog():
+def show_dialog():
     window = About()
     window.exec_()
+
 
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)

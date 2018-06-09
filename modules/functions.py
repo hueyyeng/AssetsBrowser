@@ -5,9 +5,7 @@ import ctypes
 import platform
 import subprocess
 from modules import prefsConfig
-from PyQt5 import QtGui
-from PyQt5 import QtCore
-from PyQt5 import QtWidgets
+from PyQt5 import QtGui, QtCore, QtWidgets
 
 # Set Path from INI file
 PROJECTPATH = prefsConfig.PROJECTPATH
@@ -47,7 +45,7 @@ def create_tabs(self, category, projectname):
 
     # DEBUG USE
     # keys = sorted(self.assets.keys())
-    # print (keys)
+    # print(keys)
 
 
 # Create new ColumnView tabs to for each categories
@@ -56,7 +54,7 @@ def columnview_tabs(columnview, category, projectname):
     defaultpath = (PROJECTPATH + project + "/Assets/" + category)
 
     if os.path.isdir(defaultpath):
-        # print ("Load..." + defaultpath)
+        print("Load..." + defaultpath)
         columnview.setEnabled(True)
 
         tab = columnview
@@ -100,10 +98,10 @@ def columnview_tabs(columnview, category, projectname):
             tab.filedate.setText(fileDateLabel)
 
             # For Debug Panel (feel free to comment/remove it)
-            print (fileNameLabel)
-            print (fileSizeLabel)
-            print (fileTypeLabel)
-            print (fileDateLabel)
+            print(fileNameLabel)
+            print(fileSizeLabel)
+            print(fileTypeLabel)
+            print(fileDateLabel)
 
             selected_path['Path'] = filePath
             selected_file['File'] = fileName
@@ -237,7 +235,7 @@ def columnview_tabs(columnview, category, projectname):
         preview(preview_widget, tab)
 
     else:
-        print (defaultpath + " doesn't exists!")
+        print(defaultpath + " doesn't exists!")
         columnview.setDisabled(True)
 
 
@@ -261,9 +259,9 @@ def project_list(self):
     ASSETSPATH = (PROJECTPATH + project + "/Assets/")
 
     for item in os.listdir(ASSETSPATH):
-        if not item.startswith('_') and not item.startswith('.')\
+        if not item.startswith('_') and not item.startswith('.') \
                 and os.path.isdir(os.path.join(ASSETSPATH, item)):
-                    cat.append(item)
+            cat.append(item)
 
     # Generate Tabs automagically
     create_tabs(self, cat, project)
@@ -279,7 +277,7 @@ def project_list_OLD(self):
         newpath = (PROJECTPATH + project + "/Assets/" + category)
 
         if os.path.isdir(newpath):
-            print (newpath)
+            print(newpath)
             columnview.setEnabled(True)
 
             tab = columnview
@@ -295,7 +293,7 @@ def project_list_OLD(self):
             tab.setColumnWidths(colwidth)
 
         else:
-            print (newpath + " doesn't exists!")
+            print(newpath + " doesn't exists!")
             columnview.setDisabled(True)
 
     cats = self.category
@@ -311,7 +309,7 @@ def project_list_OLD(self):
 def projectpath_valid(INI_PATH, PROJECTPATH):
     exists = os.path.exists(PROJECTPATH)
     if exists:
-        print ('Project Path is valid')
+        print('Project Path is valid')
         return True
     else:
         home = os.path.expanduser('~')
@@ -335,7 +333,7 @@ def projectpath_valid(INI_PATH, PROJECTPATH):
         w.move(qtRectangle.topLeft())
 
         warning_text = ("Project Path doesn't exists!"
-                        + "\n\nProject Path has been set to "+ home + " temporarily."
+                        + "\n\nProject Path has been set to " + home + " temporarily."
                         + "\n\nPlease restart Assets Browser.")
 
         m.warning(w, 'Warning', warning_text, m.Ok)
@@ -365,7 +363,7 @@ def show_debug(self):
         t.setEnabled(False)
 
 
-# Redirect stdout to QTextEdit widget. Example usage:
+# Redirect stdout to QTextEdit widget. Example usage in main.py:
 # sys.stdout = OutLog( edit, sys.stdout)
 # sys.stderr = OutLog( edit, sys.stderr, QtGui.QColor(255,0,0) )
 class OutLog:
@@ -393,11 +391,11 @@ class OutLog:
 def always_on_top(self):
     if self.actionAlwaysOnTop.isChecked():
         self.setWindowFlags(self.windowFlags() | QtCore.Qt.WindowStaysOnTopHint)
-        print ("Always on Top Enabled")
+        print("Always on Top Enabled")
 
     else:
         self.setWindowFlags(self.windowFlags() & ~QtCore.Qt.WindowStaysOnTopHint)
-        print ("Always on Top Disabled")
+        print("Always on Top Disabled")
 
     self.show()
 
@@ -415,8 +413,8 @@ def get_filesize(size, precision=2):
     suffixIndex = 0
 
     while size > 1024 and suffixIndex < 4:
-        suffixIndex += 1    # Increment the index of the suffix
-        size = size/1024    # Apply the division
+        suffixIndex += 1  # Increment the index of the suffix
+        size = size / 1024  # Apply the division
 
     # Return using String formatting. f for float and s for string.
     return "%.*f %s" % (precision, size, suffixes[suffixIndex])
@@ -438,7 +436,7 @@ def reveal_os(path):
             cmd = str('explorer /select,' + winpath)
             subprocess.call(cmd)
         else:
-            print ('Is this a valid OS?')
+            print('Is this a valid OS?')
 
     elif system == 'Darwin':  # OSX/macOS
         subprocess.call(['open', '-R', path])
@@ -451,7 +449,7 @@ def reveal_os(path):
         subprocess.Popen(['xdg-open', dirpath])
 
     else:
-        print ('FILE/DIRECTORY IS NOT VALID!')
+        print('FILE/DIRECTORY IS NOT VALID!')
 
 
 # Overrides font sizes based on platform due to PyQt quirks especially on macOS/OSX
@@ -460,10 +458,10 @@ def font_overrides(self):
     font = QtGui.QFont()
 
     if system == 'Darwin':
-        font.setPointSize(8*1.2)
+        font.setPointSize(8 * 1.2)
         self.setFont(font)
     elif system == 'Linux':
-        font.setPointSize(8*1.0)
+        font.setPointSize(8 * 1.0)
         self.setFont(font)
 
 
@@ -485,11 +483,11 @@ def open_file(target):
 def highdpi_check():
     if hasattr(QtCore.Qt, 'AA_EnableHighDpiScaling'):
         QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
-        print ('High DPI Scaling Enabled')
+        print('High DPI Scaling Enabled')
 
     if hasattr(QtCore.Qt, 'AA_UseHighDpiPixmaps'):
         QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True)
-        print ('High DPI Pixmaps Enabled')
+        print('High DPI Pixmaps Enabled')
 
 
 # Workaround to show setWindowIcon on Win7 taskbar instead of default Python icon
@@ -519,4 +517,4 @@ def restart_app():
 
 # When testing or in doubt, it's HAM time!
 def ham():
-    print ('HAM! HAM! HAM!')
+    print('HAM! HAM! HAM!')

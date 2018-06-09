@@ -2,12 +2,8 @@
 import os
 import sys
 from ui import ui_asset
-from modules import prefsConfig
-from modules import functions
-from PyQt5 import QtGui
-from PyQt5 import QtCore
-from PyQt5 import QtWidgets
-
+from modules import prefsConfig, functions
+from PyQt5 import QtGui, QtCore, QtWidgets
 
 # Declare var here first for use in methods below
 CURRENTPROJECT = prefsConfig.CURRENTPROJECT
@@ -145,7 +141,7 @@ class AssetDialog(QtWidgets.QDialog, ui_asset.Ui_AssetDialog):
             self.btnCreate.setDisabled(True)
 
 
-def showAssetDialog():
+def show_dialog():
     window = AssetDialog()
     spam = window.exec_()
 

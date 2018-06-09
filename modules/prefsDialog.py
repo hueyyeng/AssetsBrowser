@@ -3,8 +3,7 @@ import os
 import sys
 import platform
 from ui import ui_prefs
-from modules import functions
-from modules import prefsConfig
+from modules import functions, prefsConfig
 from PyQt5 import QtWidgets
 
 # Declare var here first for use in methods below
@@ -61,11 +60,8 @@ class Prefs(QtWidgets.QDialog, ui_prefs.Ui_PrefsDialog):
         prefsConfig.get_config(INI_PATH)
 
     def apply(self):
-        # Variables for apply function
         desc = self.desc_check
-        # debug = self.debug_check
         desc_param = 'ShowDescriptionPanel'
-        # debug_param = 'ShowDebugLog'
 
         # Function as reusable code for CheckBox elements
         def apply_checkbox(ui, param):
@@ -129,26 +125,26 @@ class Prefs(QtWidgets.QDialog, ui_prefs.Ui_PrefsDialog):
 
     def showdescription(self):
         if self.desc_check.isChecked():
-            print 'Description Panel ON'
+            print('Description Panel ON')
         else:
-            print 'Description Panel OFF'
+            print('Description Panel OFF')
 
     def enabledebug(self):
         if self.debug_check.isChecked():
-            print 'Debugger ON'
+            print('Debugger ON')
         else:
-            print 'Debugger OFF'
+            print('Debugger OFF')
 
     def theme_fusion(self):
         self.theme_radio1.setChecked(True)
-        print 'Fusion Theme'
+        print('Fusion Theme')
 
     def theme_windows(self):
         self.theme_radio2.setChecked(True)
-        print 'Windows Theme'
+        print('Windows Theme')
 
 
-def showPrefsDialog():
+def show_dialog():
     window = Prefs()
     spam = window.exec_()
 
