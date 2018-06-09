@@ -4,9 +4,6 @@
 
 This is still an ongoing progress and minor bugs are expected.
 
-Feel free to fork out as I wrote this with Python 2.7 and PyQt5 which has compatibility issue
-with Python 3.0+ and PyQt4 environment.
-
 ## Goals
 During my time working for a small 3DCG studio, the creation of new assets are tedious since
 it is created manually by hand using Windows Explorer.
@@ -31,8 +28,8 @@ the necessary dependencies has been installed.
 
 ## Usage
 Requirements
-* **[Python  2.7.xx](https://www.python.org/)** - Tested on 2.7.14 x64
-* **[PyQt5](https://riverbankcomputing.com/software/pyqt/intro)** - Tested on 5.9.1 for Python 2.7 x64
+* **[Python  3.6.xx](https://www.python.org/)** - Tested on 3.6.5 x64
+* **[PyQt5](https://riverbankcomputing.com/software/pyqt/intro)** - Tested on 5.9.1 for Python 3 x64
 
 _The codes has been tested on Windows 7, macOS Sierra and Lubuntu 17.10 for cross-platform compatibility._
 
