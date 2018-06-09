@@ -1,23 +1,22 @@
+# -*- coding: utf-8 -*-
 import tempfile
 import platform
 
 
-def help_repath(path):
-    f = tempfile.NamedTemporaryFile(suffix='.html', delete=False)
+def repath(path):
+    file = tempfile.NamedTemporaryFile(suffix='.html', delete=False)
 
-    with f as temp:
+    with file as temp:
         data = open(path, 'r')
         text = data.read()
-        text = text.replace('../../', '')
+        # text = text.replace('../../', '')  # Python2.7
+        text = text.replace('../../', '').encode('utf-8')
         temp.write(text)
-        # temp.seek(0)
-        # repath = temp.read()
-        # print repath
-        h = f.name
+        help_path = file.name
 
     system = platform.system()
 
     if system == 'Windows':
-        h.replace('\\', '/')
+        help_path.replace('\\', '/')
 
-    return h
+    return help_path
