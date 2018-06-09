@@ -1,17 +1,9 @@
 # -*- coding: utf-8 -*-
 import os
 import sys
-from ui import ui_main
-from ui import ui_help
-from modules import functions
-from modules import assetDialog
-from modules import aboutDialog
-from modules import prefsDialog
-from modules import prefsConfig
-from PyQt5 import QtGui
-from PyQt5 import QtCore
-from PyQt5 import QtWidgets
-
+from ui import ui_main, ui_help
+from modules import functions, assetDialog, aboutDialog, prefsDialog, prefsConfig
+from PyQt5 import QtGui, QtCore, QtWidgets
 
 # Set Path from INI file
 PROJECTPATH = prefsConfig.PROJECTPATH
@@ -84,13 +76,13 @@ class AssetsBrowser(QtWidgets.QMainWindow, ui_main.Ui_MainWindow):
 
         # Help Tab
         html = 'ui/help/help.html'
-        temp_path = 'file:///' + str(ui_help.help_repath(html))
+        temp_path = ('file:///' + str(ui_help.repath(html)))
         self.textBrowserHelp.setSource(QtCore.QUrl(temp_path))
 
         # Dialog Window
-        about = aboutDialog.showAboutDialog
-        asset = assetDialog.showAssetDialog
-        prefs = prefsDialog.showPrefsDialog
+        about = aboutDialog.show_dialog
+        asset = assetDialog.show_dialog
+        prefs = prefsDialog.show_dialog
 
         # Menu Action
         self.actionPreferences.triggered.connect(prefs)
