@@ -6,9 +6,11 @@ from modules import prefsConfig, functions
 from PyQt5 import QtGui, QtCore, QtWidgets
 
 # Declare var here first for use in methods below
-CURRENTPROJECT = prefsConfig.CURRENTPROJECT
 PROJECTPATH = prefsConfig.PROJECTPATH
 INI_PATH = prefsConfig.INI_PATH
+# CURRENTPROJECT = prefsConfig.CURRENTPROJECT
+# CURRENTPROJECT = prefsConfig.get_setting(INI_PATH, 'Settings', 'CurrentProject')
+# TODO: Rework CURRENTPROJECT to properly receive INI CurrentProject value
 
 
 class AssetDialog(QtWidgets.QDialog, ui_asset.Ui_AssetDialog):
@@ -28,15 +30,15 @@ class AssetDialog(QtWidgets.QDialog, ui_asset.Ui_AssetDialog):
         # Disable Create button to prevent user from creating without inputting asset name
         self.btnCreate.setDisabled(True)
 
-        # Create a radioButton list using Qt findChildren which returns
+        # Create a radio_button list using Qt findChildren which returns
         # the type that we wanted (in this case, QRadioButton)
-        radioButton = self.catGroup.findChildren(QtWidgets.QRadioButton)
+        radio_button = self.catGroup.findChildren(QtWidgets.QRadioButton)
 
-        # Iterate each radioButton in a for loop to reduce code duplication (DRY)
-        for each in radioButton:
+        # Iterate each radio_button in a for loop to reduce code duplication (DRY)
+        for each in radio_button:
 
             def category_checked():                                 # Return text value of radio button when checked.
-                category = self.catBtnGroup.checkedButton().text()  # The radioButton are QButtonGroup so we can use
+                category = self.catBtnGroup.checkedButton().text()  # The radio_button are QButtonGroup so we can use
                 print (category + ' is selected.')                  # checkedButton() as QGroupBox lack such feature
 
             each.clicked.connect(category_checked)
@@ -63,10 +65,10 @@ class AssetDialog(QtWidgets.QDialog, ui_asset.Ui_AssetDialog):
 
     # Create asset with preconfigure directories structure
     def create_asset(self):
-        project = CURRENTPROJECT
+        # project = CURRENTPROJECT
+        project = prefsConfig.get_setting(INI_PATH, 'Settings', 'CurrentProject')
         category = str(self.catBtnGroup.checkedButton().text())
-
-        asset_name = str(self.preview())
+        asset_name = str(self.preview)
         asset_path = (PROJECTPATH + project + "/Assets/" + category)
         full_path = (asset_path + '/' + asset_name)
 
@@ -105,7 +107,8 @@ class AssetDialog(QtWidgets.QDialog, ui_asset.Ui_AssetDialog):
     # name. Since both the category radio buttons and the assetLineEdit emit a
     # signal to this method, it allows the text field to "dynamically" update.
     def preview(self):
-        project = CURRENTPROJECT
+        # project = CURRENTPROJECT
+        project = prefsConfig.get_setting(INI_PATH, 'Settings', 'CurrentProject')
 
         checked = self.previewGroup.isChecked()
         length = len(self.assetLineEdit.text())
@@ -142,14 +145,11 @@ class AssetDialog(QtWidgets.QDialog, ui_asset.Ui_AssetDialog):
 
 
 def show_dialog():
-    window = AssetDialog()
-    spam = window.exec_()
-
-    # If Create, execute spam to create the new asset folders
-    if spam:
-        print ('Creating new asset...')
+    dialog = AssetDialog()
+    if dialog.exec_():
+        print('Creating new asset...')
     else:
-        print ('Aborting Create New Asset...')
+        print('Aborting Create New Asset...')
 
 
 if __name__ == '__main__':
