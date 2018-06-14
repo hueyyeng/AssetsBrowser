@@ -49,8 +49,8 @@ def get_setting(INI_PATH, section, setting):
     # Print out a setting
     config = get_config(INI_PATH)
     value = config.get(section, setting)
-    # print('{section} {setting} is {value}'.format(
-    #     section=section, setting=setting, value=value))
+    print('{section} {setting} is {value}'.format(
+        section=section, setting=setting, value=value))
     return value
 
 

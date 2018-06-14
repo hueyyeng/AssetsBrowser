@@ -106,11 +106,11 @@ class AssetsBrowser(QtWidgets.QMainWindow, ui_main.Ui_MainWindow):
 
 if __name__ == "__main__":
     functions.highdpi_check()
-    functions.setTaskbarIcon()
+    functions.taskbar_icon()
 
-    validpath = functions.projectpath_valid(INI_PATH, PROJECTPATH)
+    valid_path = functions.projectpath_valid(INI_PATH, PROJECTPATH)
 
-    if validpath:
+    if valid_path:
         app = QtWidgets.QApplication.instance()
         if app is None:
             app = QtWidgets.QApplication(sys.argv)

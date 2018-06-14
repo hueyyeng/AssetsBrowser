@@ -491,7 +491,7 @@ def highdpi_check():
 
 
 # Workaround to show setWindowIcon on Win7 taskbar instead of default Python icon
-def setTaskbarIcon():
+def taskbar_icon():
     if platform.system() == 'Windows':
         myappid = u'taukeke.python.assetsbrowser'  # arbitrary string
         ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)

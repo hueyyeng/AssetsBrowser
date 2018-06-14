@@ -49,8 +49,8 @@ class Prefs(QtWidgets.QDialog, ui_prefs.Ui_PrefsDialog):
         # Connect the clicked Qt UI to function
         self.projectpath_tool.clicked.connect(self.browseprojectpath)
 
-        self.desc_check.clicked.connect(self.showdescription)
-        self.debug_check.clicked.connect(self.enabledebug)
+        self.desc_check.clicked.connect(self.show_description)
+        self.debug_check.clicked.connect(self.enable_debug)
         self.theme_radio1.clicked.connect(self.theme_fusion)
         self.theme_radio2.clicked.connect(self.theme_windows)
 
@@ -101,7 +101,7 @@ class Prefs(QtWidgets.QDialog, ui_prefs.Ui_PrefsDialog):
             self,
             'Choose Directory',
             os.path.expanduser('~'),        # Defaults to home directory
-            QtWidgets.QFileDialog.ShowDirsOnly  # Filter list to Directory only
+            QtWidgets.QFileDialog.ShowDirsOnly,  # Filter list to Directory only
             )
         )
 
@@ -111,25 +111,25 @@ class Prefs(QtWidgets.QDialog, ui_prefs.Ui_PrefsDialog):
             QtWidgets.QMessageBox.warning(widget, 'Warning', txt)
             self.projectpath_line.setText(DEFAULTPATH)
         else:
-            newpath = path.replace('\\', '/')           # Replace Windows style to UNIX style separator
+            new_path = path.replace('\\', '/')           # Replace Windows style to UNIX style separator
             system = platform.system()
 
             if system == 'Linux':
-                unixpath = (newpath + '/')
-                self.projectpath_line.setText(unixpath)
+                unix_path = (new_path + '/')
+                self.projectpath_line.setText(unix_path)
             elif system == 'Darwin':
-                macpath = (newpath + '/')
-                self.projectpath_line.setText(macpath)
+                mac_path = (new_path + '/')
+                self.projectpath_line.setText(mac_path)
             else:
-                self.projectpath_line.setText(newpath)  # Update the Line textbox with the newly chosen path
+                self.projectpath_line.setText(new_path)  # Update the Line textbox with the newly chosen path
 
-    def showdescription(self):
+    def show_description(self):
         if self.desc_check.isChecked():
             print('Description Panel ON')
         else:
             print('Description Panel OFF')
 
-    def enabledebug(self):
+    def enable_debug(self):
         if self.debug_check.isChecked():
             print('Debugger ON')
         else:
@@ -145,11 +145,8 @@ class Prefs(QtWidgets.QDialog, ui_prefs.Ui_PrefsDialog):
 
 
 def show_dialog():
-    window = Prefs()
-    spam = window.exec_()
-
-    # If OK, restart app to reinitialize new INI settings
-    if spam:
+    dialog = Prefs()
+    if dialog.exec_():  # If OK, restart app to reinitialize new INI settings
         functions.restart_app()
 
 

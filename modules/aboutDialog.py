@@ -18,8 +18,8 @@ class About(QtWidgets.QDialog, ui_about.Ui_AboutDialog):
 
 
 def show_dialog():
-    window = About()
-    window.exec_()
+    dialog = About()
+    dialog.exec_()
 
 
 if __name__ == '__main__':
