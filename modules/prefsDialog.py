@@ -47,7 +47,7 @@ class Prefs(QtWidgets.QDialog, ui_prefs.Ui_PrefsDialog):
             self.theme_radio2.setChecked(True)
 
         # Connect the clicked Qt UI to function
-        self.projectpath_tool.clicked.connect(self.browseprojectpath)
+        self.projectpath_tool.clicked.connect(self.browse_projectpath)
 
         self.desc_check.clicked.connect(self.show_description)
         self.debug_check.clicked.connect(self.enable_debug)
@@ -88,19 +88,19 @@ class Prefs(QtWidgets.QDialog, ui_prefs.Ui_PrefsDialog):
         apply_theme()
 
         # Update the Project Path in the INI file
-        def applyprojectpath():
+        def apply_projectpath():
             path = self.projectpath_line.text()
             prefsConfig.update_setting(INI_PATH, 'Settings', 'ProjectPath', path)
 
-        applyprojectpath()
+        apply_projectpath()
 
         self.accept()  # For MainWindow to execute restart_app when prefsDialog OK
 
-    def browseprojectpath(self):
+    def browse_projectpath(self):
         path = str(QtWidgets.QFileDialog.getExistingDirectory(
             self,
             'Choose Directory',
-            os.path.expanduser('~'),        # Defaults to home directory
+            os.path.expanduser('~'),             # Defaults to home directory
             QtWidgets.QFileDialog.ShowDirsOnly,  # Filter list to Directory only
             )
         )

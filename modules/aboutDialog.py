@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import sys
-from modules import functions
 from ui import ui_about
+from modules.functions import window_icon
 from PyQt5 import QtGui, QtWidgets
 
 
@@ -11,7 +11,7 @@ class About(QtWidgets.QDialog, ui_about.Ui_AboutDialog):
         super(About, self).__init__(parent)
         self.setupUi(self)
         self.buttonBox.clicked.connect(self.close)
-        functions.window_icon(self)
+        window_icon(self)
 
         # Redefine path for graphics/icons when executed from main.py
         self.labelGraphic.setPixmap(QtGui.QPixmap('icons/about.png'))
