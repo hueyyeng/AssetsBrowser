@@ -6,6 +6,7 @@ import platform
 import subprocess
 from modules import prefsConfig
 from PyQt5 import QtGui, QtCore, QtWidgets
+# YOLOgit
 
 # Set Path from INI file
 PROJECTPATH = prefsConfig.PROJECTPATH
