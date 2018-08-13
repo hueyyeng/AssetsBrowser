@@ -42,22 +42,18 @@ class AssetsBrowser(QtWidgets.QMainWindow, ui_main.Ui_MainWindow):
         self.comboBox.activated[str].connect(lambda: functions.project_list(self))
 
         projects = []
-
         for item in os.listdir(PROJECTPATH):
             if not item.startswith('.') and os.path.isdir(os.path.join(PROJECTPATH, item)):
                 projects.append(item)
-
         prefsConfig.update_setting(INI_PATH, 'Settings', 'CurrentProject', projects[0])
-        c = prefsConfig.current_project()
-
-        # -----------------------------------------------------------------------------
+        current_project = prefsConfig.current_project()
 
         # Create list and dictionary for ColumnView tabs
         self.category = []  # List
         self.assets = {}  # Dictionary
 
         cats = self.category
-        ASSETSPATH = (PROJECTPATH + c + "/Assets/")
+        ASSETSPATH = (PROJECTPATH + current_project + "/Assets/")
 
         # Populate self.category list of Assets folder
         for item in os.listdir(ASSETSPATH):
@@ -66,9 +62,7 @@ class AssetsBrowser(QtWidgets.QMainWindow, ui_main.Ui_MainWindow):
                         cats.append(item)
 
         # Generate Tabs using create_tabs
-        functions.create_tabs(self, cats, c)
-
-        # -----------------------------------------------------------------------------
+        functions.create_tabs(self, cats, current_project)
 
         # Splitter Size Config
         splitter_size = [150, 500]
@@ -105,10 +99,10 @@ class AssetsBrowser(QtWidgets.QMainWindow, ui_main.Ui_MainWindow):
 
 
 if __name__ == "__main__":
-    functions.highdpi_check()
+    functions.high_dpi_check()
     functions.taskbar_icon()
 
-    valid_path = functions.projectpath_valid(INI_PATH, PROJECTPATH)
+    valid_path = functions.project_path_valid(INI_PATH, PROJECTPATH)
 
     if valid_path:
         app = QtWidgets.QApplication.instance()

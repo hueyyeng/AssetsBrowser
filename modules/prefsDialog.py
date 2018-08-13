@@ -48,12 +48,10 @@ class Prefs(QtWidgets.QDialog, ui_prefs.Ui_PrefsDialog):
 
         # Connect the clicked Qt UI to function
         self.projectpath_tool.clicked.connect(self.browse_projectpath)
-
         self.desc_check.clicked.connect(self.show_description)
         self.debug_check.clicked.connect(self.enable_debug)
         self.theme_radio1.clicked.connect(self.theme_fusion)
         self.theme_radio2.clicked.connect(self.theme_windows)
-
         self.btn_ok.clicked.connect(self.apply)
         self.btn_cancel.clicked.connect(self.reject)
 
@@ -88,11 +86,11 @@ class Prefs(QtWidgets.QDialog, ui_prefs.Ui_PrefsDialog):
         apply_theme()
 
         # Update the Project Path in the INI file
-        def apply_projectpath():
+        def apply_project_path():
             path = self.projectpath_line.text()
             prefsConfig.update_setting(INI_PATH, 'Settings', 'ProjectPath', path)
 
-        apply_projectpath()
+        apply_project_path()
 
         self.accept()  # For MainWindow to execute restart_app when prefsDialog OK
 
