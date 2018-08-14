@@ -4,19 +4,21 @@ import sys
 import ctypes
 import platform
 import subprocess
-from modules import prefsConfig
+from config import preferences
 from PyQt5 import QtGui, QtCore, QtWidgets
 
 # Set Path from INI file
-PROJECTPATH = prefsConfig.PROJECTPATH
-INI_PATH = prefsConfig.INI_PATH
+PROJECTPATH = preferences.PROJECTPATH
+INI_PATH = preferences.INI_PATH
 
 # File/Directory Path Dictionary for easy access by any methods
 selected_path = {'Path': ''}
 selected_file = {'File': ''}
-file_manager = {'Windows': 'Explorer',
-                'Darwin': 'Finder',
-                'Linux': 'File Manager'}
+file_manager = {
+    'Windows': 'Explorer',
+    'Darwin': 'Finder',
+    'Linux': 'File Manager',
+}
 
 # Declare global var here
 col_width = [200, 200, 200, 200, 200, 200, 200, 200, 200]
@@ -78,7 +80,6 @@ def column_view_tabs(column_view, category, project_name):
             file_size = tab.fsm.size(index_item)
             file_type = str(tab.fsm.type(index_item))
             file_date = tab.fsm.lastModified(index_item)
-
             file_path = str(tab.fsm.file_path(index_item))
 
             # Split file_type into array for easy formatting
@@ -88,7 +89,6 @@ def column_view_tabs(column_view, category, project_name):
             file_name_label = file_name
             file_size_label = get_file_size(file_size)
             file_type_label = file_type_list[0].upper() + ' file'
-            # file_type_label = file_type
             file_date_label = file_date.toString('yyyy/MM/dd' + ' ' + 'h:m AP')
 
             # Assign the File Attributes' String into respective labels
@@ -105,8 +105,6 @@ def column_view_tabs(column_view, category, project_name):
 
             selected_path['Path'] = file_path
             selected_file['File'] = file_name
-            # print selected_path['Path']
-            # print selected_file['File']
 
             # Retrieve file_path for Thumbnail Preview in __init__
             pic_path = tab.fsm.file_path(index_item)
@@ -130,10 +128,8 @@ def column_view_tabs(column_view, category, project_name):
                     tb_scaled = tb.scaled(max_size, max_size,
                                           QtCore.Qt.KeepAspectRatio,
                                           QtCore.Qt.SmoothTransformation)
-
                     tab.pvThumbs.setPixmap(tb_scaled)
                     break
-
                 else:
                     file_info = QtCore.QFileInfo(pic_path)  # Retrieve info like icons, path, etc
                     file_icon = QtWidgets.QFileIconProvider().icon(file_info)
@@ -141,7 +137,6 @@ def column_view_tabs(column_view, category, project_name):
                     # icon_scaled = icon.scaled(max_size, max_size,
                     #                           QtCore.Qt.KeepAspectRatio,
                     #                           QtCore.Qt.SmoothTransformation)
-
                     tab.pvThumbs.setPixmap(icon)
 
             return file_path
@@ -173,9 +168,6 @@ def column_view_tabs(column_view, category, project_name):
 
         # Preview widget layout and features goes here as a function
         def preview(widget, preview_tab):
-
-            # -------------------- TEXT LABELS STARTS HERE -------------------- #
-
             # File Category Labels
             cat_name = QtWidgets.QLabel('Name:')
             cat_size = QtWidgets.QLabel('Size:')
@@ -190,32 +182,26 @@ def column_view_tabs(column_view, category, project_name):
 
             # Align Right for Prefix Labels
             align_right = QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter
-
             cat_name.setAlignment(align_right)
             cat_size.setAlignment(align_right)
             cat_type.setAlignment(align_right)
             cat_date.setAlignment(align_right)
 
-            # File Attributes Layout
+            # File Attributes Layout and Value for Preview Pane
             sublayout_text = QtWidgets.QGridLayout()
-
             sublayout_text.addWidget(cat_name, 0, 0)
             sublayout_text.addWidget(cat_size, 1, 0)
             sublayout_text.addWidget(cat_type, 2, 0)
             sublayout_text.addWidget(cat_date, 3, 0)
-
-            # File Attributes Value for Preview Pane
             sublayout_text.addWidget(preview_tab.file_name, 0, 1)
             sublayout_text.addWidget(preview_tab.file_size, 1, 1)
             sublayout_text.addWidget(preview_tab.file_type, 2, 1)
             sublayout_text.addWidget(preview_tab.file_date, 3, 1)
+            sublayout_text.setRowStretch(4, 1)  # Arrange layout to upper part of widget
 
-            # Arrange layout to upper part of widget
-            sublayout_text.setRowStretch(4, 1)
 
             # Preview Thumbnails (pvThumbs)
             preview_tab.pvThumbs = QtWidgets.QLabel()
-
             sublayout_pic = QtWidgets.QVBoxLayout()
             sublayout_pic.addWidget(preview_tab.pvThumbs)
             sublayout_pic.setAlignment(QtCore.Qt.AlignCenter)
@@ -238,7 +224,7 @@ def column_view_tabs(column_view, category, project_name):
 # Retrieve directories in PROJECTPATH comboBox, clear existing tabs and create new tabs
 def project_list(self):
     project = self.comboBox.currentText()
-    prefsConfig.update_setting(INI_PATH, 'Settings', 'CurrentProject', project)
+    preferences.update_setting(INI_PATH, 'Settings', 'CurrentProject', project)
 
     # Clear all tabs except Help
     count = 0
@@ -272,18 +258,13 @@ def project_path_valid(INI_PATH, PROJECTPATH):
     else:
         home = os.path.expanduser('~')
         system = platform.system()
-
         if system == 'Darwin':
             home = (home + '/')
-
-        prefsConfig.update_setting(INI_PATH, 'Settings', 'ProjectPath', home.replace('\\', '/'))
-
+        preferences.update_setting(INI_PATH, 'Settings', 'ProjectPath', home.replace('\\', '/'))
         app = QtWidgets.QApplication(sys.argv)
         app.setWindowIcon(QtGui.QIcon('icons/logo.ico'))
-
         widget = QtWidgets.QWidget()
         message = QtWidgets.QMessageBox
-
         # Move PyQt Window position to center of the screen
         qt_rectangle = widget.frameGeometry()
         center_point = QtWidgets.QDesktopWidget().availableGeometry().center()
@@ -293,9 +274,7 @@ def project_path_valid(INI_PATH, PROJECTPATH):
         warning_text = ("Project Path doesn't exists!"
                         + "\n\nProject Path has been set to " + home + " temporarily."
                         + "\n\nPlease restart Assets Browser.")
-
         message.warning(widget, 'Warning', warning_text, message.Ok)
-
         widget.show()
 
 
@@ -310,12 +289,10 @@ def clear_layout(layout):
 # Toggle Debug Display
 def show_debug(self):
     text = self.textEdit
-
     if self.checkBoxDebug.isChecked():
         text.clear()
         text.setHidden(False)
         text.setEnabled(True)
-
     else:
         text.setHidden(True)
         text.setEnabled(False)
@@ -334,13 +311,10 @@ class OutLog:
         if self.color:
             tc = self.edit.textColor()
             self.edit.setTextColor(self.color)
-
         self.edit.moveCursor(QtGui.QTextCursor.End)
         self.edit.insertPlainText(m)
-
         if self.color:
             self.edit.setTextColor(tc)
-
         if self.out:
             self.out.write(m)
 
@@ -350,11 +324,9 @@ def always_on_top(self):
     if self.actionAlwaysOnTop.isChecked():
         self.setWindowFlags(self.windowFlags() | QtCore.Qt.WindowStaysOnTopHint)
         print("Always on Top Enabled")
-
     else:
         self.setWindowFlags(self.windowFlags() & ~QtCore.Qt.WindowStaysOnTopHint)
         print("Always on Top Disabled")
-
     self.show()
 
 
@@ -369,11 +341,9 @@ def center_screen(self):
 def get_file_size(size, precision=2):
     suffixes = ['B', 'KB', 'MB', 'GB', 'TB']
     suffix_index = 0
-
     while size > 1024 and suffix_index < 4:
         suffix_index += 1  # Increment the index of the suffix
         size = size / 1024  # Apply the division
-
     # Return using String formatting. f for float and s for string.
     return "%.*f %s" % (precision, size, suffixes[suffix_index])
 
@@ -395,17 +365,13 @@ def reveal_os(path):
             subprocess.call(cmd)
         else:
             print('Is this a valid OS?')
-
     elif system == 'Darwin':  # OSX/macOS
         subprocess.call(['open', '-R', path])
-
         # Alternative method for older OSX?
         # subprocess.Popen(['open', '-R', '%s' % (path)])
-
     elif system == 'Linux':
         dir_path = '/'.join(path.split('/')[0:-1])  # Omit file_name from path
         subprocess.Popen(['xdg-open', dir_path])
-
     else:
         print('FILE/DIRECTORY IS NOT VALID!')
 
@@ -414,7 +380,6 @@ def reveal_os(path):
 def font_overrides(self):
     system = platform.system()
     font = QtGui.QFont()
-
     if system == 'Darwin':
         font.setPointSize(8 * 1.2)
         self.setFont(font)

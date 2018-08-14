@@ -2,32 +2,31 @@
 import os
 import sys
 import platform
-from ui import ui_prefs
-from modules import functions, prefsConfig
+from ui import prefs
+from modules import functions
+from config import preferences
 from PyQt5 import QtWidgets
 
 # Declare var here first for use in methods below
-DEFAULTPATH = prefsConfig.DEFAULTPATH
-PROJECTPATH = prefsConfig.PROJECTPATH
-INI_PATH = prefsConfig.INI_PATH
-THEME = prefsConfig.THEME
+DEFAULTPATH = preferences.DEFAULTPATH
+PROJECTPATH = preferences.PROJECTPATH
+INI_PATH = preferences.INI_PATH
+THEME = preferences.THEME
 
 
-class Prefs(QtWidgets.QDialog, ui_prefs.Ui_PrefsDialog):
+class Prefs(QtWidgets.QDialog, prefs.Ui_PrefsDialog):
     def __init__(self, parent=None):
         super(Prefs, self).__init__(parent)
         self.setupUi(self)
         functions.window_icon(self)
 
-        # Retrieve ProjectPath value from PROJECTPATH
         self.projectpath_line.setText(PROJECTPATH)
 
         # Create config_check to reduce DRY (Don't Repeat Yourself)
         desc = self.desc_check
         # debug = self.debug_check  # TEMP DISABLE
-
         def config_check(ui, section, setting, value):
-            if prefsConfig.get_setting(INI_PATH, section, setting) == value:
+            if preferences.get_setting(INI_PATH, section, setting) == value:
                 ui.setChecked(True)
             else:
                 ui.setChecked(False)
@@ -55,7 +54,7 @@ class Prefs(QtWidgets.QDialog, ui_prefs.Ui_PrefsDialog):
         self.btn_ok.clicked.connect(self.apply)
         self.btn_cancel.clicked.connect(self.reject)
 
-        prefsConfig.get_config(INI_PATH)
+        preferences.get_config(INI_PATH)
 
     def apply(self):
         desc = self.desc_check
@@ -64,32 +63,25 @@ class Prefs(QtWidgets.QDialog, ui_prefs.Ui_PrefsDialog):
         # Function as reusable code for CheckBox elements
         def apply_checkbox(ui, param):
             if ui.isChecked():
-                prefsConfig.update_setting(INI_PATH, 'Settings', param, 'True')
+                preferences.update_setting(INI_PATH, 'Settings', param, 'True')
             else:
-                prefsConfig.update_setting(INI_PATH, 'Settings', param, 'False')
-
-        # Assign apply_checkbox function with description and debug parameters
+                preferences.update_setting(INI_PATH, 'Settings', param, 'False')
         apply_checkbox(desc, desc_param)
-        # apply_checkbox(debug, debug_param)
 
         # Theme function as radio toggle
         def apply_theme():
             if self.theme_radio1.isChecked():
-                prefsConfig.update_setting(INI_PATH, 'UI', 'Theme', 'Fusion')
+                preferences.update_setting(INI_PATH, 'UI', 'Theme', 'Fusion')
             else:
-                prefsConfig.update_setting(INI_PATH, 'UI', 'Theme', 'WindowsVista')
-
-            # Apply Theme to MainWindow
-            theme = prefsConfig.get_setting(INI_PATH, 'UI', 'Theme')
+                preferences.update_setting(INI_PATH, 'UI', 'Theme', 'WindowsVista')
+            theme = preferences.get_setting(INI_PATH, 'UI', 'Theme')
             QtWidgets.QApplication.setStyle(theme)
-
         apply_theme()
 
         # Update the Project Path in the INI file
         def apply_project_path():
             path = self.projectpath_line.text()
-            prefsConfig.update_setting(INI_PATH, 'Settings', 'ProjectPath', path)
-
+            preferences.update_setting(INI_PATH, 'Settings', 'ProjectPath', path)
         apply_project_path()
 
         self.accept()  # For MainWindow to execute restart_app when prefsDialog OK
@@ -111,7 +103,6 @@ class Prefs(QtWidgets.QDialog, ui_prefs.Ui_PrefsDialog):
         else:
             new_path = path.replace('\\', '/')           # Replace Windows style to UNIX style separator
             system = platform.system()
-
             if system == 'Linux':
                 unix_path = (new_path + '/')
                 self.projectpath_line.setText(unix_path)

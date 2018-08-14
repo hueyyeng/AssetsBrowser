@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 import sys
-from ui import ui_about
+from ui import about
 from modules.functions import window_icon
 from PyQt5 import QtGui, QtWidgets
 
 
-class About(QtWidgets.QDialog, ui_about.Ui_AboutDialog):
+class About(QtWidgets.QDialog, about.Ui_AboutDialog):
 
     def __init__(self, parent=None):
         super(About, self).__init__(parent)

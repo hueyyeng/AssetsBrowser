@@ -1,17 +1,19 @@
 # -*- coding: utf-8 -*-
 import os
 import sys
-from ui import ui_main, ui_help
-from modules import functions, assetDialog, aboutDialog, prefsDialog, prefsConfig
+from ui import main, help
+from ui.dialog import about, asset, prefs
+from modules import functions
+from config import preferences
 from PyQt5 import QtGui, QtCore, QtWidgets
 
 # Set Path from INI file
-PROJECTPATH = prefsConfig.PROJECTPATH
-INI_PATH = prefsConfig.INI_PATH
-THEME = prefsConfig.THEME
+PROJECTPATH = preferences.PROJECTPATH
+INI_PATH = preferences.INI_PATH
+THEME = preferences.THEME
 
 
-class AssetsBrowser(QtWidgets.QMainWindow, ui_main.Ui_MainWindow):
+class AssetsBrowser(QtWidgets.QMainWindow, main.Ui_MainWindow):
     def __init__(self, parent=None):
         super(AssetsBrowser, self).__init__(parent)
         self.setupUi(self)
@@ -45,8 +47,8 @@ class AssetsBrowser(QtWidgets.QMainWindow, ui_main.Ui_MainWindow):
         for item in os.listdir(PROJECTPATH):
             if not item.startswith('.') and os.path.isdir(os.path.join(PROJECTPATH, item)):
                 projects.append(item)
-        prefsConfig.update_setting(INI_PATH, 'Settings', 'CurrentProject', projects[0])
-        current_project = prefsConfig.current_project()
+        preferences.update_setting(INI_PATH, 'Settings', 'CurrentProject', projects[0])
+        current_project = preferences.current_project()
 
         # Create list and dictionary for ColumnView tabs
         self.category = []  # List
@@ -70,24 +72,24 @@ class AssetsBrowser(QtWidgets.QMainWindow, ui_main.Ui_MainWindow):
 
         # Help Tab
         html = 'ui/help/help.html'
-        temp_path = ('file:///' + str(ui_help.repath(html)))
+        temp_path = ('file:///' + str(help.repath(html)))
         self.textBrowserHelp.setSource(QtCore.QUrl(temp_path))
 
         # Dialog Window
-        about = aboutDialog.show_dialog
-        asset = assetDialog.show_dialog
-        prefs = prefsDialog.show_dialog
+        about_dialog = about.show_dialog
+        asset_dialog = asset.show_dialog
+        prefs_dialog = prefs.show_dialog
 
         # Menu Action
-        self.actionPreferences.triggered.connect(prefs)
-        self.actionAbout.triggered.connect(about)
+        self.actionPreferences.triggered.connect(prefs_dialog)
+        self.actionAbout.triggered.connect(about_dialog)
         self.actionQuit.triggered.connect(functions.close_app)
 
         # Create New Asset Button
-        self.pushBtnNew.clicked.connect(asset)
+        self.pushBtnNew.clicked.connect(asset_dialog)
 
         # When calling functions from imported modules that inherit the QMainWindow
-        # but located outside its scope, use 'lambda:' followed by the function as
+        # but located outside its scope, use 'lambda:' followed by the method as
         # though it was defined within the same class for easier code maintenance
         self.actionAlwaysOnTop.triggered.connect(lambda: functions.always_on_top(self))
 
@@ -103,7 +105,6 @@ if __name__ == "__main__":
     functions.taskbar_icon()
 
     valid_path = functions.project_path_valid(INI_PATH, PROJECTPATH)
-
     if valid_path:
         app = QtWidgets.QApplication.instance()
         if app is None:

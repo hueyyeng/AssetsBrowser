@@ -1,19 +1,19 @@
 # -*- coding: utf-8 -*-
 import os
 import sys
-from ui import ui_asset
-from modules import prefsConfig, functions
+from ui import asset
+from modules import functions
+from config import preferences
 from PyQt5 import QtGui, QtCore, QtWidgets
 
-# Declare var here first for use in methods below
-PROJECTPATH = prefsConfig.PROJECTPATH
-INI_PATH = prefsConfig.INI_PATH
+PROJECTPATH = preferences.PROJECTPATH
+INI_PATH = preferences.INI_PATH
 # CURRENTPROJECT = prefsConfig.CURRENTPROJECT
 # CURRENTPROJECT = prefsConfig.get_setting(INI_PATH, 'Settings', 'CurrentProject')
 # TODO: Rework CURRENTPROJECT to properly receive INI CurrentProject value
 
 
-class AssetDialog(QtWidgets.QDialog, ui_asset.Ui_AssetDialog):
+class AssetDialog(QtWidgets.QDialog, asset.Ui_AssetDialog):
     def __init__(self, parent=None):
         super(AssetDialog, self).__init__(parent)
         self.setupUi(self)
@@ -66,7 +66,7 @@ class AssetDialog(QtWidgets.QDialog, ui_asset.Ui_AssetDialog):
     # Create asset with preconfigure directories structure
     def create_asset(self):
         # project = CURRENTPROJECT
-        project = prefsConfig.get_setting(INI_PATH, 'Settings', 'CurrentProject')
+        project = preferences.get_setting(INI_PATH, 'Settings', 'CurrentProject')
         category = str(self.catBtnGroup.checkedButton().text())
         asset_name = str(self.preview)
         asset_path = (PROJECTPATH + project + "/Assets/" + category)
@@ -108,34 +108,27 @@ class AssetDialog(QtWidgets.QDialog, ui_asset.Ui_AssetDialog):
     # signal to this method, it allows the text field to "dynamically" update.
     def preview(self):
         # project = CURRENTPROJECT
-        project = prefsConfig.get_setting(INI_PATH, 'Settings', 'CurrentProject')
+        project = preferences.get_setting(INI_PATH, 'Settings', 'CurrentProject')
 
         checked = self.previewGroup.isChecked()
         length = len(self.assetLineEdit.text())
-
         if checked and length == 3:
             self.previewText.clear()  # Clear the text field for every signal to create "illusion" of dynamic update
             self.btnCreate.setDisabled(False)  # Enable Create button
 
             cat = str(self.catBtnGroup.checkedButton().text())
-
             prefix = cat[0].lower()  # Slice the first letter of the selected category radio and make it lowercase
             suffix = str(self.assetLineEdit.text())  # Retrieve the assetLineEdit text as string
-
             asset_name = (prefix + suffix)
-
             asset_text = 'The asset name will be ' + asset_name + '.' + \
                          '\nEnsure the asset name is correct before proceeding.' + \
                          '\n\nProject: ' + project
-
             self.previewText.appendPlainText(asset_text)
-
             return asset_name
 
         elif checked and length != 3:
             self.previewText.clear()
             self.btnCreate.setDisabled(True)
-
             warning_text = 'ENSURE ASSET NAME IS THREE CHARACTERS LENGTH!'
             self.previewText.appendPlainText(warning_text)
 
