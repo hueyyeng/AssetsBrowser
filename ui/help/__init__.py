@@ -5,7 +5,6 @@ import platform
 
 def repath(path):
     file = tempfile.NamedTemporaryFile(suffix='.html', delete=False)
-
     with file as temp:
         data = open(path, 'r')
         text = data.read()
@@ -15,7 +14,6 @@ def repath(path):
         help_path = file.name
 
     system = platform.system()
-
     if system == 'Windows':
         help_path.replace('\\', '/')
 
