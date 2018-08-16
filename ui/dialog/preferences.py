@@ -2,19 +2,19 @@
 import os
 import sys
 import platform
-from ui import prefs
+from config import configurations
 from modules import functions
-from config import preferences
+from ui.window import preferences
 from PyQt5 import QtWidgets
 
 # Declare var here first for use in methods below
-DEFAULTPATH = preferences.DEFAULTPATH
-PROJECTPATH = preferences.PROJECTPATH
-INI_PATH = preferences.INI_PATH
-THEME = preferences.THEME
+DEFAULTPATH = configurations.DEFAULTPATH
+PROJECTPATH = configurations.PROJECTPATH
+INI_PATH = configurations.INI_PATH
+THEME = configurations.THEME
 
 
-class Prefs(QtWidgets.QDialog, prefs.Ui_PrefsDialog):
+class Prefs(QtWidgets.QDialog, preferences.Ui_PrefsDialog):
     def __init__(self, parent=None):
         super(Prefs, self).__init__(parent)
         self.setupUi(self)
@@ -26,7 +26,7 @@ class Prefs(QtWidgets.QDialog, prefs.Ui_PrefsDialog):
         desc = self.desc_check
         # debug = self.debug_check  # TEMP DISABLE
         def config_check(ui, section, setting, value):
-            if preferences.get_setting(INI_PATH, section, setting) == value:
+            if configurations.get_setting(INI_PATH, section, setting) == value:
                 ui.setChecked(True)
             else:
                 ui.setChecked(False)
@@ -46,7 +46,7 @@ class Prefs(QtWidgets.QDialog, prefs.Ui_PrefsDialog):
             self.theme_radio2.setChecked(True)
 
         # Connect the clicked Qt UI to function
-        self.projectpath_tool.clicked.connect(self.browse_projectpath)
+        self.projectpath_tool.clicked.connect(self.browser_project_path)
         self.desc_check.clicked.connect(self.show_description)
         self.debug_check.clicked.connect(self.enable_debug)
         self.theme_radio1.clicked.connect(self.theme_fusion)
@@ -54,7 +54,7 @@ class Prefs(QtWidgets.QDialog, prefs.Ui_PrefsDialog):
         self.btn_ok.clicked.connect(self.apply)
         self.btn_cancel.clicked.connect(self.reject)
 
-        preferences.get_config(INI_PATH)
+        configurations.get_config(INI_PATH)
 
     def apply(self):
         desc = self.desc_check
@@ -63,30 +63,30 @@ class Prefs(QtWidgets.QDialog, prefs.Ui_PrefsDialog):
         # Function as reusable code for CheckBox elements
         def apply_checkbox(ui, param):
             if ui.isChecked():
-                preferences.update_setting(INI_PATH, 'Settings', param, 'True')
+                configurations.update_setting(INI_PATH, 'Settings', param, 'True')
             else:
-                preferences.update_setting(INI_PATH, 'Settings', param, 'False')
+                configurations.update_setting(INI_PATH, 'Settings', param, 'False')
         apply_checkbox(desc, desc_param)
 
         # Theme function as radio toggle
         def apply_theme():
             if self.theme_radio1.isChecked():
-                preferences.update_setting(INI_PATH, 'UI', 'Theme', 'Fusion')
+                configurations.update_setting(INI_PATH, 'UI', 'Theme', 'Fusion')
             else:
-                preferences.update_setting(INI_PATH, 'UI', 'Theme', 'WindowsVista')
-            theme = preferences.get_setting(INI_PATH, 'UI', 'Theme')
+                configurations.update_setting(INI_PATH, 'UI', 'Theme', 'WindowsVista')
+            theme = configurations.get_setting(INI_PATH, 'UI', 'Theme')
             QtWidgets.QApplication.setStyle(theme)
         apply_theme()
 
         # Update the Project Path in the INI file
         def apply_project_path():
             path = self.projectpath_line.text()
-            preferences.update_setting(INI_PATH, 'Settings', 'ProjectPath', path)
+            configurations.update_setting(INI_PATH, 'Settings', 'ProjectPath', path)
         apply_project_path()
 
         self.accept()  # For MainWindow to execute restart_app when prefsDialog OK
 
-    def browse_projectpath(self):
+    def browser_project_path(self):
         path = str(QtWidgets.QFileDialog.getExistingDirectory(
             self,
             'Choose Directory',

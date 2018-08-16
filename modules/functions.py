@@ -4,12 +4,12 @@ import sys
 import ctypes
 import platform
 import subprocess
-from config import preferences
+from config import configurations
 from PyQt5 import QtGui, QtCore, QtWidgets
 
 # Set Path from INI file
-PROJECTPATH = preferences.PROJECTPATH
-INI_PATH = preferences.INI_PATH
+PROJECTPATH = configurations.PROJECTPATH
+INI_PATH = configurations.INI_PATH
 
 # File/Directory Path Dictionary for easy access by any methods
 selected_path = {'Path': ''}
@@ -26,10 +26,7 @@ col_width = [200, 200, 200, 200, 200, 200, 200, 200, 200]
 
 # Create Tabs Dynamically from Assets' List
 def create_tabs(self, category, project_name):
-    c = category
-    p = project_name
-
-    for each in c:
+    for each in category:
         self.tab = QtWidgets.QWidget()
 
         self.column_view = QtWidgets.QColumnView(self.tab)
@@ -43,7 +40,7 @@ def create_tabs(self, category, project_name):
 
         self.tabWidget.addTab(self.tab, each)
 
-        column_view_tabs(self.column_view, each, p)
+        column_view_tabs(self.column_view, each, project_name)
 
     # DEBUG USE
     # keys = sorted(self.assets.keys())
@@ -76,11 +73,11 @@ def column_view_tabs(column_view, category, project_name):
             index_item = tab.fsm.index(index.row(), 0, index.parent())
 
             # Retrieve File Attributes
-            file_name = str(tab.fsm.file_name(index_item))
+            file_name = str(tab.fsm.fileName(index_item))
             file_size = tab.fsm.size(index_item)
             file_type = str(tab.fsm.type(index_item))
             file_date = tab.fsm.lastModified(index_item)
-            file_path = str(tab.fsm.file_path(index_item))
+            file_path = str(tab.fsm.filePath(index_item))
 
             # Split file_type into array for easy formatting
             file_type_list = file_type.split(' ')
@@ -107,10 +104,21 @@ def column_view_tabs(column_view, category, project_name):
             selected_file['File'] = file_name
 
             # Retrieve file_path for Thumbnail Preview in __init__
-            pic_path = tab.fsm.file_path(index_item)
+            pic_path = tab.fsm.filePath(index_item)
             pic_type = file_type[0:-5]
 
-            pic_types = ['jpg', 'jpeg', 'bmp', 'png', 'gif', 'bmp', 'ico', 'tga', 'tif', 'tiff']
+            pic_types = [
+                        'jpg',
+                        'jpeg',
+                        'bmp',
+                        'png',
+                        'gif',
+                        'bmp',
+                        'ico',
+                        'tga',
+                        'tif',
+                        'tiff',
+                         ]
 
             # Omit format that doesn't on specific OS
             system = platform.system()
@@ -120,23 +128,27 @@ def column_view_tabs(column_view, category, project_name):
 
             # Generate thumbnails for Preview Pane
             for each in pic_types:
-                max_size = 150  # Thumbnails max size in pixels
+                thumb_max_size = 150  # Thumbnails max size in pixels
 
                 if each.lower() == pic_type.lower():
                     tb = QtGui.QPixmap()
                     tb.load(pic_path)
-                    tb_scaled = tb.scaled(max_size, max_size,
+                    tb_scaled = tb.scaled(thumb_max_size,
+                                          thumb_max_size,
                                           QtCore.Qt.KeepAspectRatio,
-                                          QtCore.Qt.SmoothTransformation)
+                                          QtCore.Qt.SmoothTransformation,
+                                          )
                     tab.pvThumbs.setPixmap(tb_scaled)
                     break
                 else:
                     file_info = QtCore.QFileInfo(pic_path)  # Retrieve info like icons, path, etc
                     file_icon = QtWidgets.QFileIconProvider().icon(file_info)
                     icon = file_icon.pixmap(48, 48, QtGui.QIcon.Normal, QtGui.QIcon.Off)
-                    # icon_scaled = icon.scaled(max_size, max_size,
-                    #                           QtCore.Qt.KeepAspectRatio,
-                    #                           QtCore.Qt.SmoothTransformation)
+                    icon_scaled = icon.scaled(thumb_max_size,
+                                              thumb_max_size,
+                                              QtCore.Qt.KeepAspectRatio,
+                                              QtCore.Qt.SmoothTransformation,
+                                              )
                     tab.pvThumbs.setPixmap(icon)
 
             return file_path
@@ -224,7 +236,7 @@ def column_view_tabs(column_view, category, project_name):
 # Retrieve directories in PROJECTPATH comboBox, clear existing tabs and create new tabs
 def project_list(self):
     project = self.comboBox.currentText()
-    preferences.update_setting(INI_PATH, 'Settings', 'CurrentProject', project)
+    configurations.update_setting(INI_PATH, 'Settings', 'CurrentProject', project)
 
     # Clear all tabs except Help
     count = 0
@@ -260,7 +272,7 @@ def project_path_valid(INI_PATH, PROJECTPATH):
         system = platform.system()
         if system == 'Darwin':
             home = (home + '/')
-        preferences.update_setting(INI_PATH, 'Settings', 'ProjectPath', home.replace('\\', '/'))
+        configurations.update_setting(INI_PATH, 'Settings', 'ProjectPath', home.replace('\\', '/'))
         app = QtWidgets.QApplication(sys.argv)
         app.setWindowIcon(QtGui.QIcon('icons/logo.ico'))
         widget = QtWidgets.QWidget()
@@ -298,7 +310,7 @@ def show_debug(self):
         text.setEnabled(False)
 
 
-# Redirect stdout to QTextEdit widget. Example usage in main.py:
+# Redirect stdout to QTextEdit widget. Example usage in assetsbrowser.py:
 # sys.stdout = OutLog( edit, sys.stdout)
 # sys.stderr = OutLog( edit, sys.stderr, QtGui.QColor(255,0,0) )
 class OutLog:
@@ -397,7 +409,9 @@ def window_icon(self):
 def open_file(target):
     system = platform.system()
     if system == 'Linux':
-        subprocess.call(["xdg-open", target])
+        subprocess.call(['xdg-open', target])
+    if system == 'Darwin':
+        subprocess.call(['open', target])
     else:
         os.startfile(target)
 

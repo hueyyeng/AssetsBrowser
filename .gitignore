@@ -13,6 +13,15 @@ tests
 settings.ini
 setup.py
 
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
 # Windows thumbnail cache files
 Thumbs.db
 ehthumbs.db
