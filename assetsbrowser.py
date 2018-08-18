@@ -54,6 +54,10 @@ class AssetsBrowser(QtWidgets.QMainWindow, main.Ui_MainWindow):
         categories = self.category = []
         assets_path = (PROJECTPATH + current_project + "/Assets/")
 
+        # TODO: Warn user if Assets directory doesn't exists and quit?
+        if not os.path.isdir(assets_path):
+            assets_path = (PROJECTPATH + current_project)
+
         # Populate categories list of Assets folder
         for item in os.listdir(assets_path):
             name_prefix = item.startswith(('_', '.'))
@@ -102,7 +106,7 @@ if __name__ == "__main__":
     functions.high_dpi_check()
     functions.taskbar_icon()
 
-    valid_path = functions.project_path_valid(INI_PATH, PROJECTPATH)
+    valid_path = functions.valid_path(INI_PATH, PROJECTPATH)
     if valid_path:
         app = QtWidgets.QApplication.instance()
         if app is None:

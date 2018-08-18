@@ -232,7 +232,6 @@ def project_list(self):
 
     # Clear all tabs except Help
     count = 0
-
     while count < 10:
         count = count + 1
         self.tabWidget.removeTab(1)
@@ -241,29 +240,36 @@ def project_list(self):
     self.category = []
     self.assets = {}
 
-    cat = self.category
-    ASSETSPATH = (PROJECTPATH + project + "/Assets/")
+    category = self.category
+    assets_path = (PROJECTPATH + project + "/Assets/")
 
-    for item in os.listdir(ASSETSPATH):
+    for item in os.listdir(assets_path):
         if not item.startswith('_') and not item.startswith('.') \
-                and os.path.isdir(os.path.join(ASSETSPATH, item)):
-            cat.append(item)
+                and os.path.isdir(os.path.join(assets_path, item)):
+            category.append(item)
 
     # Generate Tabs automagically
-    create_tabs(self, cat, project)
+    create_tabs(self, category, project)
 
 
 # Check if PROJECTPATH is valid and reset to home directory if error
-def project_path_valid(INI_PATH, PROJECTPATH):
+def valid_path(INI_PATH, PROJECTPATH):
     exists = os.path.exists(PROJECTPATH)
     if exists:
-        print('Project Path is valid')
+        print("Project Path is valid.")
     else:
         home = os.path.expanduser('~')
         system = platform.system()
         if system == 'Darwin':
             home = (home + '/')
-        configurations.update_setting(INI_PATH, 'Settings', 'ProjectPath', home.replace('\\', '/'))
+        if system == 'Windows':
+            home = (home + '\\')
+        configurations.update_setting(
+                    INI_PATH,
+                    'Settings',
+                    'ProjectPath',
+                    home.replace('\\', '/'),
+        )
 
         # Move PyQt Window position to center of the screen
         app = QtWidgets.QApplication(sys.argv)
@@ -284,6 +290,7 @@ def project_path_valid(INI_PATH, PROJECTPATH):
         )
         message.warning(widget, 'Warning', warning_text, message.Ok)
         widget.show()
+    return exists
 
 
 # Clear Layout?
