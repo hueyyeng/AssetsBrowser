@@ -42,10 +42,6 @@ def create_tabs(self, category, project_name):
 
         column_view_tabs(self.column_view, each, project_name)
 
-    # DEBUG USE
-    # keys = sorted(self.assets.keys())
-    # print(keys)
-
 
 # Create new column_view tabs to for each categories
 def column_view_tabs(column_view, category, project_name):
@@ -133,22 +129,18 @@ def column_view_tabs(column_view, category, project_name):
                 if each.lower() == pic_type.lower():
                     tb = QtGui.QPixmap()
                     tb.load(pic_path)
-                    tb_scaled = tb.scaled(thumb_max_size,
-                                          thumb_max_size,
-                                          QtCore.Qt.KeepAspectRatio,
-                                          QtCore.Qt.SmoothTransformation,
-                                          )
+                    tb_scaled = tb.scaled(
+                                thumb_max_size,
+                                thumb_max_size,
+                                QtCore.Qt.KeepAspectRatio,
+                                QtCore.Qt.SmoothTransformation,
+                                )
                     tab.pvThumbs.setPixmap(tb_scaled)
                     break
                 else:
                     file_info = QtCore.QFileInfo(pic_path)  # Retrieve info like icons, path, etc
                     file_icon = QtWidgets.QFileIconProvider().icon(file_info)
                     icon = file_icon.pixmap(48, 48, QtGui.QIcon.Normal, QtGui.QIcon.Off)
-                    icon_scaled = icon.scaled(thumb_max_size,
-                                              thumb_max_size,
-                                              QtCore.Qt.KeepAspectRatio,
-                                              QtCore.Qt.SmoothTransformation,
-                                              )
                     tab.pvThumbs.setPixmap(icon)
 
             return file_path
@@ -266,26 +258,30 @@ def project_path_valid(INI_PATH, PROJECTPATH):
     exists = os.path.exists(PROJECTPATH)
     if exists:
         print('Project Path is valid')
-        return True
     else:
         home = os.path.expanduser('~')
         system = platform.system()
         if system == 'Darwin':
             home = (home + '/')
         configurations.update_setting(INI_PATH, 'Settings', 'ProjectPath', home.replace('\\', '/'))
+
+        # Move PyQt Window position to center of the screen
         app = QtWidgets.QApplication(sys.argv)
         app.setWindowIcon(QtGui.QIcon('icons/logo.ico'))
+
         widget = QtWidgets.QWidget()
         message = QtWidgets.QMessageBox
-        # Move PyQt Window position to center of the screen
+
         qt_rectangle = widget.frameGeometry()
         center_point = QtWidgets.QDesktopWidget().availableGeometry().center()
         qt_rectangle.moveCenter(center_point)
         widget.move(qt_rectangle.topLeft())
 
-        warning_text = ("Project Path doesn't exists!"
-                        + "\n\nProject Path has been set to " + home + " temporarily."
-                        + "\n\nPlease restart Assets Browser.")
+        warning_text = (
+                "Project Path doesn't exists!"
+                + "\n\nProject Path has been set to " + home + " temporarily."
+                + "\n\nPlease restart Assets Browser."
+        )
         message.warning(widget, 'Warning', warning_text, message.Ok)
         widget.show()
 
@@ -314,7 +310,7 @@ def show_debug(self):
 # sys.stdout = OutLog( edit, sys.stdout)
 # sys.stderr = OutLog( edit, sys.stderr, QtGui.QColor(255,0,0) )
 class OutLog:
-    def __init__(self, edit, out=None, color=None):
+    def __init__(self, edit, color=None):
         self.edit = edit
         self.out = None
         self.color = color
@@ -322,11 +318,9 @@ class OutLog:
     def write(self, m):
         if self.color:
             tc = self.edit.textColor()
-            self.edit.setTextColor(self.color)
+            self.edit.setTextColor(tc)
         self.edit.moveCursor(QtGui.QTextCursor.End)
         self.edit.insertPlainText(m)
-        if self.color:
-            self.edit.setTextColor(tc)
         if self.out:
             self.out.write(m)
 
@@ -377,13 +371,16 @@ def reveal_os(path):
             subprocess.call(cmd)
         else:
             print('Is this a valid OS?')
+
     elif system == 'Darwin':  # OSX/macOS
         subprocess.call(['open', '-R', path])
         # Alternative method for older OSX?
         # subprocess.Popen(['open', '-R', '%s' % (path)])
+
     elif system == 'Linux':
         dir_path = '/'.join(path.split('/')[0:-1])  # Omit file_name from path
         subprocess.Popen(['xdg-open', dir_path])
+
     else:
         print('FILE/DIRECTORY IS NOT VALID!')
 

@@ -1,17 +1,12 @@
 # -*- coding: utf-8 -*-
 import os
-import sys
-if sys.version_info[0] < 3:  # Check if Python version is less than 3
-    import ConfigParser
-    config = ConfigParser.ConfigParser()
-else:
-    import configparser
-    config = configparser.ConfigParser()
+import configparser
 
 ROOT_DIR = 'config/'
 INI_FILE = 'settings.ini'
 INI_PATH = (ROOT_DIR + INI_FILE)
 
+config = configparser.ConfigParser()
 home = os.path.expanduser('~')  # Defaults to home directory
 
 

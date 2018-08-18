@@ -3,10 +3,10 @@ import os
 import sys
 from config import configurations
 from modules import functions
-from ui import help
-from ui.window import main
 from ui.dialog import about, asset, preferences
-from PyQt5 import QtGui, QtCore, QtWidgets
+from ui.help import repath
+from ui.window import main
+from PyQt5 import QtCore, QtWidgets
 
 # Set Path from INI file
 PROJECTPATH = configurations.PROJECTPATH
@@ -24,7 +24,7 @@ class AssetsBrowser(QtWidgets.QMainWindow, main.Ui_MainWindow):
 
         # Redirect stdout to QTextEdit widget for debug log
         sys.stdout = functions.OutLog(self.textEdit, sys.stdout)
-        sys.stderr = functions.OutLog(self.textEdit, sys.stderr, QtGui.QColor(255, 0, 0))
+        sys.stderr = functions.OutLog(self.textEdit, sys.stderr)
 
         # functions.font_overrides(self)
         QtWidgets.QApplication.setStyle(THEME)  # Initialise theme from INI file
@@ -70,7 +70,7 @@ class AssetsBrowser(QtWidgets.QMainWindow, main.Ui_MainWindow):
 
         # Help Tab
         html = 'ui/help/help.html'
-        temp_html_path = ('file:///' + str(help.repath(html)))
+        temp_html_path = ('file:///' + str(repath(html)))
         self.textBrowserHelp.setSource(QtCore.QUrl(temp_html_path))
 
         # Dialog Window

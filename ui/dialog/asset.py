@@ -36,11 +36,8 @@ class AssetDialog(QtWidgets.QDialog, asset.Ui_AssetDialog):
 
         # Iterate each radio_button in a for loop to reduce code duplication (DRY)
         for each in radio_button:
-            def category_checked():                                 # Return text value of radio button when checked.
-                category = self.catBtnGroup.checkedButton().text()  # The radio_button are QButtonGroup so we can use
-                print(category + ' is selected.')                  # checkedButton() as QGroupBox lack such feature
-
-            each.clicked.connect(category_checked)
+            category = self.catBtnGroup.checkedButton().text()
+            each.clicked.connect(category)
             each.clicked.connect(self.preview)
 
         # Limit the range of acceptable characters input by the user
@@ -125,7 +122,6 @@ class AssetDialog(QtWidgets.QDialog, asset.Ui_AssetDialog):
             )
 
             self.previewText.appendPlainText(asset_text)
-            return asset_name
         elif checked and length != 3:
             self.previewText.clear()
             self.btnCreate.setDisabled(True)
