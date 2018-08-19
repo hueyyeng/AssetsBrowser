@@ -20,33 +20,53 @@ file_manager = {
     'Linux': 'File Manager',
 }
 
-# Declare global var here
-col_width = [200, 200, 200, 200, 200, 200, 200, 200, 200]
 
+def create_tabs(self, categories, project):
+    """Create tabs.
+    Create QColumnView tabs dynamically from Assets' List.
 
-# Create Tabs Dynamically from Assets' List
-def create_tabs(self, category, project_name):
-    for each in category:
+    Parameters
+    ----------
+    categories : :obj:`list` of :obj:`str`
+        Array of categories in str format.
+    project : str
+        The project name.
+
+    Returns
+    -------
+    None
+    """   
+    for category in categories:
         self.tab = QtWidgets.QWidget()
-
         self.column_view = QtWidgets.QColumnView(self.tab)
-        self.assets["column_view{0}".format(each)] = self.column_view
         self.column_view.setAlternatingRowColors(False)
         self.column_view.setResizeGripsVisible(True)
-
+        
+        self.assets["column_view{0}".format(category)] = self.column_view
+        
         self.horizontalLayout = QtWidgets.QHBoxLayout(self.tab)
         self.horizontalLayout.setContentsMargins(0, 0, 0, 0)
         self.horizontalLayout.addWidget(self.column_view)
 
-        self.tabWidget.addTab(self.tab, each)
-
-        column_view_tabs(self.column_view, each, project_name)
+        self.tabWidget.addTab(self.tab, category)
+        column_views(self.column_view, category, project)
 
 
 # Create new column_view tabs to for each categories
-def column_view_tabs(column_view, category, project_name):
+def column_views(column_view, category, project_name):   
     project = project_name
     default_path = (PROJECTPATH + project + "/Assets/" + category)
+    column_width = [
+                    200,
+                    200,
+                    200,
+                    200, 
+                    200, 
+                    200, 
+                    200, 
+                    200, 
+                    200,
+                   ]
 
     if os.path.isdir(default_path):
         print("Load..." + default_path)
@@ -61,7 +81,7 @@ def column_view_tabs(column_view, category, project_name):
         tab.setRootIndex(tab.rootindex)
 
         # List for Column Width for QColumnView
-        tab.setColumnWidths(col_width)
+        tab.setColumnWidths(column_width)
 
         # Return selected item attributes in Model View for Preview Pane
         @QtCore.pyqtSlot(QtCore.QModelIndex)
@@ -82,19 +102,17 @@ def column_view_tabs(column_view, category, project_name):
             file_name_label = file_name
             file_size_label = get_file_size(file_size)
             file_type_label = file_type_list[0].upper() + ' file'
-            file_date_label = file_date.toString('yyyy/MM/dd' + ' ' + 'h:m AP')
+            file_date_label = file_date.toString(
+                                                'yyyy/MM/dd'
+                                                + ' '
+                                                + 'h:m AP'
+                                                )
 
             # Assign the File Attributes' String into respective labels
             tab.file_name.setText(file_name_label)
             tab.file_size.setText(file_size_label)
             tab.file_type.setText(file_type_label)
             tab.file_date.setText(file_date_label)
-
-            # For Debug Panel (feel free to comment/remove it)
-            print(file_name_label)
-            print(file_size_label)
-            print(file_type_label)
-            print(file_date_label)
 
             selected_path['Path'] = file_path
             selected_file['File'] = file_name
@@ -114,9 +132,9 @@ def column_view_tabs(column_view, category, project_name):
                         'tga',
                         'tif',
                         'tiff',
-                         ]
+                        ]
 
-            # Omit format that doesn't on specific OS
+            # Omit format that doesn't work on specific OS
             system = platform.system()
             if system == 'Darwin':
                 # pic_types.remove('gif')
@@ -156,12 +174,9 @@ def column_view_tabs(column_view, category, project_name):
 
             open_action = menu.addAction('Open ' + selected_file['File'])
             open_action.triggered.connect(lambda: open_file(selected_path['Path']))
-
             reveal_action = menu.addAction(('Reveal in ' + file_manager[platform.system()]))
-            reveal_action.triggered.connect(lambda: reveal_os(selected_path['Path']))
-
+            reveal_action.triggered.connect(lambda: reveal_in_os(selected_path['Path']))
             menu.addSeparator()
-
             quit_action = menu.addAction("Quit")
             quit_action.triggered.connect(QtWidgets.QApplication.quit)
 
@@ -173,10 +188,10 @@ def column_view_tabs(column_view, category, project_name):
         # Preview widget layout and features goes here as a function
         def preview(widget, preview_tab):
             # File Category Labels
-            cat_name = QtWidgets.QLabel('Name:')
-            cat_size = QtWidgets.QLabel('Size:')
-            cat_type = QtWidgets.QLabel('Type:')
-            cat_date = QtWidgets.QLabel('Modified:')
+            category_name = QtWidgets.QLabel('Name:')
+            category_size = QtWidgets.QLabel('Size:')
+            category_type = QtWidgets.QLabel('Type:')
+            category_date = QtWidgets.QLabel('Modified:')
 
             # File Attributes Labels
             preview_tab.file_name = QtWidgets.QLabel()
@@ -186,17 +201,17 @@ def column_view_tabs(column_view, category, project_name):
 
             # Align Right for Prefix Labels
             align_right = QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter
-            cat_name.setAlignment(align_right)
-            cat_size.setAlignment(align_right)
-            cat_type.setAlignment(align_right)
-            cat_date.setAlignment(align_right)
+            category_name.setAlignment(align_right)
+            category_size.setAlignment(align_right)
+            category_type.setAlignment(align_right)
+            category_date.setAlignment(align_right)
 
             # File Attributes Layout and Value for Preview Pane
             sublayout_text = QtWidgets.QGridLayout()
-            sublayout_text.addWidget(cat_name, 0, 0)
-            sublayout_text.addWidget(cat_size, 1, 0)
-            sublayout_text.addWidget(cat_type, 2, 0)
-            sublayout_text.addWidget(cat_date, 3, 0)
+            sublayout_text.addWidget(category_name, 0, 0)
+            sublayout_text.addWidget(category_size, 1, 0)
+            sublayout_text.addWidget(category_type, 2, 0)
+            sublayout_text.addWidget(category_date, 3, 0)
             sublayout_text.addWidget(preview_tab.file_name, 0, 1)
             sublayout_text.addWidget(preview_tab.file_size, 1, 1)
             sublayout_text.addWidget(preview_tab.file_type, 2, 1)
@@ -244,11 +259,9 @@ def project_list(self):
     assets_path = (PROJECTPATH + project + "/Assets/")
 
     for item in os.listdir(assets_path):
-        if not item.startswith('_') and not item.startswith('.') \
-                and os.path.isdir(os.path.join(assets_path, item)):
+        if not item.startswith(('_', '.')) and os.path.isdir(os.path.join(assets_path, item)):
             category.append(item)
 
-    # Generate Tabs automagically
     create_tabs(self, category, project)
 
 
@@ -313,25 +326,6 @@ def show_debug(self):
         text.setEnabled(False)
 
 
-# Redirect stdout to QTextEdit widget. Example usage in assetsbrowser.py:
-# sys.stdout = OutLog( edit, sys.stdout)
-# sys.stderr = OutLog( edit, sys.stderr, QtGui.QColor(255,0,0) )
-class OutLog:
-    def __init__(self, edit, color=None):
-        self.edit = edit
-        self.out = None
-        self.color = color
-
-    def write(self, m):
-        if self.color:
-            tc = self.edit.textColor()
-            self.edit.setTextColor(tc)
-        self.edit.moveCursor(QtGui.QTextCursor.End)
-        self.edit.insertPlainText(m)
-        if self.out:
-            self.out.write(m)
-
-
 # Toggle AlwaysOnTop (works in Windows and Linux)
 def always_on_top(self):
     if self.actionAlwaysOnTop.isChecked():
@@ -350,12 +344,12 @@ def center_screen(self):
               (resolution.height() / 2) - (self.frameSize().height() / 2))
 
 
-# Repurpose from https://stackoverflow.com/a/32009595/8337847
+# Refactor from https://stackoverflow.com/a/32009595/8337847
 def get_file_size(size, precision=2):
     suffixes = ['B', 'KB', 'MB', 'GB', 'TB']
     suffix_index = 0
     while size > 1024 and suffix_index < 4:
-        suffix_index += 1  # Increment the index of the suffix
+        suffix_index += 1   # Increment the index of the suffix
         size = size / 1024  # Apply the division
     # Return using String formatting. f for float and s for string.
     return "%.*f %s" % (precision, size, suffixes[suffix_index])
@@ -364,10 +358,9 @@ def get_file_size(size, precision=2):
     # https://pypi.python.org/pypi/hurry.file_size/
 
 
-# Reveal in OS function (works across all major platform)
-def reveal_os(path):
+# Reveal in OS (works across all major platform)
+def reveal_in_os(path):
     system = platform.system()
-
     if system == 'Windows':
         win_path = path.replace("/", "\\")
         if os.path.isdir(path):
@@ -378,16 +371,11 @@ def reveal_os(path):
             subprocess.call(cmd)
         else:
             print('Is this a valid OS?')
-
-    elif system == 'Darwin':  # OSX/macOS
+    if system == 'Darwin':  # OSX/macOS
         subprocess.call(['open', '-R', path])
-        # Alternative method for older OSX?
-        # subprocess.Popen(['open', '-R', '%s' % (path)])
-
-    elif system == 'Linux':
+    if system == 'Linux':
         dir_path = '/'.join(path.split('/')[0:-1])  # Omit file_name from path
         subprocess.Popen(['xdg-open', dir_path])
-
     else:
         print('FILE/DIRECTORY IS NOT VALID!')
 
@@ -425,7 +413,6 @@ def high_dpi_check():
     if hasattr(QtCore.Qt, 'AA_EnableHighDpiScaling'):
         QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
         print('High DPI Scaling Enabled')
-
     if hasattr(QtCore.Qt, 'AA_UseHighDpiPixmaps'):
         QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True)
         print('High DPI Pixmaps Enabled')

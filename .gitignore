@@ -9,6 +9,7 @@
 _old
 _bak
 build
+bin
 tests
 settings.ini
 setup.py

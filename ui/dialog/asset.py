@@ -30,15 +30,10 @@ class AssetDialog(QtWidgets.QDialog, asset.Ui_AssetDialog):
         # Disable Create button to prevent user from creating without inputting asset name
         self.btnCreate.setDisabled(True)
 
-        # Create a radio_button list using Qt findChildren which returns
-        # the type that we wanted (in this case, QRadioButton)
-        radio_button = self.catGroup.findChildren(QtWidgets.QRadioButton)
-
-        # Iterate each radio_button in a for loop to reduce code duplication (DRY)
-        for each in radio_button:
-            category = self.catBtnGroup.checkedButton().text()
-            each.clicked.connect(category)
-            each.clicked.connect(self.preview)
+        # Iterate each radio_button using Qt findChildren
+        radio_buttons = self.catGroup.findChildren(QtWidgets.QRadioButton)
+        for button in radio_buttons:
+            button.clicked.connect(self.preview)
 
         # Limit the range of acceptable characters input by the user
         regex = QtCore.QRegularExpression("^[a-zA-Z0-9]+$")
@@ -97,7 +92,7 @@ class AssetDialog(QtWidgets.QDialog, asset.Ui_AssetDialog):
 
             self.accept()
 
-    # A checkable group that has non-editable text field to preview the asset's
+    # A check group that has non-editable text field to preview the asset's
     # name. Since both the category radio buttons and the assetLineEdit emit a
     # signal to this method, it allows the text field to "dynamically" update.
     def preview(self):

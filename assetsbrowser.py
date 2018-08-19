@@ -6,7 +6,7 @@ from modules import functions
 from ui.dialog import about, asset, preferences
 from ui.help import repath
 from ui.window import main
-from PyQt5 import QtCore, QtWidgets
+from PyQt5 import QtGui, QtCore, QtWidgets
 
 # Set Path from INI file
 PROJECTPATH = configurations.PROJECTPATH
@@ -20,17 +20,14 @@ class AssetsBrowser(QtWidgets.QMainWindow, main.Ui_MainWindow):
         self.setupUi(self)
         self.setWindowTitle('Assets Browser [PID: %d]' % QtWidgets.QApplication.applicationPid())
         self.setWindowFlags(QtCore.Qt.WindowMinimizeButtonHint | QtCore.Qt.WindowMaximizeButtonHint)
+        functions.center_screen(self)
+        functions.font_overrides(self)
         functions.window_icon(self)
+        QtWidgets.QApplication.setStyle(THEME)
 
         # Redirect stdout to QTextEdit widget for debug log
-        sys.stdout = functions.OutLog(self.textEdit, sys.stdout)
-        sys.stderr = functions.OutLog(self.textEdit, sys.stderr)
-
-        # functions.font_overrides(self)
-        QtWidgets.QApplication.setStyle(THEME)  # Initialise theme from INI file
-
-        # In case it doesn't center on screen properly like in Lubuntu LXDE
-        functions.center_screen(self)
+        sys.stdout = OutLog(self.textEdit, sys.stdout)
+        # sys.stderr = OutLog(self.textEdit, sys.stderr, QtGui.QColor(255,0,0))
 
         # Project List Dropdown ComboBox
         self.comboBox.fsm = QtWidgets.QFileSystemModel()
@@ -41,22 +38,18 @@ class AssetsBrowser(QtWidgets.QMainWindow, main.Ui_MainWindow):
         self.comboBox.activated[str].connect(lambda: functions.project_list(self))
 
         projects = []
-        for item in os.listdir(PROJECTPATH):
-            if not item.startswith('.') and os.path.isdir(os.path.join(PROJECTPATH, item)):
-                projects.append(item)
+        for project in os.listdir(PROJECTPATH):
+            if not project.startswith(('_', '.')) and os.path.isdir(os.path.join(PROJECTPATH, project)):
+                projects.append(project)
         configurations.update_setting(INI_PATH, 'Settings', 'CurrentProject', projects[0])
         current_project = configurations.current_project()
 
         # Create empty list and dictionary for ColumnView tabs
-        # self.category = []
+        self.category = []
         self.assets = {}
-
-        categories = self.category = []
+        categories = self.category
         assets_path = (PROJECTPATH + current_project + "/Assets/")
-
         # TODO: Warn user if Assets directory doesn't exists and quit?
-        if not os.path.isdir(assets_path):
-            assets_path = (PROJECTPATH + current_project)
 
         # Populate categories list of Assets folder
         for item in os.listdir(assets_path):
@@ -69,26 +62,20 @@ class AssetsBrowser(QtWidgets.QMainWindow, main.Ui_MainWindow):
         functions.create_tabs(self, categories, current_project)
 
         # Splitter Size Config
-        splitter_size = [150, 500]
-        self.splitter.setSizes(splitter_size)
+        self.splitter.setSizes([150, 500])
 
         # Help Tab
-        html = 'ui/help/help.html'
-        temp_html_path = ('file:///' + str(repath(html)))
+        html_file = 'ui/help/help.html'
+        temp_html_path = ('file:///' + str(repath(html_file)))
         self.textBrowserHelp.setSource(QtCore.QUrl(temp_html_path))
 
-        # Dialog Window
-        about_dialog = about.show_dialog
-        asset_dialog = asset.show_dialog
-        prefs_dialog = preferences.show_dialog
-
         # Menu Action
-        self.actionAbout.triggered.connect(about_dialog)
-        self.actionPreferences.triggered.connect(prefs_dialog)
+        self.actionAbout.triggered.connect(about.show_dialog)
+        self.actionPreferences.triggered.connect(preferences.show_dialog)
         self.actionQuit.triggered.connect(functions.close_app)
 
         # Create New Asset Button
-        self.pushBtnNew.clicked.connect(asset_dialog)
+        self.pushBtnNew.clicked.connect(asset.show_dialog)
 
         # When calling functions from imported modules that inherit the QMainWindow
         # but located outside its scope, use 'lambda:' followed by the method as
@@ -100,6 +87,37 @@ class AssetsBrowser(QtWidgets.QMainWindow, main.Ui_MainWindow):
         self.textEdit.clear()
         self.textEdit.setHidden(True)
         self.textEdit.setEnabled(False)
+
+    def __del__(self):
+        sys.stdout = sys.__stdout__
+        sys.stderr = sys.__stderr__
+
+
+class OutLog:
+    def __init__(self, edit, out=None, color=None):
+        """Redirect stdout to QTextEdit widget.
+
+        Parameters
+        ----------
+        edit : object
+            QTextEdit object.
+        out : object
+            Alternate stream (can be the original sys.stdout).
+        color : object
+            QColor object (i.e. color stderr a different color).
+        """
+        self.edit = edit
+        self.out = out
+        self.color = color
+
+    def write(self, text):
+        if self.color:
+            text_color = self.edit.textColor()
+            self.edit.setTextColor(text_color)
+        if self.out:
+            self.out.write(text)
+        self.edit.moveCursor(QtGui.QTextCursor.End)
+        self.edit.insertPlainText(text)
 
 
 if __name__ == "__main__":

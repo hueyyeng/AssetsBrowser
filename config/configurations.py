@@ -103,12 +103,14 @@ def get_setting(INI_PATH, section, setting):
     """
     ini = get_config(INI_PATH)
     value = ini.get(section, setting)
-    print('{section} {setting} is {value}'.format(
-        section=section,
-        setting=setting,
-        value=value,
+    message = (
+        '{section} {setting} is {value}'.format(
+            section=section,
+            setting=setting,
+            value=value,
         )
     )
+    # print(message)
     return value
 
 
