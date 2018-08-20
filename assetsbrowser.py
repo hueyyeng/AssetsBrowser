@@ -25,9 +25,9 @@ class AssetsBrowser(QtWidgets.QMainWindow, main.Ui_MainWindow):
         functions.window_icon(self)
         QtWidgets.QApplication.setStyle(THEME)
 
-        # Redirect stdout to QTextEdit widget for debug log
+        # Redirect stdout/stderr to QTextEdit widget for debug log
         sys.stdout = OutLog(self.textEdit, sys.stdout)
-        # sys.stderr = OutLog(self.textEdit, sys.stderr, QtGui.QColor(255,0,0))
+        sys.stderr = OutLog(self.textEdit, sys.stderr, QtGui.QColor(255,0,0))
 
         # Project List Dropdown ComboBox
         self.comboBox.fsm = QtWidgets.QFileSystemModel()
@@ -93,7 +93,7 @@ class AssetsBrowser(QtWidgets.QMainWindow, main.Ui_MainWindow):
         sys.stderr = sys.__stderr__
 
 
-class OutLog:
+class OutLog(object):
     def __init__(self, edit, out=None, color=None):
         """Redirect stdout to QTextEdit widget.
 
@@ -105,12 +105,25 @@ class OutLog:
             Alternate stream (can be the original sys.stdout).
         color : object
             QColor object (i.e. color stderr a different color).
+
         """
         self.edit = edit
         self.out = out
         self.color = color
 
     def write(self, text):
+        """Write stdout print values to QTextEdit widget.
+
+        Parameters
+        ----------
+        text : str
+            Print values from stdout.
+
+        Returns
+        -------
+        None
+
+        """
         if self.color:
             text_color = self.edit.textColor()
             self.edit.setTextColor(text_color)
@@ -118,6 +131,19 @@ class OutLog:
             self.out.write(text)
         self.edit.moveCursor(QtGui.QTextCursor.End)
         self.edit.insertPlainText(text)
+
+    def flush(self):
+        """Flush Outlog when process terminates.
+
+        This prevent Exit Code 120 from happening so the process
+        can finished with Exit Code 0.
+
+        Returns
+        -------
+        None
+
+        """
+        self.out.flush()
 
 
 if __name__ == "__main__":

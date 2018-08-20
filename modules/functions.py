@@ -22,7 +22,7 @@ file_manager = {
 
 
 def create_tabs(self, categories, project):
-    """Create tabs.
+    """Create QColumnView tabs.
     Create QColumnView tabs dynamically from Assets' List.
 
     Parameters
@@ -35,6 +35,7 @@ def create_tabs(self, categories, project):
     Returns
     -------
     None
+
     """   
     for category in categories:
         self.tab = QtWidgets.QWidget()
@@ -218,7 +219,6 @@ def column_views(column_view, category, project_name):
             sublayout_text.addWidget(preview_tab.file_date, 3, 1)
             sublayout_text.setRowStretch(4, 1)  # Arrange layout to upper part of widget
 
-
             # Preview Thumbnails (pvThumbs)
             preview_tab.pvThumbs = QtWidgets.QLabel()
             sublayout_pic = QtWidgets.QVBoxLayout()
@@ -344,8 +344,28 @@ def center_screen(self):
               (resolution.height() / 2) - (self.frameSize().height() / 2))
 
 
-# Refactor from https://stackoverflow.com/a/32009595/8337847
 def get_file_size(size, precision=2):
+    """Get file size.
+
+    Refactor from https://stackoverflow.com/a/32009595/8337847
+
+    Parameters
+    ----------
+    size : int or float
+        The file size value.
+    precision : int
+        The decimal place.
+
+    Returns
+    -------
+    str
+        The formatted message of the file size.
+
+    See Also
+    --------
+    hurry.file_size : https://pypi.python.org/pypi/hurry.file_size/
+
+    """
     suffixes = ['B', 'KB', 'MB', 'GB', 'TB']
     suffix_index = 0
     while size > 1024 and suffix_index < 4:
@@ -353,9 +373,6 @@ def get_file_size(size, precision=2):
         size = size / 1024  # Apply the division
     # Return using String formatting. f for float and s for string.
     return "%.*f %s" % (precision, size, suffixes[suffix_index])
-
-    # Alternative solution to the above: hurry.file_size
-    # https://pypi.python.org/pypi/hurry.file_size/
 
 
 # Reveal in OS (works across all major platform)

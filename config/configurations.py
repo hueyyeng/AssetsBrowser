@@ -110,7 +110,7 @@ def get_setting(INI_PATH, section, setting):
             value=value,
         )
     )
-    # print(message)
+    print(message)
     return value
 
 
