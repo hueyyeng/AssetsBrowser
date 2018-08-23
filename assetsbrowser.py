@@ -1,12 +1,20 @@
 # -*- coding: utf-8 -*-
 import os
 import sys
+from PyQt5 import (
+    QtGui,
+    QtCore,
+    QtWidgets,
+)
 from config import configurations
 from modules import functions
-from ui.dialog import about, asset, preferences
+from ui.dialog import (
+    about,
+    asset,
+    preferences,
+)
 from ui.help import repath
 from ui.window import main
-from PyQt5 import QtGui, QtCore, QtWidgets
 
 # Set Path from INI file
 PROJECTPATH = configurations.PROJECTPATH
@@ -27,7 +35,7 @@ class AssetsBrowser(QtWidgets.QMainWindow, main.Ui_MainWindow):
 
         # Redirect stdout/stderr to QTextEdit widget for debug log
         sys.stdout = OutLog(self.textEdit, sys.stdout)
-        sys.stderr = OutLog(self.textEdit, sys.stderr, QtGui.QColor(255,0,0))
+        sys.stderr = OutLog(self.textEdit, sys.stderr, QtGui.QColor(255, 0, 0))
 
         # Project List Dropdown ComboBox
         self.comboBox.fsm = QtWidgets.QFileSystemModel()
@@ -52,11 +60,11 @@ class AssetsBrowser(QtWidgets.QMainWindow, main.Ui_MainWindow):
         # TODO: Warn user if Assets directory doesn't exists and quit?
 
         # Populate categories list of Assets folder
-        for item in os.listdir(assets_path):
-            name_prefix = item.startswith(('_', '.'))
-            assets_directory = os.path.join(assets_path, item)
+        for category in os.listdir(assets_path):
+            name_prefix = category.startswith(('_', '.'))
+            assets_directory = os.path.join(assets_path, category)
             if not name_prefix and os.path.isdir(assets_directory):
-                categories.append(item)
+                categories.append(category)
 
         # Generate Tabs using create_tabs
         functions.create_tabs(self, categories, current_project)
@@ -93,7 +101,7 @@ class AssetsBrowser(QtWidgets.QMainWindow, main.Ui_MainWindow):
         sys.stderr = sys.__stderr__
 
 
-class OutLog(object):
+class OutLog():
     def __init__(self, edit, out=None, color=None):
         """Redirect stdout to QTextEdit widget.
 

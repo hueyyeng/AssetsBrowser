@@ -157,7 +157,7 @@ def delete_setting(INI_PATH, section, setting):
 
     """
     ini = get_config(INI_PATH)
-    ini.set(section ,setting)
+    ini.set(section, setting)
     with open(INI_PATH, 'w') as config_file:
         ini.write(config_file)
 

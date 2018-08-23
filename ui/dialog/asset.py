@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 import os
 import sys
+from PyQt5 import QtGui, QtCore, QtWidgets
 from config import configurations
 from modules import functions
 from ui.window import asset
-from PyQt5 import QtGui, QtCore, QtWidgets
 
 PROJECTPATH = configurations.PROJECTPATH
 INI_PATH = configurations.INI_PATH

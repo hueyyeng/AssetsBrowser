@@ -2,10 +2,10 @@
 import os
 import sys
 import platform
+from PyQt5 import QtWidgets
 from config import configurations
 from modules import functions
 from ui.window import preferences
-from PyQt5 import QtWidgets
 
 # Declare var here first for use in methods below
 DEFAULTPATH = configurations.DEFAULTPATH

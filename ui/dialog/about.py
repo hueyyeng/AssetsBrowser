@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 import sys
+from PyQt5 import QtGui, QtWidgets
 from modules.functions import window_icon
 from ui.window import about
-from PyQt5 import QtGui, QtWidgets
 
 
 class About(QtWidgets.QDialog, about.Ui_AboutDialog):
