@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 import os
 import sys
-from ui import asset
-from modules import functions
-from config import preferences
 from PyQt5 import QtGui, QtCore, QtWidgets
+from config import configurations
+from modules import functions
+from ui.window import asset
 
-PROJECTPATH = preferences.PROJECTPATH
-INI_PATH = preferences.INI_PATH
+PROJECTPATH = configurations.PROJECT_PATH
+INI_PATH = configurations.INI_PATH
 # CURRENTPROJECT = prefsConfig.CURRENTPROJECT
 # CURRENTPROJECT = prefsConfig.get_setting(INI_PATH, 'Settings', 'CurrentProject')
 # TODO: Rework CURRENTPROJECT to properly receive INI CurrentProject value
@@ -30,19 +30,10 @@ class AssetDialog(QtWidgets.QDialog, asset.Ui_AssetDialog):
         # Disable Create button to prevent user from creating without inputting asset name
         self.btnCreate.setDisabled(True)
 
-        # Create a radio_button list using Qt findChildren which returns
-        # the type that we wanted (in this case, QRadioButton)
-        radio_button = self.catGroup.findChildren(QtWidgets.QRadioButton)
-
-        # Iterate each radio_button in a for loop to reduce code duplication (DRY)
-        for each in radio_button:
-
-            def category_checked():                                 # Return text value of radio button when checked.
-                category = self.catBtnGroup.checkedButton().text()  # The radio_button are QButtonGroup so we can use
-                print (category + ' is selected.')                  # checkedButton() as QGroupBox lack such feature
-
-            each.clicked.connect(category_checked)
-            each.clicked.connect(self.preview)
+        # Iterate each radio_button using Qt findChildren
+        radio_buttons = self.catGroup.findChildren(QtWidgets.QRadioButton)
+        for button in radio_buttons:
+            button.clicked.connect(self.preview)
 
         # Limit the range of acceptable characters input by the user
         regex = QtCore.QRegularExpression("^[a-zA-Z0-9]+$")
@@ -54,21 +45,21 @@ class AssetDialog(QtWidgets.QDialog, asset.Ui_AssetDialog):
         # either QValidator or QRegExpValidator as argument
         self.assetLineEdit.setValidator(self.validator)
 
-        # Runs fix_uppercase and preview whenever Qt detects textChanged
-        self.assetLineEdit.textChanged.connect(self.fix_uppercase)
+        # Runs text_uppercase and preview whenever Qt detects textChanged
+        self.assetLineEdit.textChanged.connect(self.text_uppercase)
         self.assetLineEdit.textChanged.connect(self.preview)
 
     # Change text to UPPERCASE
-    def fix_uppercase(self):
+    def text_uppercase(self):
         asset_name = self.assetLineEdit.text()
         self.assetLineEdit.setText(asset_name.upper())
 
     # Create asset with preconfigure directories structure
     def create_asset(self):
         # project = CURRENTPROJECT
-        project = preferences.get_setting(INI_PATH, 'Settings', 'CurrentProject')
+        project = configurations.get_setting(INI_PATH, 'Settings', 'CurrentProject')
         category = str(self.catBtnGroup.checkedButton().text())
-        asset_name = str(self.preview)
+        asset_name = str(self.preview())
         asset_path = (PROJECTPATH + project + "/Assets/" + category)
         full_path = (asset_path + '/' + asset_name)
 
@@ -81,10 +72,9 @@ class AssetDialog(QtWidgets.QDialog, asset.Ui_AssetDialog):
             msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
             functions.window_icon(msg)
             msg.exec_()
-
         else:
             os.mkdir(full_path)
-            print ('Assets will be created at ' + full_path)
+            print('Assets will be created at ' + full_path)
 
             # Declare names for child folders
             folder1 = "Scenes"
@@ -94,7 +84,6 @@ class AssetDialog(QtWidgets.QDialog, asset.Ui_AssetDialog):
             folder5 = "WIP"
 
             folders = [folder1, folder2, folder3, folder4, folder5]
-
             for folder in folders:
                 if folder is None:
                     pass
@@ -103,35 +92,36 @@ class AssetDialog(QtWidgets.QDialog, asset.Ui_AssetDialog):
 
             self.accept()
 
-    # A checkable group that has non-editable text field to preview the asset's
+    # A check group that has non-editable text field to preview the asset's
     # name. Since both the category radio buttons and the assetLineEdit emit a
     # signal to this method, it allows the text field to "dynamically" update.
     def preview(self):
-        # project = CURRENTPROJECT
-        project = preferences.get_setting(INI_PATH, 'Settings', 'CurrentProject')
-
+        project = configurations.get_setting(INI_PATH, 'Settings', 'CurrentProject')
         checked = self.previewGroup.isChecked()
         length = len(self.assetLineEdit.text())
+
         if checked and length == 3:
             self.previewText.clear()  # Clear the text field for every signal to create "illusion" of dynamic update
             self.btnCreate.setDisabled(False)  # Enable Create button
-
-            cat = str(self.catBtnGroup.checkedButton().text())
-            prefix = cat[0].lower()  # Slice the first letter of the selected category radio and make it lowercase
+            category = str(self.catBtnGroup.checkedButton().text())
+            prefix = category[0].lower()  # Slice the first letter of the selected category radio and make it lowercase
             suffix = str(self.assetLineEdit.text())  # Retrieve the assetLineEdit text as string
             asset_name = (prefix + suffix)
-            asset_text = 'The asset name will be ' + asset_name + '.' + \
-                         '\nEnsure the asset name is correct before proceeding.' + \
-                         '\n\nProject: ' + project
-            self.previewText.appendPlainText(asset_text)
-            return asset_name
+            asset_text = (
+                    'The asset name will be ' + asset_name + '.'
+                    + '\n'
+                    + 'Ensure the asset name is correct before proceeding.'
+                    + '\n'
+                    + '\n'
+                    + 'Project: ' + project
+            )
 
+            self.previewText.appendPlainText(asset_text)
         elif checked and length != 3:
             self.previewText.clear()
             self.btnCreate.setDisabled(True)
             warning_text = 'ENSURE ASSET NAME IS THREE CHARACTERS LENGTH!'
             self.previewText.appendPlainText(warning_text)
-
         else:
             self.previewText.clear()
             self.btnCreate.setDisabled(True)

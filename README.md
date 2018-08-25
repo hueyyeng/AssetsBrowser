@@ -35,7 +35,7 @@ _The codes has been tested on Windows 7, macOS Sierra and Lubuntu 17.10 for cros
 
 1. Clone or download the repository.
 2. Extract to your chosen destination.
-3. Run `main.py`
+3. Run `assetsbrowser.py`
 
 ## License
 

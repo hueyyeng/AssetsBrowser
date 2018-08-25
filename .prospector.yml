@@ -1,0 +1,46 @@
+strictness: high
+
+ignore-paths:
+  - window
+  - _bak
+  - _tmp
+
+pylint:
+  options:
+    max-attributes: 12
+    max-line-length: 119
+    generated-members: generated-members=REQUEST,acl_users,aq_parent,"[a-zA-Z]+_set{1,2}",save,delete
+  disable:
+    - unused-argument
+    - protected-access
+    - too-many-locals
+    - arguments-differ
+    - redefined-builtin
+    - keyword-arg-before-vararg
+    - inconsistent-return-statements
+    - method-hidden
+    - too-many-ancestors
+    - invalid-name
+    - no-self-use
+    - abstract-method
+    - missing-docstring
+    - redefined-outer-name
+    - attribute-defined-outside-init
+    - len-as-condition
+    - too-many-arguments
+    - too-many-return-statements
+    - not-an-iterable
+    - too-many-branches
+    - unsubscriptable-object
+
+#mccabe:
+#  disable:
+#  - MC0001
+
+pep8:
+  full: true
+  disable:
+    - E126
+    - E402
+  options:
+    max-line-length: 119
