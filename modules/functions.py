@@ -9,10 +9,10 @@ from PyQt5 import (
     QtCore,
     QtWidgets,
 )
-from config import configurations
+from config import configurations, constants
 
 # Set Path from INI file
-PROJECTPATH = configurations.PROJECTPATH
+PROJECT_PATH = configurations.PROJECT_PATH
 INI_PATH = configurations.INI_PATH
 
 # File/Directory Path Dictionary for easy access by any methods
@@ -58,7 +58,23 @@ def create_tabs(self, categories, project):
 
 
 # Preview widget layout and features goes here as a function
-def preview(widget, preview_tab):
+def preview_widget(widget, tab):
+    """Preview widget.
+
+    Preview widget using QtWidgets for column_view tab.
+
+    Parameters
+    ----------
+    widget : object
+        QtWidget object.
+    tab : object
+        QColumnView object.
+
+    Returns
+    -------
+    None
+
+    """
     # File Category Labels
     category_name = QtWidgets.QLabel('Name:')
     category_size = QtWidgets.QLabel('Size:')
@@ -66,10 +82,10 @@ def preview(widget, preview_tab):
     category_date = QtWidgets.QLabel('Modified:')
 
     # File Attributes Labels
-    preview_tab.file_name = QtWidgets.QLabel()
-    preview_tab.file_size = QtWidgets.QLabel()
-    preview_tab.file_type = QtWidgets.QLabel()
-    preview_tab.file_date = QtWidgets.QLabel()
+    tab.file_name = QtWidgets.QLabel()
+    tab.file_size = QtWidgets.QLabel()
+    tab.file_type = QtWidgets.QLabel()
+    tab.file_date = QtWidgets.QLabel()
 
     # Align Right for Prefix Labels
     align_right = QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter
@@ -84,47 +100,45 @@ def preview(widget, preview_tab):
     sublayout_text.addWidget(category_size, 1, 0)
     sublayout_text.addWidget(category_type, 2, 0)
     sublayout_text.addWidget(category_date, 3, 0)
-    sublayout_text.addWidget(preview_tab.file_name, 0, 1)
-    sublayout_text.addWidget(preview_tab.file_size, 1, 1)
-    sublayout_text.addWidget(preview_tab.file_type, 2, 1)
-    sublayout_text.addWidget(preview_tab.file_date, 3, 1)
+    sublayout_text.addWidget(tab.file_name, 0, 1)
+    sublayout_text.addWidget(tab.file_size, 1, 1)
+    sublayout_text.addWidget(tab.file_type, 2, 1)
+    sublayout_text.addWidget(tab.file_date, 3, 1)
     sublayout_text.setRowStretch(4, 1)  # Arrange layout to upper part of widget
 
-    # Preview Thumbnails (pvThumbs)
-    preview_tab.pvThumbs = QtWidgets.QLabel()
-    sublayout_pic = QtWidgets.QVBoxLayout()
-    sublayout_pic.addWidget(preview_tab.pvThumbs)
-    sublayout_pic.setAlignment(QtCore.Qt.AlignCenter)
+    # Preview Thumbnails
+    tab.preview = QtWidgets.QLabel()
+    sublayout_thumbnail = QtWidgets.QVBoxLayout()
+    sublayout_thumbnail.addWidget(tab.preview)
+    sublayout_thumbnail.setAlignment(QtCore.Qt.AlignCenter)
 
     # Set Preview Pane to Qcolumn_view setPreviewWidget
     preview_pane = QtWidgets.QVBoxLayout(widget)
-    preview_pane.addLayout(sublayout_pic)
+    preview_pane.addLayout(sublayout_thumbnail)
     preview_pane.addLayout(sublayout_text)
 
-    preview_tab.setPreviewWidget(widget)
+    tab.setPreviewWidget(widget)
 
 
 # Create new column_view tabs to for each categories
-# TODO: Fix column_views too many statements
 def column_views(column_view, category, project_name):
-    default_path = (PROJECTPATH + project_name + "/Assets/" + category)
-    column_width = [
-                    200,
-                    200,
-                    200,
-                    200,
-                    200,
-                    200,
-                    200,
-                    200,
-                    200,
-    ]
-
+    default_path = (PROJECT_PATH + project_name + "/Assets/" + category)
     os.path.isdir(default_path)
     print("Load..." + default_path)
-    column_view.setEnabled(True)
+
+    column_width = [200] * 9  # Column width multiply by the amount of columns
 
     tab = column_view
+    tab.setColumnWidths(column_width)
+    tab.setEnabled(True)
+    tab.fsm = QtWidgets.QFileSystemModel()
+    tab.fsm.setReadOnly(False)
+    tab.rootindex = tab.fsm.setRootPath(default_path)
+    tab.setModel(tab.fsm)
+    tab.setRootIndex(tab.rootindex)
+
+    widget = QtWidgets.QWidget()
+    preview_widget(widget, tab)
 
     # Return selected item attributes in Model View for Preview Pane
     @QtCore.pyqtSlot(QtCore.QModelIndex)
@@ -161,50 +175,36 @@ def column_views(column_view, category, project_name):
         selected_file['File'] = file_name
 
         # Retrieve file_path for Thumbnail Preview in __init__
-        pic_path = tab.fsm.filePath(index_item)
-        pic_type = file_type[0:-5]
-
-        pic_types = [
-            'jpg',
-            'jpeg',
-            'bmp',
-            'png',
-            'gif',
-            'bmp',
-            'ico',
-            'tga',
-            'tif',
-            'tiff',
-        ]
+        image_path = tab.fsm.filePath(index_item)
+        image_type = file_type[0:-5]
+        image_types = constants.images
 
         # Omit format that doesn't work on specific OS
         system = platform.system()
         if system == 'Darwin':
-            # pic_types.remove('gif')
-            pic_types.remove('ico')
+            image_types.remove('ico')
 
         # Generate thumbnails for Preview Pane
-        for each in pic_types:
-            thumb_max_size = 150  # Thumbnails max size in pixels
+        max_size = 150  # Thumbnails max size in pixels
+        thumbnail = QtGui.QPixmap()
+        thumbnail.load(image_path)
 
-            if each.lower() == pic_type.lower():
-                tb = QtGui.QPixmap()
-                tb.load(pic_path)
-                tb_scaled = tb.scaled(
-                    thumb_max_size,
-                    thumb_max_size,
-                    QtCore.Qt.KeepAspectRatio,
-                    QtCore.Qt.SmoothTransformation,
-                )
-                tab.pvThumbs.setPixmap(tb_scaled)
-                break
-            else:
-                file_info = QtCore.QFileInfo(pic_path)  # Retrieve info like icons, path, etc
-                file_icon = QtWidgets.QFileIconProvider().icon(file_info)
-                icon = file_icon.pixmap(48, 48, QtGui.QIcon.Normal, QtGui.QIcon.Off)
-                tab.pvThumbs.setPixmap(icon)
+        if image_type in image_types:
+            thumbnail = thumbnail.scaled(
+                max_size,
+                max_size,
+                QtCore.Qt.KeepAspectRatio,
+                QtCore.Qt.SmoothTransformation,
+            )
+        else:
+            file_info = QtCore.QFileInfo(image_path)  # Retrieve info like icons, path, etc
+            file_icon = QtWidgets.QFileIconProvider().icon(file_info)
+            thumbnail = file_icon.pixmap(48, 48, QtGui.QIcon.Normal, QtGui.QIcon.Off)
 
+        tab.preview.setPixmap(thumbnail)
         return file_path
+
+    tab.clicked.connect(get_file_info)
 
     def open_menu(position):
         menu = QtWidgets.QMenu()
@@ -219,18 +219,8 @@ def column_views(column_view, category, project_name):
 
         menu.exec_(tab.mapToGlobal(position))
 
-    tab.fsm = QtWidgets.QFileSystemModel()
-    tab.fsm.setReadOnly(False)
-    tab.rootindex = tab.fsm.setRootPath(default_path)
-    tab.setModel(tab.fsm)
-    tab.setRootIndex(tab.rootindex)
-    tab.setColumnWidths(column_width)
-    tab.clicked.connect(get_file_info)
     tab.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
     tab.customContextMenuRequested.connect(open_menu)
-
-    preview_widget = QtWidgets.QWidget()
-    preview(preview_widget, tab)
 
 
 # Retrieve directories in PROJECTPATH comboBox, clear existing tabs and create new tabs
@@ -249,7 +239,7 @@ def project_list(self):
     self.assets = {}
 
     category = self.category
-    assets_path = (PROJECTPATH + project + "/Assets/")
+    assets_path = (PROJECT_PATH + project + "/Assets/")
 
     for item in os.listdir(assets_path):
         if not item.startswith(('_', '.')) and os.path.isdir(os.path.join(assets_path, item)):
@@ -259,8 +249,8 @@ def project_list(self):
 
 
 # Check if PROJECTPATH is valid and reset to home directory if error
-def valid_path(INI_PATH, PROJECTPATH):
-    exists = os.path.exists(PROJECTPATH)
+def valid_path(ini, project):
+    exists = os.path.exists(project)
     if exists:
         print("Project Path is valid.")
     else:
@@ -271,7 +261,7 @@ def valid_path(INI_PATH, PROJECTPATH):
         if system == 'Windows':
             home = (home + '\\')
         configurations.update_setting(
-                    INI_PATH,
+                    ini,
                     'Settings',
                     'ProjectPath',
                     home.replace('\\', '/'),
@@ -296,6 +286,7 @@ def valid_path(INI_PATH, PROJECTPATH):
         )
         message.warning(widget, 'Warning', warning_text, message.Ok)
         widget.show()
+
     return exists
 
 

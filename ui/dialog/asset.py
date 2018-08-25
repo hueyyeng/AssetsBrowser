@@ -6,7 +6,7 @@ from config import configurations
 from modules import functions
 from ui.window import asset
 
-PROJECTPATH = configurations.PROJECTPATH
+PROJECTPATH = configurations.PROJECT_PATH
 INI_PATH = configurations.INI_PATH
 # CURRENTPROJECT = prefsConfig.CURRENTPROJECT
 # CURRENTPROJECT = prefsConfig.get_setting(INI_PATH, 'Settings', 'CurrentProject')

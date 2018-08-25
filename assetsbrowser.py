@@ -17,7 +17,7 @@ from ui.help import repath
 from ui.window import main
 
 # Set Path from INI file
-PROJECTPATH = configurations.PROJECTPATH
+PROJECTPATH = configurations.PROJECT_PATH
 INI_PATH = configurations.INI_PATH
 THEME = configurations.THEME
 

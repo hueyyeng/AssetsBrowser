@@ -8,8 +8,8 @@ from modules import functions
 from ui.window import preferences
 
 # Declare var here first for use in methods below
-DEFAULTPATH = configurations.DEFAULTPATH
-PROJECTPATH = configurations.PROJECTPATH
+DEFAULTPATH = configurations.DEFAULT_PATH
+PROJECTPATH = configurations.PROJECT_PATH
 INI_PATH = configurations.INI_PATH
 THEME = configurations.THEME
 

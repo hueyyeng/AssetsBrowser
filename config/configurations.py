@@ -10,12 +10,12 @@ config = configparser.ConfigParser()
 home = os.path.expanduser('~')  # Defaults to home directory
 
 
-def create_config(INI_PATH):
+def create_config(path):
     """Create an INI config file with default value.
 
     Parameters
     ----------
-    INI_PATH : str
+    path : str
         Directory path for INI file.
 
     Returns
@@ -54,17 +54,16 @@ def create_config(INI_PATH):
         'Fusion',
     )
 
-    # with open(INI_PATH, 'wb') as config_file:
-    with open(INI_PATH, 'w') as config_file:
+    with open(path, 'w') as config_file:
         config.write(config_file)
 
 
-def get_config(INI_PATH):
+def get_config(path):
     """Returns the INI config object.
 
     Parameters
     ----------
-    INI_PATH : str
+    path : str
         Directory path for INI file.
 
     Returns
@@ -73,22 +72,22 @@ def get_config(INI_PATH):
         INI Config object.
 
     """
-    if not os.path.exists(INI_PATH):
-        create_config(INI_PATH)
+    if not os.path.exists(path):
+        create_config(path)
         print('ERROR INI FILE NOT FOUND')
-        print('Creating INI file at ' + INI_PATH)
+        print('Creating INI file at ' + path)
 
     config.optionxform = str
-    config.read(INI_PATH)
+    config.read(path)
     return config
 
 
-def get_setting(INI_PATH, section, setting):
+def get_setting(path, section, setting):
     """Returns a setting from the INI file.
 
     Parameters
     ----------
-    INI_PATH : str
+    path : str
         Directory path for INI file.
     section : str
         Section name.
@@ -101,7 +100,7 @@ def get_setting(INI_PATH, section, setting):
         The value of the setting.
 
     """
-    ini = get_config(INI_PATH)
+    ini = get_config(path)
     value = ini.get(section, setting)
     message = (
         '{section} {setting} is {value}'.format(
@@ -114,12 +113,12 @@ def get_setting(INI_PATH, section, setting):
     return value
 
 
-def update_setting(INI_PATH, section, setting, value):
+def update_setting(path, section, setting, value):
     """Update a setting in the INI file.
 
     Parameters
     ----------
-    INI_PATH : str
+    path : str
         Directory path for INI file.
     section : str
         Section name.
@@ -133,18 +132,18 @@ def update_setting(INI_PATH, section, setting, value):
     None
 
     """
-    ini = get_config(INI_PATH)
+    ini = get_config(path)
     ini.set(section, setting, value)
-    with open(INI_PATH, 'w') as config_file:
+    with open(path, 'w') as config_file:
         ini.write(config_file)
 
 
-def delete_setting(INI_PATH, section, setting):
+def delete_setting(path, section, setting):
     """Delete a setting from the INI file.
 
     Parameters
     ----------
-    INI_PATH : str
+    path : str
         Directory path for INI file.
     section : str
         Section name.
@@ -156,9 +155,9 @@ def delete_setting(INI_PATH, section, setting):
     None
 
     """
-    ini = get_config(INI_PATH)
+    ini = get_config(path)
     ini.set(section, setting)
-    with open(INI_PATH, 'w') as config_file:
+    with open(path, 'w') as config_file:
         ini.write(config_file)
 
 
@@ -175,7 +174,7 @@ def current_project():
     return project
 
 
-DEFAULTPATH = get_setting(INI_PATH, 'Settings', 'ProjectPath')
-PROJECTPATH = DEFAULTPATH
-CURRENTPROJECT = get_setting(INI_PATH, 'Settings', 'CurrentProject')
+DEFAULT_PATH = get_setting(INI_PATH, 'Settings', 'ProjectPath')
+PROJECT_PATH = DEFAULT_PATH
+CURRENT_PROJECT = get_setting(INI_PATH, 'Settings', 'CurrentProject')
 THEME = get_setting(INI_PATH, 'UI', 'Theme')
