@@ -17,7 +17,7 @@ from ui.help import repath
 from ui.window import main
 
 # Set Path from INI file
-PROJECTPATH = configurations.PROJECT_PATH
+PROJECT_PATH = configurations.PROJECT_PATH
 INI_PATH = configurations.INI_PATH
 THEME = configurations.THEME
 
@@ -39,15 +39,15 @@ class AssetsBrowser(QtWidgets.QMainWindow, main.Ui_MainWindow):
 
         # Project List Dropdown ComboBox
         self.comboBox.fsm = QtWidgets.QFileSystemModel()
-        self.comboBox.rootindex = self.comboBox.fsm.setRootPath(PROJECTPATH)
+        self.comboBox.rootindex = self.comboBox.fsm.setRootPath(PROJECT_PATH)
         self.comboBox.setModel(self.comboBox.fsm)
         self.comboBox.setRootModelIndex(self.comboBox.rootindex)
         self.comboBox.setCurrentIndex(1)
         self.comboBox.activated[str].connect(lambda: functions.project_list(self))
 
         projects = []
-        for project in os.listdir(PROJECTPATH):
-            if not project.startswith(('_', '.')) and os.path.isdir(os.path.join(PROJECTPATH, project)):
+        for project in os.listdir(PROJECT_PATH):
+            if not project.startswith(('_', '.')) and os.path.isdir(os.path.join(PROJECT_PATH, project)):
                 projects.append(project)
         configurations.update_setting(INI_PATH, 'Settings', 'CurrentProject', projects[0])
         current_project = configurations.current_project()
@@ -56,7 +56,7 @@ class AssetsBrowser(QtWidgets.QMainWindow, main.Ui_MainWindow):
         self.category = []
         self.assets = {}
         categories = self.category
-        assets_path = (PROJECTPATH + current_project + "/Assets/")
+        assets_path = (PROJECT_PATH + current_project + "/Assets/")
         # TODO: Warn user if Assets directory doesn't exists and quit?
 
         # Populate categories list of Assets folder
@@ -158,7 +158,7 @@ if __name__ == "__main__":
     functions.high_dpi_check()
     functions.taskbar_icon()
 
-    valid_path = functions.valid_path(INI_PATH, PROJECTPATH)
+    valid_path = functions.valid_path(INI_PATH, PROJECT_PATH)
     if valid_path:
         app = QtWidgets.QApplication.instance()
         if app is None:
