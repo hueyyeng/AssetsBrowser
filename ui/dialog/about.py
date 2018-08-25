@@ -6,7 +6,6 @@ from ui.window import about
 
 
 class About(QtWidgets.QDialog, about.Ui_AboutDialog):
-
     def __init__(self, parent=None):
         super(About, self).__init__(parent)
         self.setupUi(self)

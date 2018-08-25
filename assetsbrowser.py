@@ -1,25 +1,17 @@
 # -*- coding: utf-8 -*-
 import os
 import sys
-from PyQt5 import (
-    QtGui,
-    QtCore,
-    QtWidgets,
-)
-from config import configurations
+from PyQt5 import QtGui, QtCore, QtWidgets
+from config import configurations, constants
 from modules import functions
-from ui.dialog import (
-    about,
-    asset,
-    preferences,
-)
+from ui.dialog import about, asset, preferences
 from ui.help import repath
 from ui.window import main
 
 # Set Path from INI file
-PROJECT_PATH = configurations.PROJECT_PATH
-INI_PATH = configurations.INI_PATH
-THEME = configurations.THEME
+PROJECT_PATH = constants.PROJECT_PATH
+INI_PATH = constants.INI_PATH
+THEME = constants.THEME
 
 
 class AssetsBrowser(QtWidgets.QMainWindow, main.Ui_MainWindow):
@@ -45,12 +37,7 @@ class AssetsBrowser(QtWidgets.QMainWindow, main.Ui_MainWindow):
         self.comboBox.setCurrentIndex(1)
         self.comboBox.activated[str].connect(lambda: functions.project_list(self))
 
-        projects = []
-        for project in os.listdir(PROJECT_PATH):
-            if not project.startswith(('_', '.')) and os.path.isdir(os.path.join(PROJECT_PATH, project)):
-                projects.append(project)
-        configurations.update_setting(INI_PATH, 'Settings', 'CurrentProject', projects[0])
-        current_project = configurations.current_project()
+        current_project = self.current_project()
 
         # Create empty list and dictionary for ColumnView tabs
         self.category = []
@@ -95,6 +82,17 @@ class AssetsBrowser(QtWidgets.QMainWindow, main.Ui_MainWindow):
         self.textEdit.clear()
         self.textEdit.setHidden(True)
         self.textEdit.setEnabled(False)
+
+    @staticmethod
+    def current_project():
+        """Set current project from Project list dropdown"""
+        projects = []
+        for project in os.listdir(PROJECT_PATH):
+            if not project.startswith(('_', '.')) and os.path.isdir(os.path.join(PROJECT_PATH, project)):
+                projects.append(project)
+        configurations.update_setting(INI_PATH, 'Settings', 'CurrentProject', projects[0])
+        current_project = configurations.current_project()
+        return current_project
 
     def __del__(self):
         sys.stdout = sys.__stdout__

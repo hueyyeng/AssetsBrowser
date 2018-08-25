@@ -2,14 +2,13 @@
 import os
 import sys
 from PyQt5 import QtGui, QtCore, QtWidgets
-from config import configurations
+from config import configurations, constants
 from modules import functions
 from ui.window import asset
 
-PROJECTPATH = configurations.PROJECT_PATH
-INI_PATH = configurations.INI_PATH
-# CURRENTPROJECT = prefsConfig.CURRENTPROJECT
-# CURRENTPROJECT = prefsConfig.get_setting(INI_PATH, 'Settings', 'CurrentProject')
+PROJECT_PATH = constants.PROJECT_PATH
+INI_PATH = constants.INI_PATH
+CURRENT_PROJECT = configurations.get_setting(INI_PATH, 'Settings', 'CurrentProject')
 # TODO: Rework CURRENTPROJECT to properly receive INI CurrentProject value
 
 
@@ -21,28 +20,21 @@ class AssetDialog(QtWidgets.QDialog, asset.Ui_AssetDialog):
 
         # Buttons Action
         self.btnCreate.clicked.connect(self.create_asset)
+        self.btnCreate.setDisabled(True)  # Disable to prevent user from creating without inputting asset name
         self.btnCancel.clicked.connect(self.close)
         self.previewGroup.clicked.connect(self.preview)
 
         # Set BG radio button as default choice
         self.catBG.setChecked(True)
 
-        # Disable Create button to prevent user from creating without inputting asset name
-        self.btnCreate.setDisabled(True)
-
         # Iterate each radio_button using Qt findChildren
         radio_buttons = self.catGroup.findChildren(QtWidgets.QRadioButton)
         for button in radio_buttons:
             button.clicked.connect(self.preview)
 
-        # Limit the range of acceptable characters input by the user
+        # Limit the range of acceptable characters input by the user using regex
         regex = QtCore.QRegularExpression("^[a-zA-Z0-9]+$")
-
-        # Declare self.validator with QRegExpValidator using regex var as argument
         self.validator = QtGui.QRegularExpressionValidator(regex, self)
-
-        # Qt LineEdit has a setValidator attribute which requires
-        # either QValidator or QRegExpValidator as argument
         self.assetLineEdit.setValidator(self.validator)
 
         # Runs text_uppercase and preview whenever Qt detects textChanged
@@ -56,11 +48,10 @@ class AssetDialog(QtWidgets.QDialog, asset.Ui_AssetDialog):
 
     # Create asset with preconfigure directories structure
     def create_asset(self):
-        # project = CURRENTPROJECT
-        project = configurations.get_setting(INI_PATH, 'Settings', 'CurrentProject')
+        project = CURRENT_PROJECT
         category = str(self.catBtnGroup.checkedButton().text())
         asset_name = str(self.preview())
-        asset_path = (PROJECTPATH + project + "/Assets/" + category)
+        asset_path = (PROJECT_PATH + project + "/Assets/" + category)
         full_path = (asset_path + '/' + asset_name)
 
         # Check whether Asset directory already exist
@@ -77,6 +68,7 @@ class AssetDialog(QtWidgets.QDialog, asset.Ui_AssetDialog):
             print('Assets will be created at ' + full_path)
 
             # Declare names for child folders
+            # TODO: Rework hard-coded folders for Create New Assets
             folder1 = "Scenes"
             folder2 = "Textures"
             folder3 = "References"
@@ -92,9 +84,9 @@ class AssetDialog(QtWidgets.QDialog, asset.Ui_AssetDialog):
 
             self.accept()
 
-    # A check group that has non-editable text field to preview the asset's
-    # name. Since both the category radio buttons and the assetLineEdit emit a
-    # signal to this method, it allows the text field to "dynamically" update.
+    # A check group that has non-editable text field to preview the asset's name.
+    # Since both category radio buttons and assetLineEdit emits signal to this
+    # method, it allows the text field to "dynamically" update.
     def preview(self):
         project = configurations.get_setting(INI_PATH, 'Settings', 'CurrentProject')
         checked = self.previewGroup.isChecked()
@@ -115,13 +107,12 @@ class AssetDialog(QtWidgets.QDialog, asset.Ui_AssetDialog):
                     + '\n'
                     + 'Project: ' + project
             )
-
             self.previewText.appendPlainText(asset_text)
         elif checked and length != 3:
-            self.previewText.clear()
-            self.btnCreate.setDisabled(True)
             warning_text = 'ENSURE ASSET NAME IS THREE CHARACTERS LENGTH!'
             self.previewText.appendPlainText(warning_text)
+            self.previewText.clear()
+            self.btnCreate.setDisabled(True)
         else:
             self.previewText.clear()
             self.btnCreate.setDisabled(True)

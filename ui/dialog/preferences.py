@@ -3,28 +3,28 @@ import os
 import sys
 import platform
 from PyQt5 import QtWidgets
-from config import configurations
+from config import configurations, constants
 from modules import functions
 from ui.window import preferences
 
 # Declare var here first for use in methods below
-DEFAULTPATH = configurations.DEFAULT_PATH
-PROJECTPATH = configurations.PROJECT_PATH
-INI_PATH = configurations.INI_PATH
-THEME = configurations.THEME
+DEFAULT_PATH = constants.DEFAULT_PATH
+INI_PATH = constants.INI_PATH
+PROJECT_PATH = constants.PROJECT_PATH
+THEME = constants.THEME
 
 
-class Prefs(QtWidgets.QDialog, preferences.Ui_PrefsDialog):
+class Preferences(QtWidgets.QDialog, preferences.Ui_PrefsDialog):
     def __init__(self, parent=None):
-        super(Prefs, self).__init__(parent)
+        super(Preferences, self).__init__(parent)
         self.setupUi(self)
+        self.projectpath_line.setText(PROJECT_PATH)
         functions.window_icon(self)
-
-        self.projectpath_line.setText(PROJECTPATH)
 
         # Create config_check to reduce DRY (Don't Repeat Yourself)
         desc = self.desc_check
-        # debug = self.debug_check  # TEMP DISABLE
+        debug = self.debug_check
+
         def config_check(ui, section, setting, value):
             if configurations.get_setting(INI_PATH, section, setting) == value:
                 ui.setChecked(True)
@@ -32,11 +32,11 @@ class Prefs(QtWidgets.QDialog, preferences.Ui_PrefsDialog):
                 ui.setChecked(False)
 
         config_check(desc, 'Settings', 'ShowDescriptionPanel', 'True')
-        # config_check(debug, 'Settings', 'ShowDebugLog', 'True')  # TEMP DISABLE
+        config_check(debug, 'Settings', 'ShowDebugLog', 'True')
 
         # Checked the relevant radio button for Theme at runtime
         system = platform.system()
-        # theme = prefsConfig.get_setting(INI_PATH, 'UI', 'Theme')
+        # theme = configurations.get_setting(INI_PATH, 'UI', 'Theme')
         if system != 'Windows' and THEME == 'Fusion':
             self.theme_radio1.setChecked(True)
             self.theme_radio2.setDisabled(True)
@@ -84,7 +84,7 @@ class Prefs(QtWidgets.QDialog, preferences.Ui_PrefsDialog):
             configurations.update_setting(INI_PATH, 'Settings', 'ProjectPath', path)
         apply_project_path()
 
-        self.accept()  # For MainWindow to execute restart_app when prefsDialog OK
+        self.accept()  # For MainWindow to execute restart_app when OK
 
     def browser_project_path(self):
         path = str(QtWidgets.QFileDialog.getExistingDirectory(
@@ -97,9 +97,9 @@ class Prefs(QtWidgets.QDialog, preferences.Ui_PrefsDialog):
 
         if path == '':  # If user cancel, popup Warning and reuse the original INI ProjectPath
             widget = QtWidgets.QWidget()
-            txt = 'Please choose a directory!'
-            QtWidgets.QMessageBox.warning(widget, 'Warning', txt)
-            self.projectpath_line.setText(DEFAULTPATH)
+            text = 'Please choose a directory!'
+            QtWidgets.QMessageBox.warning(widget, 'Warning', text)
+            self.projectpath_line.setText(DEFAULT_PATH)
         else:
             new_path = path.replace('\\', '/')           # Replace Windows style to UNIX style separator
             system = platform.system()
@@ -134,13 +134,13 @@ class Prefs(QtWidgets.QDialog, preferences.Ui_PrefsDialog):
 
 
 def show_dialog():
-    dialog = Prefs()
+    dialog = Preferences()
     if dialog.exec_():  # If OK, restart app to reinitialize new INI settings
         functions.restart_app()
 
 
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
-    window = Prefs()
+    window = Preferences()
     window.show()
     sys.exit(app.exec_())

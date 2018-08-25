@@ -4,16 +4,12 @@ import sys
 import ctypes
 import platform
 import subprocess
-from PyQt5 import (
-    QtGui,
-    QtCore,
-    QtWidgets,
-)
+from PyQt5 import QtGui, QtCore, QtWidgets
 from config import configurations, constants
 
 # Set Path from INI file
-PROJECT_PATH = configurations.PROJECT_PATH
-INI_PATH = configurations.INI_PATH
+PROJECT_PATH = constants.PROJECT_PATH
+INI_PATH = constants.INI_PATH
 
 # File/Directory Path Dictionary for easy access by any methods
 selected_path = {'Path': ''}
@@ -248,8 +244,24 @@ def project_list(self):
     create_tabs(self, category, project)
 
 
-# Check if PROJECTPATH is valid and reset to home directory if error
 def valid_path(ini, project):
+    """Check path validity and update INI if invalid
+
+    Check if PROJECT_PATH is valid and reset to home directory if error
+
+    Parameters
+    ----------
+    ini : str
+        Path to INI file.
+    project : str
+        Project name.
+
+    Returns
+    -------
+    bool
+        The value of exists.
+
+    """
     exists = os.path.exists(project)
     if exists:
         print("Project Path is valid.")
@@ -361,6 +373,20 @@ def get_file_size(size, precision=2):
 
 # Reveal in OS (works across all major platform)
 def reveal_in_os(path):
+    """Reveal in OS
+
+    Reveal the file/directory path using the OS File Manager.
+
+    Parameters
+    ----------
+    path : str
+        The path of the file/directory.
+
+    Returns
+    -------
+    None
+
+    """
     system = platform.system()
     if system == 'Windows':
         win_path = path.replace("/", "\\")
@@ -401,12 +427,13 @@ def window_icon(self):
 # Open selected file using the OS associated program
 def open_file(target):
     system = platform.system()
-    if system == 'Linux':
-        subprocess.call(['xdg-open', target])
-    if system == 'Darwin':
-        subprocess.call(['open', target])
-    else:
+    try:
         os.startfile(target)
+    except OSError:
+        if system == 'Linux':
+            subprocess.call(['xdg-open', target])
+        if system == 'Darwin':
+            subprocess.call(['open', target])
 
 
 # Check High DPI Support

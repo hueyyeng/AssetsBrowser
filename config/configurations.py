@@ -172,9 +172,3 @@ def current_project():
     """
     project = get_setting(INI_PATH, 'Settings', 'CurrentProject')
     return project
-
-
-DEFAULT_PATH = get_setting(INI_PATH, 'Settings', 'ProjectPath')
-PROJECT_PATH = DEFAULT_PATH
-CURRENT_PROJECT = get_setting(INI_PATH, 'Settings', 'CurrentProject')
-THEME = get_setting(INI_PATH, 'UI', 'Theme')
