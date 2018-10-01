@@ -1,11 +1,13 @@
-# -*- coding: utf-8 -*-
 import os
 import sys
 import platform
+import logging
 from PyQt5 import QtWidgets
 from config import configurations, constants
 from modules import functions
-from ui.window import preferences
+from ui.window.preferences import Ui_PrefsDialog
+
+logger = logging.getLogger(__name__)
 
 # Declare var here first for use in methods below
 DEFAULT_PATH = constants.DEFAULT_PATH
@@ -14,12 +16,12 @@ PROJECT_PATH = constants.PROJECT_PATH
 THEME = constants.THEME
 
 
-class Preferences(QtWidgets.QDialog, preferences.Ui_PrefsDialog):
+class Preferences(QtWidgets.QDialog, Ui_PrefsDialog):
     def __init__(self, parent=None):
         super(Preferences, self).__init__(parent)
         self.setupUi(self)
         self.projectpath_line.setText(PROJECT_PATH)
-        functions.window_icon(self)
+        functions.set_window_icon(self)
 
         # Create config_check to reduce DRY (Don't Repeat Yourself)
         desc = self.desc_check
@@ -95,22 +97,27 @@ class Preferences(QtWidgets.QDialog, preferences.Ui_PrefsDialog):
             )
         )
 
-        if path == '':  # If user cancel, popup Warning and reuse the original INI ProjectPath
+        # If user cancel, popup Warning and reuse the original INI ProjectPath
+        if path == '':
             widget = QtWidgets.QWidget()
             text = 'Please choose a directory!'
             QtWidgets.QMessageBox.warning(widget, 'Warning', text)
             self.projectpath_line.setText(DEFAULT_PATH)
         else:
-            new_path = path.replace('\\', '/')           # Replace Windows style to UNIX style separator
+            # Replace Windows style to UNIX style separator
+            new_path = path.replace('\\', '/')
             system = platform.system()
             if system == 'Linux':
                 unix_path = (new_path + '/')
+                logger.info(unix_path)
                 self.projectpath_line.setText(unix_path)
             elif system == 'Darwin':
                 mac_path = (new_path + '/')
+                logger.info(mac_path)
                 self.projectpath_line.setText(mac_path)
             else:
-                self.projectpath_line.setText(new_path)  # Update the Line textbox with the newly chosen path
+                logger.info(new_path)
+                self.projectpath_line.setText(new_path)
 
     def show_description(self):
         if self.desc_check.isChecked():

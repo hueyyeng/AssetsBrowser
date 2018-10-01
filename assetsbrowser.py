@@ -1,12 +1,14 @@
-# -*- coding: utf-8 -*-
 import os
 import sys
+import logging
 from PyQt5 import QtGui, QtCore, QtWidgets
 from config import configurations, constants
-from modules import functions
+from modules import functions, utils
 from ui.dialog import about, asset, preferences
 from ui.help import repath
 from ui.window import main
+
+logger = logging.getLogger(__name__)
 
 # Set Path from INI file
 PROJECT_PATH = constants.PROJECT_PATH
@@ -21,8 +23,8 @@ class AssetsBrowser(QtWidgets.QMainWindow, main.Ui_MainWindow):
         self.setWindowTitle('Assets Browser [PID: %d]' % QtWidgets.QApplication.applicationPid())
         self.setWindowFlags(QtCore.Qt.WindowMinimizeButtonHint | QtCore.Qt.WindowMaximizeButtonHint)
         functions.center_screen(self)
-        functions.font_overrides(self)
-        functions.window_icon(self)
+        functions.font_size_overrides(self)
+        functions.set_window_icon(self)
         QtWidgets.QApplication.setStyle(THEME)
 
         # Redirect stdout/stderr to QTextEdit widget for debug log
@@ -42,19 +44,31 @@ class AssetsBrowser(QtWidgets.QMainWindow, main.Ui_MainWindow):
         # Create empty list and dictionary for ColumnView tabs
         self.category = []
         self.assets = {}
-        categories = self.category
+
         assets_path = (PROJECT_PATH + current_project + "/Assets/")
-        # TODO: Warn user if Assets directory doesn't exists and quit?
+
+        # Warn user if Assets directory doesn't exists
+        try:
+            os.path.isdir(assets_path)
+        except OSError:
+            warning_text = (
+                    "Assets directory is unavailable."
+                    + "\n"
+                    + "\n"
+                    + "Please ensure you have access to it."
+            )
+            utils.alert_window(text=warning_text, title="Warning")
+            functions.close_app()
 
         # Populate categories list of Assets folder
         for category in os.listdir(assets_path):
             name_prefix = category.startswith(('_', '.'))
             assets_directory = os.path.join(assets_path, category)
             if not name_prefix and os.path.isdir(assets_directory):
-                categories.append(category)
+                self.category.append(category)
 
         # Generate Tabs using create_tabs
-        functions.create_tabs(self, categories, current_project)
+        functions.create_tabs(self, self.category, current_project)
 
         # Splitter Size Config
         self.splitter.setSizes([150, 500])
@@ -85,7 +99,7 @@ class AssetsBrowser(QtWidgets.QMainWindow, main.Ui_MainWindow):
 
     @staticmethod
     def current_project():
-        """Set current project from Project list dropdown"""
+        """Set current project from Project list dropdown."""
         projects = []
         for project in os.listdir(PROJECT_PATH):
             if not project.startswith(('_', '.')) and os.path.isdir(os.path.join(PROJECT_PATH, project)):
@@ -105,12 +119,16 @@ class OutLog():
 
         Parameters
         ----------
-        edit : object
+        edit : PyQt5.QtWidgets.QTextEdit
             QTextEdit object.
         out : object
             Alternate stream (can be the original sys.stdout).
-        color : object
+        color : PyQt5.QtGui.QColor
             QColor object (i.e. color stderr a different color).
+
+        Returns
+        -------
+        None
 
         """
         self.edit = edit
@@ -153,7 +171,7 @@ class OutLog():
 
 
 if __name__ == "__main__":
-    functions.high_dpi_check()
+    os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
     functions.taskbar_icon()
 
     valid_path = functions.valid_path(INI_PATH, PROJECT_PATH)
@@ -161,8 +179,9 @@ if __name__ == "__main__":
         app = QtWidgets.QApplication.instance()
         if app is None:
             app = QtWidgets.QApplication(sys.argv)
+            functions.hidpi_check(app)
         else:
-            print('QApplication instance already exists: %s' % str(app))
+            logger.info('QApplication instance already exists: %s' % str(app))
 
         window = AssetsBrowser()
         window.show()

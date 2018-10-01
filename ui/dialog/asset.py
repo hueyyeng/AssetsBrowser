@@ -1,10 +1,9 @@
-# -*- coding: utf-8 -*-
 import os
 import sys
 from PyQt5 import QtGui, QtCore, QtWidgets
 from config import configurations, constants
 from modules import functions
-from ui.window import asset
+from ui.window.asset import Ui_AssetDialog
 
 PROJECT_PATH = constants.PROJECT_PATH
 INI_PATH = constants.INI_PATH
@@ -12,11 +11,11 @@ CURRENT_PROJECT = configurations.get_setting(INI_PATH, 'Settings', 'CurrentProje
 # TODO: Rework CURRENTPROJECT to properly receive INI CurrentProject value
 
 
-class AssetDialog(QtWidgets.QDialog, asset.Ui_AssetDialog):
+class AssetDialog(QtWidgets.QDialog, Ui_AssetDialog):
     def __init__(self, parent=None):
         super(AssetDialog, self).__init__(parent)
         self.setupUi(self)
-        functions.window_icon(self)
+        functions.set_window_icon(self)
 
         # Buttons Action
         self.btnCreate.clicked.connect(self.create_asset)
@@ -41,13 +40,13 @@ class AssetDialog(QtWidgets.QDialog, asset.Ui_AssetDialog):
         self.assetLineEdit.textChanged.connect(self.text_uppercase)
         self.assetLineEdit.textChanged.connect(self.preview)
 
-    # Change text to UPPERCASE
     def text_uppercase(self):
+        """Convert text to UPPERCASE."""
         asset_name = self.assetLineEdit.text()
         self.assetLineEdit.setText(asset_name.upper())
 
-    # Create asset with preconfigure directories structure
     def create_asset(self):
+        """Create asset with preconfigure directories structure."""
         project = CURRENT_PROJECT
         category = str(self.catBtnGroup.checkedButton().text())
         asset_name = str(self.preview())
@@ -61,7 +60,7 @@ class AssetDialog(QtWidgets.QDialog, asset.Ui_AssetDialog):
             msg.setWindowTitle('Warning')
             msg.setText('ERROR! Asset already exists!')
             msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
-            functions.window_icon(msg)
+            functions.set_window_icon(msg)
             msg.exec_()
         else:
             os.mkdir(full_path)
@@ -84,14 +83,22 @@ class AssetDialog(QtWidgets.QDialog, asset.Ui_AssetDialog):
 
             self.accept()
 
-    # A check group that has non-editable text field to preview the asset's name.
-    # Since both category radio buttons and assetLineEdit emits signal to this
-    # method, it allows the text field to "dynamically" update.
     def preview(self):
-        project = configurations.get_setting(INI_PATH, 'Settings', 'CurrentProject')
-        checked = self.previewGroup.isChecked()
-        length = len(self.assetLineEdit.text())
+        """Previews asset's name in non-editable text field.
 
+        Notes
+        -----
+        Since both ``category radio buttons`` and ``assetLineEdit`` emits signal to this
+        method, it allows the text field to "dynamically" update.
+
+        Returns
+        -------
+        None
+
+        """
+        project = configurations.get_setting(INI_PATH, 'Settings', 'CurrentProject')
+        length = len(self.assetLineEdit.text())
+        checked = self.previewGroup.isChecked()
         if checked and length == 3:
             self.previewText.clear()  # Clear the text field for every signal to create "illusion" of dynamic update
             self.btnCreate.setDisabled(False)  # Enable Create button

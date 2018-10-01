@@ -1,11 +1,15 @@
-# -*- coding: utf-8 -*-
 import os
 import sys
 import ctypes
+import logging
 import platform
 import subprocess
+
 from PyQt5 import QtGui, QtCore, QtWidgets
 from config import configurations, constants
+from modules.utils import alert_window
+
+logger = logging.getLogger(__name__)
 
 # Set Path from INI file
 PROJECT_PATH = constants.PROJECT_PATH
@@ -23,6 +27,7 @@ file_manager = {
 
 def create_tabs(self, categories, project):
     """Create QColumnView tabs.
+
     Create QColumnView tabs dynamically from Assets' List.
 
     Parameters
@@ -53,7 +58,6 @@ def create_tabs(self, categories, project):
         column_views(self.column_view, category, project)
 
 
-# Preview widget layout and features goes here as a function
 def preview_widget(widget, tab):
     """Preview widget.
 
@@ -61,9 +65,9 @@ def preview_widget(widget, tab):
 
     Parameters
     ----------
-    widget : object
+    widget : PyQt5.QtWidgets.QWidget
         QtWidget object.
-    tab : object
+    tab : PyQt5.QtWidgets.QColumnView
         QColumnView object.
 
     Returns
@@ -116,8 +120,25 @@ def preview_widget(widget, tab):
     tab.setPreviewWidget(widget)
 
 
-# Create new column_view tabs to for each categories
 def column_views(column_view, category, project_name):
+    """Create column_view tabs.
+
+    Create new column_view tabs to for each categories.
+
+    Parameters
+    ----------
+    column_view : PyQt5.QtWidgets.QColumnView
+        QColumnView object.
+    category : str
+        Category name.
+    project_name : str
+        Project name.
+
+    Returns
+    -------
+    None
+
+    """
     default_path = (PROJECT_PATH + project_name + "/Assets/" + category)
     os.path.isdir(default_path)
     print("Load..." + default_path)
@@ -139,6 +160,21 @@ def column_views(column_view, category, project_name):
     # Return selected item attributes in Model View for Preview Pane
     @QtCore.pyqtSlot(QtCore.QModelIndex)
     def get_file_info(index):
+        """Get file info.
+
+        Retrieve file information for display in Preview tab.
+
+        Parameters
+        ----------
+        index : PyQt5.QtCore.QModelIndex
+            QModelIndex using decorator method.
+
+        Returns
+        -------
+        str
+            File path.
+
+        """
         index_item = tab.fsm.index(index.row(), 0, index.parent())
 
         # Retrieve File Attributes
@@ -173,12 +209,15 @@ def column_views(column_view, category, project_name):
         # Retrieve file_path for Thumbnail Preview in __init__
         image_path = tab.fsm.filePath(index_item)
         image_type = file_type[0:-5]
-        image_types = constants.images
+        image_types = constants.IMAGE_FORMAT
 
         # Omit format that doesn't work on specific OS
         system = platform.system()
         if system == 'Darwin':
-            image_types.remove('ico')
+            try:
+                image_types.remove('ico')
+            except ValueError:
+                pass
 
         # Generate thumbnails for Preview Pane
         max_size = 150  # Thumbnails max size in pixels
@@ -219,35 +258,43 @@ def column_views(column_view, category, project_name):
     tab.customContextMenuRequested.connect(open_menu)
 
 
-# Retrieve directories in PROJECTPATH comboBox, clear existing tabs and create new tabs
 def project_list(self):
+    """List Project directories in PROJECTPATH comboBox.
+
+    Retrieve directories in PROJECTPATH comboBox, clear existing tabs and create new tabs.
+
+    """
+    # 1. Update INI CurrentProject with chosen project from comboBox
     project = self.comboBox.currentText()
     configurations.update_setting(INI_PATH, 'Settings', 'CurrentProject', project)
 
-    # Clear all tabs except Help
+    # 2. Clear all tabs except Help
     count = 0
     while count < 10:
         count = count + 1
         self.tabWidget.removeTab(1)
 
-    # Force clear existing self.category and self.assets value
+    # 3. Force clear existing self.category and self.assets value
     self.category = []
     self.assets = {}
 
-    category = self.category
+    # 4. Populate self.category list with valid Assets directory name
     assets_path = (PROJECT_PATH + project + "/Assets/")
-
     for item in os.listdir(assets_path):
         if not item.startswith(('_', '.')) and os.path.isdir(os.path.join(assets_path, item)):
-            category.append(item)
+            self.category.append(item)
 
-    create_tabs(self, category, project)
+    # 5. Create tabs using self.category list and selected project
+    create_tabs(self, self.category, project)
 
 
 def valid_path(ini, project):
-    """Check path validity and update INI if invalid
+    """Check path validity and update INI if invalid.
 
-    Check if PROJECT_PATH is valid and reset to home directory if error
+    Check if PROJECT_PATH is valid and reset to home directory if error.
+
+    A warning message will pop up to inform user that the Project Path has
+    been reset to the user's home directory.
 
     Parameters
     ----------
@@ -259,19 +306,21 @@ def valid_path(ini, project):
     Returns
     -------
     bool
-        The value of exists.
+        True if exists, else False.
 
     """
     exists = os.path.exists(project)
-    if exists:
-        print("Project Path is valid.")
-    else:
+
+    if not exists:
+        # 1. Set Project Path to User's Home directory
         home = os.path.expanduser('~')
         system = platform.system()
-        if system == 'Darwin':
+        if system == 'Darwin' or 'Linux':
             home = (home + '/')
         if system == 'Windows':
             home = (home + '\\')
+
+        # 2. Update ProjectPath in INI with User's Home directory path
         configurations.update_setting(
                     ini,
                     'Settings',
@@ -279,39 +328,29 @@ def valid_path(ini, project):
                     home.replace('\\', '/'),
         )
 
-        # Move PyQt Window position to center of the screen
-        app = QtWidgets.QApplication(sys.argv)
-        app.setWindowIcon(QtGui.QIcon('icons/logo.ico'))
-
-        widget = QtWidgets.QWidget()
-        message = QtWidgets.QMessageBox
-
-        qt_rectangle = widget.frameGeometry()
-        center_point = QtWidgets.QDesktopWidget().availableGeometry().center()
-        qt_rectangle.moveCenter(center_point)
-        widget.move(qt_rectangle.topLeft())
-
+        #  3. Raise Alert Window
         warning_text = (
                 "Project Path doesn't exists!"
-                + "\n\nProject Path has been set to " + home + " temporarily."
-                + "\n\nPlease restart Assets Browser."
+                + "\n\n"
+                + "Project Path has been set to " + home + " temporarily."
+                + "\n\n"
+                + "Please restart Assets Browser."
         )
-        message.warning(widget, 'Warning', warning_text, message.Ok)
-        widget.show()
+        alert_window('Warning', warning_text)
 
     return exists
 
 
-# Clear Layout?
 def clear_layout(layout):
+    """Clear layout?"""
     while layout.count():
         child = layout.takeAt(0)
         if child.widget():
             child.widget().deleteLater()
 
 
-# Toggle Debug Display
 def show_debug(self):
+    """Toggle Debug Display."""
     text = self.textEdit
     if self.checkBoxDebug.isChecked():
         text.clear()
@@ -322,8 +361,8 @@ def show_debug(self):
         text.setEnabled(False)
 
 
-# Toggle AlwaysOnTop (works in Windows and Linux)
 def always_on_top(self):
+    """Toggle AlwaysOnTop (works in Windows and Linux)."""
     if self.actionAlwaysOnTop.isChecked():
         self.setWindowFlags(self.windowFlags() | QtCore.Qt.WindowStaysOnTopHint)
         print("Always on Top Enabled")
@@ -333,8 +372,8 @@ def always_on_top(self):
     self.show()
 
 
-# Center PyQt Window on screen
 def center_screen(self):
+    """Center PyQt Window on screen."""
     resolution = QtWidgets.QDesktopWidget().screenGeometry()
     self.move((resolution.width() / 2) - (self.frameSize().width() / 2),
               (resolution.height() / 2) - (self.frameSize().height() / 2))
@@ -371,9 +410,8 @@ def get_file_size(size, precision=2):
     return "%.*f %s" % (precision, size, suffixes[suffix_index])
 
 
-# Reveal in OS (works across all major platform)
 def reveal_in_os(path):
-    """Reveal in OS
+    """Reveal in OS.
 
     Reveal the file/directory path using the OS File Manager.
 
@@ -407,25 +445,70 @@ def reveal_in_os(path):
         print('FILE/DIRECTORY IS NOT VALID!')
 
 
-# Overrides font sizes based on platform due to PyQt quirks especially on macOS/OSX
-def font_overrides(self):
+def font_size_overrides(self, size=8, scale=1.0):
+    """Overrides font sizes.
+
+    Overrides font sizes based on platform due to PyQt quirks especially on macOS/OSX.
+
+    Notes
+    -----
+    This can also override the default font size to arbitrary values although the default
+    values are good enough on non HiDPI display (e.g. Windows 7).
+
+    Parameters
+    ----------
+    size : int
+        Set the default font size.
+    scale : float
+        The scale multiplier to resize the font size.
+
+    Returns
+    -------
+    None
+
+    """
     system = platform.system()
     font = QtGui.QFont()
+    font_size = size
+
     if system == 'Darwin':
-        font.setPointSize(8 * 1.2)
-        self.setFont(font)
+        scale = 1.2
     elif system == 'Linux':
-        font.setPointSize(8 * 1.0)
-        self.setFont(font)
+        scale = 1.0
+
+    font.setPointSize(font_size * scale)
+    self.setFont(font)
 
 
-# Set Icon for PyQt Window for consistent look
-def window_icon(self):
-    self.setWindowIcon(QtGui.QIcon('icons/file.png'))
+def set_window_icon(self, icon='icons/file.png'):
+    """Set PyQt Window Icon.
+
+    Parameters
+    ----------
+    icon : str
+        Path to icon file.
+
+    Returns
+    -------
+    None
+
+    """
+    self.setWindowIcon(QtGui.QIcon(icon))
 
 
-# Open selected file using the OS associated program
 def open_file(target):
+    """ Open selected file using the OS associated program.
+
+    Parameters
+    ----------
+    target : str
+        Path to file/directory.
+
+    Returns
+    -------
+    None
+
+    """
     system = platform.system()
     try:
         os.startfile(target)
@@ -436,41 +519,60 @@ def open_file(target):
             subprocess.call(['open', target])
 
 
-# Check High DPI Support
-def high_dpi_check():
+def hidpi_check(app):
+    """HiDPI check for QApplication.
+
+    Parameters
+    ----------
+    app : PyQt5.QtWidgets.QApplication
+        PyQt QtWidgets QApplication object.
+
+    Returns
+    -------
+    None
+
+    """
     if hasattr(QtCore.Qt, 'AA_EnableHighDpiScaling'):
-        QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
-        print('High DPI Scaling Enabled')
+        app.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
+        logger.info('High DPI Scaling Enabled')
     if hasattr(QtCore.Qt, 'AA_UseHighDpiPixmaps'):
-        QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True)
-        print('High DPI Pixmaps Enabled')
+        app.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True)
+        logger.info('High DPI Pixmaps Enabled')
 
 
-# Workaround to show setWindowIcon on Win7 taskbar instead of default Python icon
 def taskbar_icon():
+    """Workaround to show setWindowIcon on Win7 taskbar instead of default Python icon."""
     if platform.system() == 'Windows':
         app_id = u'taukeke.python.assetsbrowser'  # arbitrary string
         ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(app_id)
 
 
-# Show CWD (Current Work Directory) as a QMessageBox
 def show_cwd():
+    """Show CWD (Current Work Directory) as a QMessageBox."""
     widget = QtWidgets.QWidget()
     cwd = os.getcwd()
     QtWidgets.QMessageBox.information(widget, "Information", cwd)
 
 
-# Terminate/Close App
 def close_app():
+    """Terminate/Close App."""
     sys.exit()
 
 
-# Restart App (often 99% it doesn't restart in an IDE like PyCharm for complex
-# script but it has been tested to work when execute through Python interpreter
 def restart_app():
+    """Restart App.
+
+    99% it doesn't restart in an IDE like PyCharm for complex script but
+    it has been tested to work when execute through Python interpreter.
+
+    Returns
+    -------
+    None
+
+    """
     os.execv(sys.executable, [sys.executable] + sys.argv)
 
 
-# When testing or in doubt, it's HAM time!
 def ham():
+    """When testing or in doubt, it's HAM time!"""
     print('HAM! HAM! HAM!')
