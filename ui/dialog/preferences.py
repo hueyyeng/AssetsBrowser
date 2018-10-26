@@ -24,17 +24,14 @@ class Preferences(QtWidgets.QDialog, Ui_PrefsDialog):
         functions.set_window_icon(self)
 
         # Create config_check to reduce DRY (Don't Repeat Yourself)
-        desc = self.desc_check
-        debug = self.debug_check
-
         def config_check(ui, section, setting, value):
             if configurations.get_setting(INI_PATH, section, setting) == value:
                 ui.setChecked(True)
             else:
                 ui.setChecked(False)
 
-        config_check(desc, 'Settings', 'ShowDescriptionPanel', 'True')
-        config_check(debug, 'Settings', 'ShowDebugLog', 'True')
+        config_check(self.desc_check, 'Settings', 'ShowDescriptionPanel', 'True')
+        # config_check(self.debug_check, 'Settings', 'ShowDebugLog', 'True')
 
         # Checked the relevant radio button for Theme at runtime
         system = platform.system()
@@ -59,16 +56,14 @@ class Preferences(QtWidgets.QDialog, Ui_PrefsDialog):
         configurations.get_config(INI_PATH)
 
     def apply(self):
-        desc = self.desc_check
-        desc_param = 'ShowDescriptionPanel'
-
         # Function as reusable code for CheckBox elements
         def apply_checkbox(ui, param):
             if ui.isChecked():
                 configurations.update_setting(INI_PATH, 'Settings', param, 'True')
             else:
                 configurations.update_setting(INI_PATH, 'Settings', param, 'False')
-        apply_checkbox(desc, desc_param)
+
+        apply_checkbox(self.desc_check, 'ShowDescriptionPanel')
 
         # Theme function as radio toggle
         def apply_theme():
@@ -78,12 +73,14 @@ class Preferences(QtWidgets.QDialog, Ui_PrefsDialog):
                 configurations.update_setting(INI_PATH, 'UI', 'Theme', 'WindowsVista')
             theme = configurations.get_setting(INI_PATH, 'UI', 'Theme')
             QtWidgets.QApplication.setStyle(theme)
+
         apply_theme()
 
         # Update the Project Path in the INI file
         def apply_project_path():
             path = self.projectpath_line.text()
             configurations.update_setting(INI_PATH, 'Settings', 'ProjectPath', path)
+
         apply_project_path()
 
         self.accept()  # For MainWindow to execute restart_app when OK
@@ -92,9 +89,9 @@ class Preferences(QtWidgets.QDialog, Ui_PrefsDialog):
         path = str(QtWidgets.QFileDialog.getExistingDirectory(
             self,
             'Choose Directory',
-            os.path.expanduser('~'),             # Defaults to home directory
+            os.path.expanduser('~'),  # Defaults to home directory
             QtWidgets.QFileDialog.ShowDirsOnly,  # Filter list to Directory only
-            )
+        )
         )
 
         # If user cancel, popup Warning and reuse the original INI ProjectPath

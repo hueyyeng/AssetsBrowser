@@ -9,6 +9,7 @@ from ui.help import repath
 from ui.window import main
 
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 # Set Path from INI file
 PROJECT_PATH = constants.PROJECT_PATH
@@ -30,6 +31,8 @@ class AssetsBrowser(QtWidgets.QMainWindow, main.Ui_MainWindow):
         # Redirect stdout/stderr to QTextEdit widget for debug log
         sys.stdout = OutLog(self.textEdit, sys.stdout)
         sys.stderr = OutLog(self.textEdit, sys.stderr, QtGui.QColor(255, 0, 0))
+        formatter = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        logging.basicConfig(stream=sys.stdout, level=logging.DEBUG, format=formatter)
 
         # Project List Dropdown ComboBox
         self.comboBox.fsm = QtWidgets.QFileSystemModel()
@@ -48,12 +51,9 @@ class AssetsBrowser(QtWidgets.QMainWindow, main.Ui_MainWindow):
         assets_path = (PROJECT_PATH + current_project + "/Assets/")
 
         # Warn user if Assets directory doesn't exists
-        try:
-            os.path.isdir(assets_path)
-        except OSError:
+        if not os.path.isdir(assets_path):
             warning_text = (
-                    "Assets directory is unavailable."
-                    + "\n"
+                    "Assets directory is unavailable.\n"
                     + "\n"
                     + "Please ensure you have access to it."
             )
@@ -181,7 +181,7 @@ if __name__ == "__main__":
             app = QtWidgets.QApplication(sys.argv)
             functions.hidpi_check(app)
         else:
-            logger.info('QApplication instance already exists: %s' % str(app))
+            logger.debug('QApplication instance already exists: %s', str(app))
 
         window = AssetsBrowser()
         window.show()

@@ -1,9 +1,13 @@
 import os
 import sys
+import json
+import logging
 from PyQt5 import QtGui, QtCore, QtWidgets
 from config import configurations, constants
 from modules import functions
 from ui.window.asset import Ui_AssetDialog
+
+logger = logging.getLogger(__name__)
 
 PROJECT_PATH = constants.PROJECT_PATH
 INI_PATH = constants.INI_PATH
@@ -28,8 +32,8 @@ class AssetDialog(QtWidgets.QDialog, Ui_AssetDialog):
 
         # Iterate each radio_button using Qt findChildren
         radio_buttons = self.catGroup.findChildren(QtWidgets.QRadioButton)
-        for button in radio_buttons:
-            button.clicked.connect(self.preview)
+        for radio_button in radio_buttons:
+            radio_button.clicked.connect(self.preview)
 
         # Limit the range of acceptable characters input by the user using regex
         regex = QtCore.QRegularExpression("^[a-zA-Z0-9]+$")
@@ -47,13 +51,13 @@ class AssetDialog(QtWidgets.QDialog, Ui_AssetDialog):
 
     def create_asset(self):
         """Create asset with preconfigure directories structure."""
-        project = CURRENT_PROJECT
+        # 1. Prepare variables
         category = str(self.catBtnGroup.checkedButton().text())
         asset_name = str(self.preview())
-        asset_path = (PROJECT_PATH + project + "/Assets/" + category)
+        asset_path = (PROJECT_PATH + CURRENT_PROJECT + "/Assets/" + category)
         full_path = (asset_path + '/' + asset_name)
 
-        # Check whether Asset directory already exist
+        # 2.1 Raise error if `full_path` exists
         if os.path.exists(full_path):
             msg = QtWidgets.QMessageBox()
             msg.setIcon(QtWidgets.QMessageBox.Warning)
@@ -62,29 +66,25 @@ class AssetDialog(QtWidgets.QDialog, Ui_AssetDialog):
             msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
             functions.set_window_icon(msg)
             msg.exec_()
+
+        # 2.2 Create Assets directory
         else:
             os.mkdir(full_path)
-            print('Assets will be created at ' + full_path)
+            logger.debug(f'Assets will be created at {full_path}')
 
-            # Declare names for child folders
-            # TODO: Rework hard-coded folders for Create New Assets
-            folder1 = "Scenes"
-            folder2 = "Textures"
-            folder3 = "References"
-            folder4 = None
-            folder5 = "WIP"
-
-            folders = [folder1, folder2, folder3, folder4, folder5]
+            # TODO: Rework hard-coded folders for Create New Assets. Use JSON to parse list from INI?
+            folders = json.loads(constants.ASSETS_SUBFOLDER_LIST)
+            logger.debug(folders)
             for folder in folders:
-                if folder is None:
-                    pass
-                else:
+                try:
                     os.mkdir(os.path.join(full_path, folder))
+                except OSError:
+                    logger.error(f"The Assets directory '{full_path}' cannot be created.")
 
             self.accept()
 
     def preview(self):
-        """Previews asset's name in non-editable text field.
+        """Previews asset's creation name in non-editable text field.
 
         Notes
         -----
@@ -101,7 +101,7 @@ class AssetDialog(QtWidgets.QDialog, Ui_AssetDialog):
         checked = self.previewGroup.isChecked()
         if checked and length == 3:
             self.previewText.clear()  # Clear the text field for every signal to create "illusion" of dynamic update
-            self.btnCreate.setDisabled(False)  # Enable Create button
+            self.btnCreate.setDisabled(False)
             category = str(self.catBtnGroup.checkedButton().text())
             prefix = category[0].lower()  # Slice the first letter of the selected category radio and make it lowercase
             suffix = str(self.assetLineEdit.text())  # Retrieve the assetLineEdit text as string
@@ -128,9 +128,9 @@ class AssetDialog(QtWidgets.QDialog, Ui_AssetDialog):
 def show_dialog():
     dialog = AssetDialog()
     if dialog.exec_():
-        print('Creating new asset...')
+        logger.debug('Creating new asset...')
     else:
-        print('Aborting Create New Asset...')
+        logger.debug('Aborting Create New Asset...')
 
 
 if __name__ == '__main__':

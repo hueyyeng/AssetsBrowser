@@ -330,12 +330,13 @@ def valid_path(ini, project):
 
         #  3. Raise Alert Window
         warning_text = (
-                "Project Path doesn't exists!"
-                + "\n\n"
-                + "Project Path has been set to " + home + " temporarily."
-                + "\n\n"
+                "Project Path doesn't exists!\n"
+                + "\n"
+                + "Project Path has been set to " + home + " temporarily.\n"
+                + "\n"
                 + "Please restart Assets Browser."
         )
+
         alert_window('Warning', warning_text)
 
     return exists
@@ -426,23 +427,20 @@ def reveal_in_os(path):
 
     """
     system = platform.system()
-    if system == 'Windows':
-        win_path = path.replace("/", "\\")
-        if os.path.isdir(path):
-            cmd = str('explorer /e,' + win_path)
-            subprocess.call(cmd)
-        elif os.path.exists(path):
-            cmd = str('explorer /select,' + win_path)
-            subprocess.call(cmd)
-        else:
-            print('Is this a valid OS?')
-    if system == 'Darwin':  # OSX/macOS
-        subprocess.call(['open', '-R', path])
-    if system == 'Linux':
+    win_path = path.replace("/", "\\")
+
+    if system == 'Windows' and os.path.isdir(path):
+        cmd = str('explorer /e,' + win_path)
+    elif system == 'Windows' and os.path.exists(path):
+        cmd = str('explorer /select,' + win_path)
+    elif system == 'Darwin':  # OSX/macOS
+        cmd = (['open', '-R', path])
+    elif system == 'Linux':
         dir_path = '/'.join(path.split('/')[0:-1])  # Omit file_name from path
-        subprocess.Popen(['xdg-open', dir_path])
-    else:
-        print('FILE/DIRECTORY IS NOT VALID!')
+        # subprocess.Popen(['xdg-open', dir_path])
+        cmd = (['xdg-open', dir_path])
+
+    subprocess.call(cmd)
 
 
 def font_size_overrides(self, size=8, scale=1.0):
@@ -469,13 +467,14 @@ def font_size_overrides(self, size=8, scale=1.0):
     """
     system = platform.system()
     font = QtGui.QFont()
-    font_size = size
 
     if system == 'Darwin':
-        scale = 1.2
-    elif system == 'Linux':
+        size = 12
+        scale = 1.0
+    if system == 'Linux':
         scale = 1.0
 
+    font_size = size
     font.setPointSize(font_size * scale)
     self.setFont(font)
 
