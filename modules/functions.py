@@ -120,7 +120,7 @@ def preview_widget(widget, tab):
     tab.setPreviewWidget(widget)
 
 
-def column_views(column_view, category, project_name):
+def column_views(column_view, category, project):
     """Create column_view tabs.
 
     Create new column_view tabs to for each categories.
@@ -131,7 +131,7 @@ def column_views(column_view, category, project_name):
         QColumnView object.
     category : str
         Category name.
-    project_name : str
+    project : str
         Project name.
 
     Returns
@@ -139,14 +139,12 @@ def column_views(column_view, category, project_name):
     None
 
     """
-    default_path = (PROJECT_PATH + project_name + "/Assets/" + category)
-    os.path.isdir(default_path)
-    print("Load..." + default_path)
-
-    column_width = [200] * 9  # Column width multiply by the amount of columns
+    default_path = (PROJECT_PATH + project + "/Assets/" + category)
+    default_path_log = "Load... " + default_path
+    logger.debug(default_path_log)
 
     tab = column_view
-    tab.setColumnWidths(column_width)
+    tab.setColumnWidths([200] * 9)  # Column width multiply by the amount of columns
     tab.setEnabled(True)
     tab.fsm = QtWidgets.QFileSystemModel()
     tab.fsm.setReadOnly(False)
@@ -154,8 +152,7 @@ def column_views(column_view, category, project_name):
     tab.setModel(tab.fsm)
     tab.setRootIndex(tab.rootindex)
 
-    widget = QtWidgets.QWidget()
-    preview_widget(widget, tab)
+    preview_widget(QtWidgets.QWidget(), tab)
 
     # Return selected item attributes in Model View for Preview Pane
     @QtCore.pyqtSlot(QtCore.QModelIndex)
@@ -184,48 +181,29 @@ def column_views(column_view, category, project_name):
         file_date = tab.fsm.lastModified(index_item)
         file_path = str(tab.fsm.filePath(index_item))
 
+        selected_file['File'] = file_name
+        selected_path['Path'] = file_path
+
         # Split file_type into array for easy formatting
         file_type_list = file_type.split(' ')
 
-        # Format the File Attributes into String
-        file_name_label = file_name
-        file_size_label = get_file_size(file_size)
-        file_type_label = file_type_list[0].upper() + ' file'
-        file_date_label = file_date.toString(
-            'yyyy/MM/dd'
-            + ' '
-            + 'h:m AP'
-        )
-
-        # Assign the File Attributes' String into respective labels
-        tab.file_name.setText(file_name_label)
-        tab.file_size.setText(file_size_label)
-        tab.file_type.setText(file_type_label)
-        tab.file_date.setText(file_date_label)
-
-        selected_path['Path'] = file_path
-        selected_file['File'] = file_name
+        # Assign the File Attributes' string into respective labels
+        tab.file_name.setText(file_name)
+        tab.file_size.setText(get_file_size(file_size))
+        tab.file_type.setText(file_type_list[0].upper() + ' file')
+        tab.file_date.setText(file_date.toString('yyyy/MM/dd h:m AP'))
 
         # Retrieve file_path for Thumbnail Preview in __init__
         image_path = tab.fsm.filePath(index_item)
         image_type = file_type[0:-5]
         image_types = constants.IMAGE_FORMAT
 
-        # Omit format that doesn't work on specific OS
-        system = platform.system()
-        if system == 'Darwin':
-            try:
-                image_types.remove('ico')
-            except ValueError:
-                pass
-
         # Generate thumbnails for Preview Pane
         max_size = 150  # Thumbnails max size in pixels
-        thumbnail = QtGui.QPixmap()
-        thumbnail.load(image_path)
-
+        thumbnail_object = QtGui.QPixmap()
+        thumbnail_object.load(image_path)
         if image_type in image_types:
-            thumbnail = thumbnail.scaled(
+            thumbnail = thumbnail_object.scaled(
                 max_size,
                 max_size,
                 QtCore.Qt.KeepAspectRatio,
@@ -243,7 +221,6 @@ def column_views(column_view, category, project_name):
 
     def open_menu(position):
         menu = QtWidgets.QMenu()
-
         open_action = menu.addAction('Open ' + selected_file['File'])
         open_action.triggered.connect(lambda: open_file(selected_path['Path']))
         reveal_action = menu.addAction(('Reveal in ' + file_manager[platform.system()]))
@@ -251,7 +228,6 @@ def column_views(column_view, category, project_name):
         menu.addSeparator()
         quit_action = menu.addAction("Quit")
         quit_action.triggered.connect(QtWidgets.QApplication.quit)
-
         menu.exec_(tab.mapToGlobal(position))
 
     tab.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
@@ -281,7 +257,9 @@ def project_list(self):
     # 4. Populate self.category list with valid Assets directory name
     assets_path = (PROJECT_PATH + project + "/Assets/")
     for item in os.listdir(assets_path):
-        if not item.startswith(('_', '.')) and os.path.isdir(os.path.join(assets_path, item)):
+        prefix = item.startswith(('_', '.'))
+        is_directory = os.path.isdir(os.path.join(assets_path, item))
+        if not prefix and is_directory:
             self.category.append(item)
 
     # 5. Create tabs using self.category list and selected project

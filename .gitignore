@@ -1,11 +1,14 @@
 ### Assets Browser ###
-_old
-_bak
-build
-bin
-tests
+_old/
+_bak/
+_tmp/
+build/
+bin/
 settings.ini
 setup.py
+*.psd
+*.ai
+
 
 # Created by https://www.gitignore.io/api/code,linux,macos,python,windows,pycharm
 

@@ -70,8 +70,7 @@ class AssetDialog(QtWidgets.QDialog, Ui_AssetDialog):
         # 2.2 Create Assets directory
         else:
             os.mkdir(full_path)
-            logger.debug(f'Assets will be created at {full_path}')
-
+            logger.debug('Assets will be created at %s', full_path)
             # TODO: Rework hard-coded folders for Create New Assets. Use JSON to parse list from INI?
             folders = json.loads(constants.ASSETS_SUBFOLDER_LIST)
             logger.debug(folders)
@@ -79,7 +78,7 @@ class AssetDialog(QtWidgets.QDialog, Ui_AssetDialog):
                 try:
                     os.mkdir(os.path.join(full_path, folder))
                 except OSError:
-                    logger.error(f"The Assets directory '{full_path}' cannot be created.")
+                    logger.error("The Assets directory %s cannot be created.", full_path)
 
             self.accept()
 

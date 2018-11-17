@@ -8,11 +8,12 @@ ROOT_DIR = 'config/'
 INI_FILE = 'settings.ini'
 INI_PATH = (ROOT_DIR + INI_FILE)
 
-config = configparser.ConfigParser()
+config = configparser.ConfigParser(strict=False)
 
 
 def create_config(path):
     # TODO: Break create_config into smaller chunk (DRY)
+    # TODO: Handle PermissionError when trying to open directory as file
     """Create an INI config file with default value.
 
     Parameters
@@ -43,7 +44,7 @@ def create_config(path):
     config.set(
         'Settings',
         'CurrentProject',
-        ''
+        '.nodefaultvalue'
     )
 
     # 2. UI (UI settings for Assets Browser)
@@ -72,9 +73,12 @@ def create_config(path):
         '["Scenes","Textures","References","WIP"]',
     )
 
-    # 4. Write to INI file
-    with open(path, 'w') as config_file:
-        config.write(config_file)
+    # 4.1 Write to INI file
+    try:
+        with open(path, 'w') as config_file:
+            config.write(config_file)
+    except PermissionError as e:
+        logger.error(e)
 
 
 def get_config(path):
@@ -94,7 +98,7 @@ def get_config(path):
     if not os.path.exists(path):
         create_config(path)
         logger.error('ERROR INI FILE NOT FOUND')
-        logger.debug(f'Creating INI file at {path}')
+        logger.debug('Creating INI file at %s', path)
 
     config.optionxform = str
     config.read(path)
