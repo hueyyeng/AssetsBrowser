@@ -1,7 +1,7 @@
 import sys
 from PyQt5 import QtGui, QtWidgets
 from modules.functions import set_window_icon
-from ui.window.about import Ui_AboutDialog
+from ui.window.ui_about import Ui_AboutDialog
 
 
 class About(QtWidgets.QDialog, Ui_AboutDialog):

@@ -5,7 +5,7 @@ import logging
 from PyQt5 import QtWidgets
 from config import configurations, constants
 from modules import functions
-from ui.window.preferences import Ui_PrefsDialog
+from ui.window.ui_preferences import Ui_PrefsDialog
 
 logger = logging.getLogger(__name__)
 

@@ -6,7 +6,7 @@ from config import configurations, constants
 from modules import functions, utils
 from ui.dialog import about, asset, preferences
 from ui.help import repath
-from ui.window import main
+from ui.window import ui_main
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -17,7 +17,7 @@ INI_PATH = constants.INI_PATH
 THEME = constants.THEME
 
 
-class AssetsBrowser(QtWidgets.QMainWindow, main.Ui_MainWindow):
+class AssetsBrowser(QtWidgets.QMainWindow, ui_main.Ui_MainWindow):
     def __init__(self, parent=None):
         super(AssetsBrowser, self).__init__(parent)
         self.setupUi(self)

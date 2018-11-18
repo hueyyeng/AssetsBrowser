@@ -2,6 +2,7 @@
 _old/
 _bak/
 _tmp/
+.tmp/
 build/
 bin/
 settings.ini

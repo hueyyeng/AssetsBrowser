@@ -5,7 +5,7 @@ import logging
 from PyQt5 import QtGui, QtCore, QtWidgets
 from config import configurations, constants
 from modules import functions
-from ui.window.asset import Ui_AssetDialog
+from ui.window.ui_asset import Ui_AssetDialog
 
 logger = logging.getLogger(__name__)
 
@@ -21,19 +21,26 @@ class AssetDialog(QtWidgets.QDialog, Ui_AssetDialog):
         self.setupUi(self)
         functions.set_window_icon(self)
 
+        # Disable to prevent user from creating without inputting asset name
+        self.btnCreate.setDisabled(True)
+
         # Buttons Action
         self.btnCreate.clicked.connect(self.create_asset)
-        self.btnCreate.setDisabled(True)  # Disable to prevent user from creating without inputting asset name
         self.btnCancel.clicked.connect(self.close)
         self.previewGroup.clicked.connect(self.preview)
 
-        # Set BG radio button as default choice
-        self.catBG.setChecked(True)
+        # Setup category radio buttons
+        placeholder = False
+        asset_categories = json.loads(constants.ASSETS_CATEGORY_LIST)
+        if len(asset_categories) == 0:
+            placeholder = True
+        self.remove_radio_button(placeholder)
+        for asset_category in asset_categories:
+            self.generate_radio_button(asset_category)
 
-        # Iterate each radio_button using Qt findChildren
+        # Set the first radio button as default choice
         radio_buttons = self.catGroup.findChildren(QtWidgets.QRadioButton)
-        for radio_button in radio_buttons:
-            radio_button.clicked.connect(self.preview)
+        radio_buttons[0].setChecked(True)
 
         # Limit the range of acceptable characters input by the user using regex
         regex = QtCore.QRegularExpression("^[a-zA-Z0-9]+$")
@@ -43,6 +50,25 @@ class AssetDialog(QtWidgets.QDialog, Ui_AssetDialog):
         # Runs text_uppercase and preview whenever Qt detects textChanged
         self.assetLineEdit.textChanged.connect(self.text_uppercase)
         self.assetLineEdit.textChanged.connect(self.preview)
+
+    def remove_radio_button(self, placeholder=False):
+        """Remove radio button."""
+        # TODO: Allow removal of any radio buttons
+        if not placeholder:
+            import sip
+            self.layoutVtlCat.removeWidget(self.catPlaceholder)
+            sip.delete(self.catPlaceholder)
+            self.catPlaceholder = None
+
+    def generate_radio_button(self, name):
+        """Generate category radio button."""
+        _translate = QtCore.QCoreApplication.translate
+        self.catRadioButton = QtWidgets.QRadioButton(self.catGroup)
+        self.catRadioButton.setObjectName("cat" + name)
+        self.catBtnGroup.addButton(self.catRadioButton)
+        self.layoutVtlCat.addWidget(self.catRadioButton)
+        self.catRadioButton.setText(_translate("AssetDialog", name))
+        self.catRadioButton.clicked.connect(self.preview)
 
     def text_uppercase(self):
         """Convert text to UPPERCASE."""
@@ -95,33 +121,30 @@ class AssetDialog(QtWidgets.QDialog, Ui_AssetDialog):
         None
 
         """
-        project = configurations.get_setting(INI_PATH, 'Settings', 'CurrentProject')
-        length = len(self.assetLineEdit.text())
+        # 1. Clear the text field for every signal to create "illusion" of dynamic update
+        self.previewText.clear()
+        self.btnCreate.setDisabled(True)
+        name_length = len(self.assetLineEdit.text())
         checked = self.previewGroup.isChecked()
-        if checked and length == 3:
-            self.previewText.clear()  # Clear the text field for every signal to create "illusion" of dynamic update
+        # 2.1 Generate preview message
+        if checked and name_length == 3:
             self.btnCreate.setDisabled(False)
             category = str(self.catBtnGroup.checkedButton().text())
-            prefix = category[0].lower()  # Slice the first letter of the selected category radio and make it lowercase
-            suffix = str(self.assetLineEdit.text())  # Retrieve the assetLineEdit text as string
+            prefix = category[0].lower()
+            suffix = str(self.assetLineEdit.text())
             asset_name = (prefix + suffix)
+            project = configurations.get_setting(INI_PATH, 'Settings', 'CurrentProject')
             asset_text = (
-                    'The asset name will be ' + asset_name + '.'
-                    + '\n'
-                    + 'Ensure the asset name is correct before proceeding.'
-                    + '\n'
+                    'The asset name will be ' + asset_name + '.\n'
+                    + 'Ensure the asset name is correct before proceeding.\n'
                     + '\n'
                     + 'Project: ' + project
             )
             self.previewText.appendPlainText(asset_text)
-        elif checked and length != 3:
+        # 2.2 Display warning text when asset name is not fulfilled
+        elif checked and name_length != 3:
             warning_text = 'ENSURE ASSET NAME IS THREE CHARACTERS LENGTH!'
             self.previewText.appendPlainText(warning_text)
-            self.previewText.clear()
-            self.btnCreate.setDisabled(True)
-        else:
-            self.previewText.clear()
-            self.btnCreate.setDisabled(True)
 
 
 def show_dialog():
