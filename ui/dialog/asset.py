@@ -97,7 +97,6 @@ class AssetDialog(QtWidgets.QDialog, Ui_AssetDialog):
         else:
             os.mkdir(full_path)
             logger.debug('Assets will be created at %s', full_path)
-            # TODO: Rework hard-coded folders for Create New Assets. Use JSON to parse list from INI?
             folders = json.loads(constants.ASSETS_SUBFOLDER_LIST)
             logger.debug(folders)
             for folder in folders:
