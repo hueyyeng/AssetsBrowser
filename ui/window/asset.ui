@@ -2,6 +2,14 @@
 <ui version="4.0">
  <class>AssetDialog</class>
  <widget class="QDialog" name="AssetDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>350</width>
+    <height>470</height>
+   </rect>
+  </property>
   <property name="sizePolicy">
    <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
     <horstretch>0</horstretch>
@@ -29,9 +37,9 @@
   <property name="windowTitle">
    <string>Create New Asset</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_2">
+  <layout class="QVBoxLayout" name="layoutVtlDialog">
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout">
+    <layout class="QHBoxLayout" name="layoutHznAsset">
      <item>
       <widget class="QLabel" name="assetLabel">
        <property name="text">
@@ -55,7 +63,7 @@
     </layout>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_3">
+    <layout class="QHBoxLayout" name="layoutHznCatDesc">
      <item>
       <widget class="QGroupBox" name="catGroup">
        <property name="font">
@@ -76,51 +84,11 @@
        <property name="checkable">
         <bool>false</bool>
        </property>
-       <layout class="QVBoxLayout" name="verticalLayout_3">
+       <layout class="QVBoxLayout" name="layoutVtlCat">
         <item>
-         <widget class="QRadioButton" name="catBG">
+         <widget class="QRadioButton" name="catPlaceholder">
           <property name="text">
-           <string>BG</string>
-          </property>
-          <attribute name="buttonGroup">
-           <string notr="true">catBtnGroup</string>
-          </attribute>
-         </widget>
-        </item>
-        <item>
-         <widget class="QRadioButton" name="catCH">
-          <property name="text">
-           <string>CH</string>
-          </property>
-          <attribute name="buttonGroup">
-           <string notr="true">catBtnGroup</string>
-          </attribute>
-         </widget>
-        </item>
-        <item>
-         <widget class="QRadioButton" name="catFX">
-          <property name="text">
-           <string>FX</string>
-          </property>
-          <attribute name="buttonGroup">
-           <string notr="true">catBtnGroup</string>
-          </attribute>
-         </widget>
-        </item>
-        <item>
-         <widget class="QRadioButton" name="catProps">
-          <property name="text">
-           <string>Props</string>
-          </property>
-          <attribute name="buttonGroup">
-           <string notr="true">catBtnGroup</string>
-          </attribute>
-         </widget>
-        </item>
-        <item>
-         <widget class="QRadioButton" name="catVehicles">
-          <property name="text">
-           <string>Vehicles</string>
+           <string>Placeholder</string>
           </property>
           <attribute name="buttonGroup">
            <string notr="true">catBtnGroup</string>
@@ -131,7 +99,7 @@
       </widget>
      </item>
      <item>
-      <spacer name="verticalSpacer">
+      <spacer name="spacerVertical">
        <property name="orientation">
         <enum>Qt::Vertical</enum>
        </property>
@@ -154,7 +122,7 @@
        <property name="title">
         <string>Description (disabled)</string>
        </property>
-       <layout class="QVBoxLayout" name="verticalLayout_4">
+       <layout class="QVBoxLayout" name="layoutVtlDesc">
         <item>
          <widget class="QLabel" name="descName">
           <property name="text">
@@ -207,7 +175,7 @@
      <property name="checked">
       <bool>false</bool>
      </property>
-     <layout class="QVBoxLayout" name="verticalLayout">
+     <layout class="QVBoxLayout" name="layoutVtlPreview">
       <item>
        <widget class="QPlainTextEdit" name="previewText">
         <property name="readOnly">
@@ -219,7 +187,7 @@
     </widget>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_2">
+    <layout class="QHBoxLayout" name="layoutHznBtn">
      <item>
       <widget class="QPushButton" name="btnCreate">
        <property name="text">

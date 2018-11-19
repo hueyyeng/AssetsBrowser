@@ -1,16 +1,19 @@
-# -*- coding: utf-8 -*-
 import os
 import configparser
+import logging
+
+logger = logging.getLogger(__name__)
 
 ROOT_DIR = 'config/'
 INI_FILE = 'settings.ini'
 INI_PATH = (ROOT_DIR + INI_FILE)
 
-config = configparser.ConfigParser()
-home = os.path.expanduser('~')  # Defaults to home directory
+config = configparser.ConfigParser(strict=False)
 
 
 def create_config(path):
+    # TODO: Break create_config into smaller chunk (DRY)
+    # TODO: Handle PermissionError when trying to open directory as file
     """Create an INI config file with default value.
 
     Parameters
@@ -24,7 +27,9 @@ def create_config(path):
 
     """
     config.optionxform = str
+    home = os.path.expanduser('~')  # Defaults to home directory
 
+    # 1. Settings (General settings for Assets Browser)
     config.add_section('Settings')
     config.set(
         'Settings',
@@ -39,9 +44,10 @@ def create_config(path):
     config.set(
         'Settings',
         'CurrentProject',
-        ''
+        '.nodefaultvalue'
     )
 
+    # 2. UI (UI settings for Assets Browser)
     config.add_section('UI')
     config.set(
         'UI',
@@ -54,8 +60,25 @@ def create_config(path):
         'Fusion',
     )
 
-    with open(path, 'w') as config_file:
-        config.write(config_file)
+    # 3. Assets (Assets' settings for Assets Browser)
+    config.add_section('Assets')
+    config.set(
+        'Assets',
+        'CategoryList',
+        '["BG","CH","FX","Props","Vehicles"]',
+    )
+    config.set(
+        'Assets',
+        'SubfolderList',
+        '["Scenes","Textures","References","WIP"]',
+    )
+
+    # 4.1 Write to INI file
+    try:
+        with open(path, 'w') as config_file:
+            config.write(config_file)
+    except PermissionError as e:
+        logger.error(e)
 
 
 def get_config(path):
@@ -74,8 +97,8 @@ def get_config(path):
     """
     if not os.path.exists(path):
         create_config(path)
-        print('ERROR INI FILE NOT FOUND')
-        print('Creating INI file at ' + path)
+        logger.error('ERROR INI FILE NOT FOUND')
+        logger.debug('Creating INI file at %s', path)
 
     config.optionxform = str
     config.read(path)
@@ -109,7 +132,7 @@ def get_setting(path, section, setting):
             value=value,
         )
     )
-    print(message)
+    logger.debug(message)
     return value
 
 
@@ -172,9 +195,3 @@ def current_project():
     """
     project = get_setting(INI_PATH, 'Settings', 'CurrentProject')
     return project
-
-
-DEFAULT_PATH = get_setting(INI_PATH, 'Settings', 'ProjectPath')
-PROJECT_PATH = DEFAULT_PATH
-CURRENT_PROJECT = get_setting(INI_PATH, 'Settings', 'CurrentProject')
-THEME = get_setting(INI_PATH, 'UI', 'Theme')
