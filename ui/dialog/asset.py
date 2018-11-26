@@ -3,8 +3,9 @@ import sys
 import json
 import logging
 from PyQt5 import QtGui, QtCore, QtWidgets
+
 from config import configurations, constants
-from modules import functions
+import ui.functions
 from ui.window.ui_asset import Ui_AssetDialog
 
 logger = logging.getLogger(__name__)
@@ -19,7 +20,7 @@ class AssetDialog(QtWidgets.QDialog, Ui_AssetDialog):
     def __init__(self, parent=None):
         super(AssetDialog, self).__init__(parent)
         self.setupUi(self)
-        functions.set_window_icon(self)
+        ui.functions.set_window_icon(self)
 
         # Disable to prevent user from creating without inputting asset name
         self.btnCreate.setDisabled(True)
@@ -90,7 +91,7 @@ class AssetDialog(QtWidgets.QDialog, Ui_AssetDialog):
             msg.setWindowTitle('Warning')
             msg.setText('ERROR! Asset already exists!')
             msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
-            functions.set_window_icon(msg)
+            ui.functions.set_window_icon(msg)
             msg.exec_()
 
         # 2.2 Create Assets directory
@@ -107,6 +108,23 @@ class AssetDialog(QtWidgets.QDialog, Ui_AssetDialog):
 
             self.accept()
 
+    def generate_asset_name(self):
+        """Generate asset's name with category prefix.
+
+        Use input from ``assetLineEdit`` to generate asset's name with
+
+        Returns
+        -------
+        str
+            Asset's name with category prefix
+
+        """
+        category = str(self.catBtnGroup.checkedButton().text())
+        prefix = category[0].lower()
+        suffix = str(self.assetLineEdit.text())
+        asset_name = (prefix + suffix)
+        return asset_name
+
     def preview(self):
         """Previews asset's creation name in non-editable text field.
 
@@ -117,33 +135,35 @@ class AssetDialog(QtWidgets.QDialog, Ui_AssetDialog):
 
         Returns
         -------
-        None
+        str
+            Asset's name.
 
         """
-        # 1. Clear the text field for every signal to create "illusion" of dynamic update
+        # 1. Disable Create button and clear the text field to create "illusion" of dynamic update
         self.previewText.clear()
         self.btnCreate.setDisabled(True)
+
+        # 2.1 Generate preview message
+        # 2.1.1 Display warning message by default
         name_length = len(self.assetLineEdit.text())
         checked = self.previewGroup.isChecked()
-        # 2.1 Generate preview message
+        asset_name = self.generate_asset_name()
+        message = ''
+
+        # 2.1.2 Enable Create button and display the expected asset name
+        if checked and name_length != 3:
+            message = "Ensure asset's name is three characters length!"
         if checked and name_length == 3:
             self.btnCreate.setDisabled(False)
-            category = str(self.catBtnGroup.checkedButton().text())
-            prefix = category[0].lower()
-            suffix = str(self.assetLineEdit.text())
-            asset_name = (prefix + suffix)
             project = configurations.get_setting(INI_PATH, 'Settings', 'CurrentProject')
-            asset_text = (
+            message = (
                     'The asset name will be ' + asset_name + '.\n'
                     + 'Ensure the asset name is correct before proceeding.\n'
                     + '\n'
                     + 'Project: ' + project
             )
-            self.previewText.appendPlainText(asset_text)
-        # 2.2 Display warning text when asset name is not fulfilled
-        elif checked and name_length != 3:
-            warning_text = 'ENSURE ASSET NAME IS THREE CHARACTERS LENGTH!'
-            self.previewText.appendPlainText(warning_text)
+        self.previewText.appendPlainText(message)
+        return asset_name
 
 
 def show_dialog():

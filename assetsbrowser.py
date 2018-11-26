@@ -2,8 +2,11 @@ import os
 import sys
 import logging
 from PyQt5 import QtGui, QtCore, QtWidgets
+
 from config import configurations, constants
-from modules import functions, utils
+import helpers.functions
+import helpers.utils
+import ui.functions
 from ui.dialog import about, asset, preferences
 from ui.help import repath
 from ui.window import ui_main
@@ -23,9 +26,9 @@ class AssetsBrowser(QtWidgets.QMainWindow, ui_main.Ui_MainWindow):
         self.setupUi(self)
         self.setWindowTitle('Assets Browser [PID: %d]' % QtWidgets.QApplication.applicationPid())
         self.setWindowFlags(QtCore.Qt.WindowMinimizeButtonHint | QtCore.Qt.WindowMaximizeButtonHint)
-        functions.center_screen(self)
-        functions.font_size_overrides(self)
-        functions.set_window_icon(self)
+        ui.functions.center_screen(self)
+        ui.functions.font_size_overrides(self)
+        ui.functions.set_window_icon(self)
         QtWidgets.QApplication.setStyle(THEME)
 
         # Redirect stdout/stderr to QTextEdit widget for debug log
@@ -40,7 +43,7 @@ class AssetsBrowser(QtWidgets.QMainWindow, ui_main.Ui_MainWindow):
         self.comboBox.setModel(self.comboBox.fsm)
         self.comboBox.setRootModelIndex(self.comboBox.rootindex)
         self.comboBox.setCurrentIndex(1)
-        self.comboBox.activated[str].connect(lambda: functions.project_list(self))
+        self.comboBox.activated[str].connect(lambda: helpers.functions.project_list(self))
 
         current_project = self.current_project()
 
@@ -57,8 +60,8 @@ class AssetsBrowser(QtWidgets.QMainWindow, ui_main.Ui_MainWindow):
                     + "\n"
                     + "Please ensure you have access to it."
             )
-            utils.alert_window(text=warning_text, title="Warning")
-            functions.close_app()
+            helpers.utils.alert_window(text=warning_text, title="Warning")
+            helpers.functions.close_app()
 
         # Populate categories list of Assets folder
         for category in os.listdir(assets_path):
@@ -68,7 +71,7 @@ class AssetsBrowser(QtWidgets.QMainWindow, ui_main.Ui_MainWindow):
                 self.category.append(category)
 
         # Generate Tabs using create_tabs
-        functions.create_tabs(self, self.category, current_project)
+        helpers.functions.create_tabs(self, self.category, current_project)
 
         # Splitter Size Config
         self.splitter.setSizes([150, 500])
@@ -81,18 +84,18 @@ class AssetsBrowser(QtWidgets.QMainWindow, ui_main.Ui_MainWindow):
         # Menu Action
         self.actionAbout.triggered.connect(about.show_dialog)
         self.actionPreferences.triggered.connect(preferences.show_dialog)
-        self.actionQuit.triggered.connect(functions.close_app)
+        self.actionQuit.triggered.connect(helpers.functions.close_app)
 
         # Create New Asset Button
         self.pushBtnNew.clicked.connect(asset.show_dialog)
 
-        # When calling functions from imported modules that inherit the QMainWindow
+        # When calling functions from imported helpers that inherit the QMainWindow
         # but located outside its scope, use 'lambda:' followed by the method as
         # though it was defined within the same class for easier code maintenance
-        self.actionAlwaysOnTop.triggered.connect(lambda: functions.always_on_top(self))
+        self.actionAlwaysOnTop.triggered.connect(lambda: helpers.functions.always_on_top(self))
 
         # Show Debug CheckBox and Disabled the Debug textEdit
-        self.checkBoxDebug.clicked.connect(lambda: functions.show_debug(self))
+        self.checkBoxDebug.clicked.connect(lambda: helpers.functions.show_debug(self))
         self.textEdit.clear()
         self.textEdit.setHidden(True)
         self.textEdit.setEnabled(False)
@@ -172,14 +175,14 @@ class OutLog():
 
 if __name__ == "__main__":
     os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
-    functions.taskbar_icon()
+    ui.functions.taskbar_icon()
 
-    valid_path = functions.valid_path(INI_PATH, PROJECT_PATH)
+    valid_path = helpers.functions.valid_path(INI_PATH, PROJECT_PATH)
     if valid_path:
         app = QtWidgets.QApplication.instance()
         if app is None:
             app = QtWidgets.QApplication(sys.argv)
-            functions.hidpi_check(app)
+            ui.functions.hidpi_check(app)
         else:
             logger.debug('QApplication instance already exists: %s', str(app))
 

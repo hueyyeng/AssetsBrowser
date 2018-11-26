@@ -3,8 +3,10 @@ import sys
 import platform
 import logging
 from PyQt5 import QtWidgets
+
 from config import configurations, constants
-from modules import functions
+import helpers.functions
+import ui.functions
 from ui.window.ui_preferences import Ui_PrefsDialog
 
 logger = logging.getLogger(__name__)
@@ -21,7 +23,7 @@ class Preferences(QtWidgets.QDialog, Ui_PrefsDialog):
         super(Preferences, self).__init__(parent)
         self.setupUi(self)
         self.projectpath_line.setText(PROJECT_PATH)
-        functions.set_window_icon(self)
+        ui.functions.set_window_icon(self)
 
         # Create config_check to reduce DRY (Don't Repeat Yourself)
         def config_check(ui, section, setting, value):
@@ -140,7 +142,7 @@ class Preferences(QtWidgets.QDialog, Ui_PrefsDialog):
 def show_dialog():
     dialog = Preferences()
     if dialog.exec_():  # If OK, restart app to reinitialize new INI settings
-        functions.restart_app()
+        helpers.functions.restart_app()
 
 
 if __name__ == '__main__':

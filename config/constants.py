@@ -2,7 +2,7 @@ from config.configurations import get_setting, INI_PATH
 
 INI_PATH = INI_PATH
 ASSETS_CATEGORY_LIST = get_setting(INI_PATH, 'Assets', 'CategoryList')
-ASSETS_SUBFOLDER_LIST = get_setting(INI_PATH, 'Assets', 'CategoryList')
+ASSETS_SUBFOLDER_LIST = get_setting(INI_PATH, 'Assets', 'SubfolderList')
 CURRENT_PROJECT = get_setting(INI_PATH, 'Settings', 'CurrentProject')
 DEFAULT_PATH = get_setting(INI_PATH, 'Settings', 'ProjectPath')
 PROJECT_PATH = DEFAULT_PATH
