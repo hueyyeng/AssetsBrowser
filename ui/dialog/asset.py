@@ -16,9 +16,9 @@ CURRENT_PROJECT = configurations.get_setting(INI_PATH, 'Settings', 'CurrentProje
 # TODO: Rework CURRENTPROJECT to properly receive INI CurrentProject value
 
 
-class AssetDialog(QtWidgets.QDialog, Ui_AssetDialog):
+class Asset(QtWidgets.QDialog, Ui_AssetDialog):
     def __init__(self, parent=None):
-        super(AssetDialog, self).__init__(parent)
+        super(Asset, self).__init__(parent)
         self.setupUi(self)
         ui.functions.set_window_icon(self)
 
@@ -111,7 +111,7 @@ class AssetDialog(QtWidgets.QDialog, Ui_AssetDialog):
     def generate_asset_name(self):
         """Generate asset's name with category prefix.
 
-        Use input from ``assetLineEdit`` to generate asset's name with
+        Use input from `assetLineEdit` to generate asset's name with
 
         Returns
         -------
@@ -130,7 +130,7 @@ class AssetDialog(QtWidgets.QDialog, Ui_AssetDialog):
 
         Notes
         -----
-        Since both ``category radio buttons`` and ``assetLineEdit`` emits signal to this
+        Since both `catBtnGroup` and `assetLineEdit` emits signal to this
         method, it allows the text field to "dynamically" update.
 
         Returns
@@ -144,13 +144,12 @@ class AssetDialog(QtWidgets.QDialog, Ui_AssetDialog):
         self.btnCreate.setDisabled(True)
 
         # 2.1 Generate preview message
-        # 2.1.1 Display warning message by default
         name_length = len(self.assetLineEdit.text())
         checked = self.previewGroup.isChecked()
         asset_name = self.generate_asset_name()
         message = ''
 
-        # 2.1.2 Enable Create button and display the expected asset name
+        # 2.2 Enable Create button and display the expected asset name
         if checked and name_length != 3:
             message = "Ensure asset's name is three characters length!"
         if checked and name_length == 3:
@@ -167,7 +166,7 @@ class AssetDialog(QtWidgets.QDialog, Ui_AssetDialog):
 
 
 def show_dialog():
-    dialog = AssetDialog()
+    dialog = Asset()
     if dialog.exec_():
         logger.debug('Creating new asset...')
     else:
@@ -176,6 +175,6 @@ def show_dialog():
 
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
-    window = AssetDialog()
+    window = Asset()
     window.show()
     sys.exit(app.exec_())

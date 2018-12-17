@@ -2,17 +2,16 @@
 <ui version="4.0">
  <class>PrefsDialog</class>
  <widget class="QDialog" name="PrefsDialog">
-  <property name="minimumSize">
-   <size>
-    <width>400</width>
-    <height>160</height>
-   </size>
+  <property name="enabled">
+   <bool>true</bool>
   </property>
-  <property name="maximumSize">
-   <size>
-    <width>800</width>
-    <height>160</height>
-   </size>
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>518</width>
+    <height>579</height>
+   </rect>
   </property>
   <property name="focusPolicy">
    <enum>Qt::StrongFocus</enum>
@@ -27,180 +26,486 @@
    <bool>true</bool>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="4" column="0">
-    <layout class="QFormLayout" name="formLayout">
-     <property name="sizeConstraint">
-      <enum>QLayout::SetMinimumSize</enum>
-     </property>
-     <item row="0" column="0">
-      <widget class="QRadioButton" name="theme_radio1">
-       <property name="text">
-        <string>Default (Fusion)</string>
-       </property>
-       <property name="shortcut">
-        <string/>
-       </property>
-       <property name="checked">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="1">
-      <widget class="QRadioButton" name="theme_radio2">
-       <property name="text">
-        <string>Windows</string>
-       </property>
-       <property name="shortcut">
-        <string/>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
-   <item row="5" column="0">
-    <layout class="QHBoxLayout" name="btn_layout">
-     <property name="sizeConstraint">
-      <enum>QLayout::SetDefaultConstraint</enum>
-     </property>
+   <item row="3" column="0" rowspan="2">
+    <layout class="QVBoxLayout" name="sideLayout">
      <item>
-      <widget class="QDialogButtonBox" name="btn_ok">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
+      <widget class="QListWidget" name="sideList">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="MinimumExpanding">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
        </property>
-       <property name="standardButtons">
-        <set>QDialogButtonBox::Ok</set>
-       </property>
-       <property name="centerButtons">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QDialogButtonBox" name="btn_cancel">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="standardButtons">
-        <set>QDialogButtonBox::Cancel</set>
-       </property>
-       <property name="centerButtons">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
-   <item row="0" column="0">
-    <layout class="QHBoxLayout" name="proj_layout">
-     <item>
-      <widget class="QLabel" name="projectpath_label">
-       <property name="sizeIncrement">
+       <property name="maximumSize">
         <size>
-         <width>0</width>
-         <height>0</height>
+         <width>100</width>
+         <height>16777215</height>
         </size>
        </property>
-       <property name="text">
-        <string>Project Path:</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLineEdit" name="projectpath_line">
-       <property name="focusPolicy">
-        <enum>Qt::StrongFocus</enum>
-       </property>
-       <property name="toolTip">
-        <string>Insert your project path here. E.g. &quot;P:/&quot;, &quot;media/projects&quot;</string>
-       </property>
-       <property name="echoMode">
-        <enum>QLineEdit::Normal</enum>
-       </property>
-       <property name="dragEnabled">
-        <bool>false</bool>
-       </property>
-       <property name="placeholderText">
-        <string/>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QToolButton" name="projectpath_tool">
-       <property name="toolTip">
-        <string>Choose directory</string>
-       </property>
-       <property name="text">
-        <string>...</string>
-       </property>
-       <property name="autoRaise">
-        <bool>false</bool>
-       </property>
-       <property name="arrowType">
-        <enum>Qt::NoArrow</enum>
-       </property>
+       <item>
+        <property name="text">
+         <string>Settings</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Assets</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Advanced</string>
+        </property>
+       </item>
       </widget>
      </item>
     </layout>
    </item>
-   <item row="1" column="0">
-    <widget class="QCheckBox" name="desc_check">
-     <property name="text">
-      <string>Show Description Panel</string>
+   <item row="5" column="1">
+    <widget class="QDialogButtonBox" name="btnDialogBox">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Apply|QDialogButtonBox::Cancel|QDialogButtonBox::Ok|QDialogButtonBox::RestoreDefaults</set>
+     </property>
+     <property name="centerButtons">
+      <bool>false</bool>
      </property>
     </widget>
    </item>
-   <item row="3" column="0">
-    <widget class="QLabel" name="theme_label">
-     <property name="text">
-      <string>Theme:</string>
+   <item row="4" column="1">
+    <widget class="QStackedWidget" name="stackedWidget">
+     <property name="currentIndex">
+      <number>0</number>
      </property>
-    </widget>
-   </item>
-   <item row="2" column="0">
-    <widget class="QCheckBox" name="debug_check">
-     <property name="text">
-      <string>Enable Debug Log</string>
-     </property>
+     <widget class="QWidget" name="pageSettings">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <layout class="QFormLayout" name="formLayout">
+       <item row="3" column="0">
+        <widget class="QLabel" name="themeLabel">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="font">
+          <font>
+           <weight>50</weight>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Theme:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="0">
+        <widget class="QRadioButton" name="themeRadioLight">
+         <property name="text">
+          <string>Default (Light)</string>
+         </property>
+         <property name="shortcut">
+          <string/>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+         <attribute name="buttonGroup">
+          <string notr="true">themeBtnGroup</string>
+         </attribute>
+        </widget>
+       </item>
+       <item row="5" column="0">
+        <widget class="QRadioButton" name="themeRadioDark">
+         <property name="text">
+          <string>Dark</string>
+         </property>
+         <property name="shortcut">
+          <string/>
+         </property>
+         <attribute name="buttonGroup">
+          <string notr="true">themeBtnGroup</string>
+         </attribute>
+        </widget>
+       </item>
+       <item row="0" column="0" colspan="2">
+        <layout class="QHBoxLayout" name="projectPathLayout">
+         <item>
+          <widget class="QLabel" name="projectPathLabel">
+           <property name="sizeIncrement">
+            <size>
+             <width>0</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>Project Path:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="projectPathLine">
+           <property name="focusPolicy">
+            <enum>Qt::StrongFocus</enum>
+           </property>
+           <property name="toolTip">
+            <string>Insert your project path here. E.g. &quot;P:/&quot;, &quot;media/projects&quot;</string>
+           </property>
+           <property name="echoMode">
+            <enum>QLineEdit::Normal</enum>
+           </property>
+           <property name="dragEnabled">
+            <bool>false</bool>
+           </property>
+           <property name="placeholderText">
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QToolButton" name="projectPathTool">
+           <property name="toolTip">
+            <string>Choose directory</string>
+           </property>
+           <property name="text">
+            <string>...</string>
+           </property>
+           <property name="autoRaise">
+            <bool>false</bool>
+           </property>
+           <property name="arrowType">
+            <enum>Qt::NoArrow</enum>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item row="2" column="0" colspan="2">
+        <widget class="QCheckBox" name="checkDebug">
+         <property name="toolTip">
+          <string>Log file will be stored in log directory.</string>
+         </property>
+         <property name="text">
+          <string>Enable Debug Log</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0" colspan="2">
+        <widget class="QCheckBox" name="checkDesc">
+         <property name="toolTip">
+          <string>Display description for selected assets.</string>
+         </property>
+         <property name="text">
+          <string>Show Description Panel</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="pageAssets">
+      <layout class="QVBoxLayout" name="verticalLayout_3">
+       <item>
+        <widget class="QGroupBox" name="boxNaming">
+         <property name="title">
+          <string>Naming Convention</string>
+         </property>
+         <layout class="QFormLayout" name="formLayout_3">
+          <item row="0" column="0">
+           <layout class="QFormLayout" name="maxCharLayout">
+            <item row="0" column="0">
+             <widget class="QLabel" name="maxCharLabel">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>Max characters:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QSpinBox" name="maxCharSpinner">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="toolTip">
+               <string>Min: 3, Max: 99</string>
+              </property>
+              <property name="minimum">
+               <number>3</number>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item row="1" column="0">
+           <layout class="QFormLayout" name="formLayout_2">
+            <item row="0" column="0">
+             <widget class="QLabel" name="separatorLabel">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>Separator:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QComboBox" name="separatorCombo">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>120</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <item>
+               <property name="text">
+                <string> _ (underscore)</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string> - (dash)</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item row="2" column="0" colspan="2">
+           <widget class="QGroupBox" name="boxPrefix">
+            <property name="title">
+             <string>Prefix</string>
+            </property>
+            <property name="checkable">
+             <bool>true</bool>
+            </property>
+            <layout class="QVBoxLayout" name="verticalLayout">
+             <item>
+              <widget class="QRadioButton" name="radioPrefix1">
+               <property name="text">
+                <string>Use first character of category (e.g.: p)</string>
+               </property>
+               <property name="checked">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QRadioButton" name="radioPrefix2">
+               <property name="text">
+                <string>Use whole category (e.g.: props)</string>
+               </property>
+               <property name="checked">
+                <bool>false</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QRadioButton" name="radioPrefix3">
+               <property name="text">
+                <string>Use custom naming (JSON mapping)</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item row="3" column="0" colspan="2">
+           <widget class="QGroupBox" name="boxSuffix">
+            <property name="title">
+             <string>Suffix</string>
+            </property>
+            <property name="checkable">
+             <bool>true</bool>
+            </property>
+            <layout class="QVBoxLayout" name="verticalLayout_2">
+             <item>
+              <layout class="QFormLayout" name="verVersioningLayout">
+               <item row="0" column="0">
+                <widget class="QRadioButton" name="radioSuffix1">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="text">
+                  <string>Use versioning (v):</string>
+                 </property>
+                 <property name="checked">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="1">
+                <widget class="QComboBox" name="verVersioningCombo">
+                 <property name="maximumSize">
+                  <size>
+                   <width>120</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <item>
+                  <property name="text">
+                   <string>lowercase (v001)</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>UPPERCASE (V001)</string>
+                  </property>
+                 </item>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <layout class="QHBoxLayout" name="verCustomLayout">
+               <item>
+                <widget class="QRadioButton" name="radioSuffix2">
+                 <property name="text">
+                  <string>Use custom naming:</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLineEdit" name="verCustomName"/>
+               </item>
+              </layout>
+             </item>
+            </layout>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="boxCategory">
+         <property name="title">
+          <string>Categories</string>
+         </property>
+         <layout class="QFormLayout" name="formLayout_4">
+          <item row="0" column="0">
+           <layout class="QFormLayout" name="categoryBtnLayout">
+            <item row="0" column="0">
+             <widget class="QPushButton" name="categoryBtnAdd">
+              <property name="text">
+               <string>Add</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="QPushButton" name="categoryBtnRemove">
+              <property name="text">
+               <string>Remove</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item row="0" column="1">
+           <widget class="QListWidget" name="categoryList">
+            <item>
+             <property name="text">
+              <string>BG</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>CH</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>FX</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Props</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Vehicles</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="pageAdvanced"/>
     </widget>
    </item>
   </layout>
-  <zorder>theme_label</zorder>
-  <zorder>desc_check</zorder>
-  <zorder>debug_check</zorder>
  </widget>
  <resources/>
  <connections>
   <connection>
-   <sender>btn_ok</sender>
-   <signal>accepted()</signal>
-   <receiver>PrefsDialog</receiver>
-   <slot>accept()</slot>
+   <sender>sideList</sender>
+   <signal>currentRowChanged(int)</signal>
+   <receiver>stackedWidget</receiver>
+   <slot>setCurrentIndex(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>248</x>
-     <y>254</y>
+     <x>59</x>
+     <y>163</y>
     </hint>
     <hint type="destinationlabel">
-     <x>157</x>
-     <y>274</y>
+     <x>418</x>
+     <y>166</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>btn_ok</sender>
-   <signal>rejected()</signal>
-   <receiver>PrefsDialog</receiver>
-   <slot>reject()</slot>
+   <sender>radioSuffix1</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>verVersioningCombo</receiver>
+   <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>316</x>
-     <y>260</y>
+     <x>203</x>
+     <y>237</y>
     </hint>
     <hint type="destinationlabel">
-     <x>286</x>
-     <y>274</y>
+     <x>326</x>
+     <y>238</y>
     </hint>
    </hints>
   </connection>
  </connections>
+ <buttongroups>
+  <buttongroup name="themeBtnGroup"/>
+ </buttongroups>
 </ui>

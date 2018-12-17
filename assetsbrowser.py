@@ -1,9 +1,11 @@
+"""Assets Browser Mainwindow"""
 import os
 import sys
 import logging
 from PyQt5 import QtGui, QtCore, QtWidgets
 
 from config import configurations, constants
+from helpers.exceptions import ApplicationAlreadyExists
 import helpers.functions
 import helpers.utils
 import ui.functions
@@ -14,7 +16,6 @@ from ui.window import ui_main
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
-# Set Path from INI file
 PROJECT_PATH = constants.PROJECT_PATH
 INI_PATH = constants.INI_PATH
 THEME = constants.THEME
@@ -26,18 +27,35 @@ class AssetsBrowser(QtWidgets.QMainWindow, ui_main.Ui_MainWindow):
         self.setupUi(self)
         self.setWindowTitle('Assets Browser [PID: %d]' % QtWidgets.QApplication.applicationPid())
         self.setWindowFlags(QtCore.Qt.WindowMinimizeButtonHint | QtCore.Qt.WindowMaximizeButtonHint)
+
+        # 1.1 Initialize main window
         ui.functions.center_screen(self)
         ui.functions.font_size_overrides(self)
         ui.functions.set_window_icon(self)
         QtWidgets.QApplication.setStyle(THEME)
 
-        # Redirect stdout/stderr to QTextEdit widget for debug log
+        # 1.2 Menu action goes here
+        self.actionAbout.triggered.connect(about.show_dialog)
+        self.actionAlwaysOnTop.triggered.connect(lambda: ui.functions.always_on_top(self))
+        self.actionPreferences.triggered.connect(preferences.show_dialog)
+        self.actionQuit.triggered.connect(helpers.functions.close_app)
+
+        # 1.3 Setup input/button here
+        self.pushBtnNew.clicked.connect(asset.show_dialog)
+        self.checkBoxDebug.clicked.connect(lambda: helpers.functions.show_debug(self))
+
+        # 1.3.1 Debug textbox
+        self.textEdit.clear()
+        self.textEdit.setHidden(True)
+        self.textEdit.setEnabled(False)
+
+        # 2. Redirect stdout/stderr to QTextEdit widget for debug log
         sys.stdout = OutLog(self.textEdit, sys.stdout)
         sys.stderr = OutLog(self.textEdit, sys.stderr, QtGui.QColor(255, 0, 0))
         formatter = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
         logging.basicConfig(stream=sys.stdout, level=logging.DEBUG, format=formatter)
 
-        # Project List Dropdown ComboBox
+        # 3. Project List Dropdown ComboBox
         self.comboBox.fsm = QtWidgets.QFileSystemModel()
         self.comboBox.rootindex = self.comboBox.fsm.setRootPath(PROJECT_PATH)
         self.comboBox.setModel(self.comboBox.fsm)
@@ -45,63 +63,40 @@ class AssetsBrowser(QtWidgets.QMainWindow, ui_main.Ui_MainWindow):
         self.comboBox.setCurrentIndex(1)
         self.comboBox.activated[str].connect(lambda: helpers.functions.project_list(self))
 
-        current_project = self.current_project()
+        current_project = self._current_project()
 
-        # Create empty list and dictionary for ColumnView tabs
+        # 4.1 Create empty list and dictionary for ColumnView tabs
         self.category = []
         self.assets = {}
-
         assets_path = (PROJECT_PATH + current_project + "/Assets/")
 
-        # Warn user if Assets directory doesn't exists
+        # 4.2 Warn user if Assets directory doesn't exists
         if not os.path.isdir(assets_path):
             warning_text = (
                     "Assets directory is unavailable.\n"
                     + "\n"
                     + "Please ensure you have access to it."
             )
-            helpers.utils.alert_window(text=warning_text, title="Warning")
+            helpers.utils.alert_window("Warning", warning_text)
             helpers.functions.close_app()
 
-        # Populate categories list of Assets folder
+        # 4.3 Populate categories list of Assets folder
         for category in os.listdir(assets_path):
             name_prefix = category.startswith(('_', '.'))
             assets_directory = os.path.join(assets_path, category)
             if not name_prefix and os.path.isdir(assets_directory):
                 self.category.append(category)
 
-        # Generate Tabs using create_tabs
+        # 4.4.1 Generate Tabs using create_tabs
         helpers.functions.create_tabs(self, self.category, current_project)
-
-        # Splitter Size Config
         self.splitter.setSizes([150, 500])
 
-        # Help Tab
+        # 4.4.2 Help Tab
         html_file = 'ui/help/help.html'
         temp_html_path = ('file:///' + str(repath(html_file)))
         self.textBrowserHelp.setSource(QtCore.QUrl(temp_html_path))
 
-        # Menu Action
-        self.actionAbout.triggered.connect(about.show_dialog)
-        self.actionPreferences.triggered.connect(preferences.show_dialog)
-        self.actionQuit.triggered.connect(helpers.functions.close_app)
-
-        # Create New Asset Button
-        self.pushBtnNew.clicked.connect(asset.show_dialog)
-
-        # When calling functions from imported helpers that inherit the QMainWindow
-        # but located outside its scope, use 'lambda:' followed by the method as
-        # though it was defined within the same class for easier code maintenance
-        self.actionAlwaysOnTop.triggered.connect(lambda: helpers.functions.always_on_top(self))
-
-        # Show Debug CheckBox and Disabled the Debug textEdit
-        self.checkBoxDebug.clicked.connect(lambda: helpers.functions.show_debug(self))
-        self.textEdit.clear()
-        self.textEdit.setHidden(True)
-        self.textEdit.setEnabled(False)
-
-    @staticmethod
-    def current_project():
+    def _current_project(self):
         """Set current project from Project list dropdown."""
         projects = []
         for project in os.listdir(PROJECT_PATH):
@@ -174,18 +169,23 @@ class OutLog():
 
 
 if __name__ == "__main__":
+    # 1. Raise error if invalid path
+    helpers.functions.valid_path(INI_PATH, PROJECT_PATH)
+
+    # 2. Setup OS related settings
     os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
     ui.functions.taskbar_icon()
 
-    valid_path = helpers.functions.valid_path(INI_PATH, PROJECT_PATH)
-    if valid_path:
-        app = QtWidgets.QApplication.instance()
-        if app is None:
-            app = QtWidgets.QApplication(sys.argv)
-            ui.functions.hidpi_check(app)
-        else:
-            logger.debug('QApplication instance already exists: %s', str(app))
+    # 3. Initialize QApplication instance
+    app = QtWidgets.QApplication.instance()
+    if app is not None:
+        raise ApplicationAlreadyExists(app)
 
-        window = AssetsBrowser()
-        window.show()
-        sys.exit(app.exec_())
+    app = QtWidgets.QApplication(sys.argv)
+    ui.functions.hidpi_check(app)
+    ui.functions.theme_loader(app)
+
+    # 4. Launch main window
+    window = AssetsBrowser()
+    window.show()
+    sys.exit(app.exec_())

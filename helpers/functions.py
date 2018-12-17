@@ -7,6 +7,7 @@ import subprocess
 
 from PyQt5 import QtGui, QtCore, QtWidgets
 from config import configurations, constants
+from helpers.exceptions import InvalidProjectPath
 from helpers.utils import alert_window
 
 logger = logging.getLogger(__name__)
@@ -235,9 +236,9 @@ def column_views(column_view, category, project):
 
 
 def project_list(self):
-    """List Project directories in PROJECTPATH comboBox.
+    """List Project directories in PROJECT_PATH comboBox.
 
-    Retrieve directories in PROJECTPATH comboBox, clear existing tabs and create new tabs.
+    Retrieve directories in PROJECT_PATH comboBox, clear existing tabs and create new tabs.
 
     """
     # 1. Update INI CurrentProject with chosen project from comboBox
@@ -279,16 +280,19 @@ def valid_path(ini, project):
     ini : str
         Path to INI file.
     project : str
-        Project name.
+        Path to project directory.
 
     Returns
     -------
-    bool
-        True if exists, else False.
+    None
+
+    Raises
+    ------
+    InvalidProjectPath
+        If project path value in INI is invalid.
 
     """
     exists = os.path.exists(project)
-
     if not exists:
         # 1. Set Project Path to User's Home directory
         home = os.path.expanduser('~')
@@ -316,8 +320,7 @@ def valid_path(ini, project):
         )
 
         alert_window('Warning', warning_text)
-
-    return exists
+        raise InvalidProjectPath(project)
 
 
 def clear_layout(layout):
@@ -443,10 +446,6 @@ def restart_app():
 
     99% it doesn't restart in an IDE like PyCharm for complex script but
     it has been tested to work when execute through Python interpreter.
-
-    Returns
-    -------
-    None
 
     """
     os.execv(sys.executable, [sys.executable] + sys.argv)

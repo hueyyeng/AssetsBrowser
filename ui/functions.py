@@ -2,9 +2,14 @@
 import ctypes
 import logging
 import platform
+import qdarkstyle
 from PyQt5 import QtGui, QtCore, QtWidgets
 
+from config import configurations, constants
+
 logger = logging.getLogger(__name__)
+
+INI_PATH = constants.INI_PATH
 
 
 def set_window_icon(self, icon='icons/file.png'):
@@ -54,8 +59,7 @@ def font_size_overrides(self, size=8, scale=1.0):
     if system == 'Linux':
         scale = 1.0
 
-    font_size = size
-    font.setPointSize(font_size * scale)
+    font.setPointSize(size * scale)
     self.setFont(font)
 
 
@@ -90,7 +94,6 @@ def hidpi_check(app):
     Parameters
     ----------
     app : PyQt5.QtWidgets.QApplication
-        PyQt QtWidgets QApplication object.
 
     Returns
     -------
@@ -103,3 +106,22 @@ def hidpi_check(app):
     if hasattr(QtCore.Qt, 'AA_UseHighDpiPixmaps'):
         app.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True)
         logger.info('High DPI Pixmaps Enabled')
+
+
+def theme_loader(app):
+    """Theme loader for QApplication.
+
+    Parameters
+    ----------
+    app : PyQt5.QtWidgets.QApplication
+
+    Returns
+    -------
+    None
+
+    """
+    theme = configurations.get_setting(INI_PATH, "UI", "Theme")
+    if theme == "Default (Light)":
+        app.setStyle('Fusion')
+    if theme == "Dark":
+        app.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
