@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>518</width>
-    <height>579</height>
+    <width>519</width>
+    <height>614</height>
    </rect>
   </property>
   <property name="focusPolicy">
@@ -83,7 +83,7 @@
    <item row="4" column="1">
     <widget class="QStackedWidget" name="stackedWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="pageSettings">
       <property name="sizePolicy">
@@ -257,7 +257,7 @@
            </layout>
           </item>
           <item row="1" column="0">
-           <layout class="QFormLayout" name="formLayout_2">
+           <layout class="QFormLayout" name="separatorLayout">
             <item row="0" column="0">
              <widget class="QLabel" name="separatorLabel">
               <property name="sizePolicy">
@@ -345,6 +345,9 @@
             </property>
             <property name="checkable">
              <bool>true</bool>
+            </property>
+            <property name="checked">
+             <bool>false</bool>
             </property>
             <layout class="QVBoxLayout" name="verticalLayout_2">
              <item>
@@ -463,9 +466,184 @@
          </layout>
         </widget>
        </item>
+       <item>
+        <widget class="QGroupBox" name="boxSubfolder">
+         <property name="title">
+          <string>Subfolders</string>
+         </property>
+         <layout class="QFormLayout" name="formLayout_5">
+          <item row="0" column="0">
+           <layout class="QFormLayout" name="subfolderBtnLayout">
+            <item row="0" column="0">
+             <widget class="QPushButton" name="subfolderBtnAdd">
+              <property name="text">
+               <string>Add</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="QPushButton" name="subfolderBtnRemove">
+              <property name="text">
+               <string>Remove</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item row="0" column="1">
+           <widget class="QListWidget" name="subfolderList">
+            <item>
+             <property name="text">
+              <string>References</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Scenes</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Textures</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>WIP</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="pageAdvanced"/>
+     <widget class="QWidget" name="pageAdvanced">
+      <layout class="QVBoxLayout" name="verticalLayout_4">
+       <item>
+        <widget class="QGroupBox" name="boxMetadata">
+         <property name="title">
+          <string>Metadata</string>
+         </property>
+         <layout class="QFormLayout" name="formLayout_6">
+          <item row="0" column="0" colspan="2">
+           <widget class="QLabel" name="metadataTip">
+            <property name="text">
+             <string>This optional feature allows the following attributes to be store as a JSON file per asset. Useful for organizing internal assets for integration with other DCC softwares.</string>
+            </property>
+            <property name="wordWrap">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QCheckBox" name="checkMetadata">
+            <property name="text">
+             <string>Use Metadata</string>
+            </property>
+            <property name="checked">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <layout class="QHBoxLayout" name="metadataBtnLayout">
+            <item>
+             <widget class="QPushButton" name="metadataBtnClear">
+              <property name="text">
+               <string>Clear All Metadata</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="metadataBtnRebuild">
+              <property name="text">
+               <string>Rebuild Metadata</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item row="2" column="0" colspan="2">
+           <widget class="QGroupBox" name="boxMetadataAttributes">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="title">
+             <string>Attributes</string>
+            </property>
+            <layout class="QFormLayout" name="formLayout_2">
+             <item row="1" column="0">
+              <widget class="QLabel" name="metadataAttributesTip">
+               <property name="text">
+                <string>Hold Ctrl/Cmd to select more than one attributes.</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="0" colspan="2">
+              <widget class="QListWidget" name="metadataAttributesList">
+               <property name="selectionMode">
+                <enum>QAbstractItemView::ExtendedSelection</enum>
+               </property>
+               <property name="selectionRectVisible">
+                <bool>true</bool>
+               </property>
+               <item>
+                <property name="text">
+                 <string>Author</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>Category</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>Date Created</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>Date Modified</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>Description</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>Format</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>Name</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>Project</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>Version</string>
+                </property>
+               </item>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
     </widget>
    </item>
   </layout>
@@ -501,6 +679,22 @@
     <hint type="destinationlabel">
      <x>326</x>
      <y>238</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkMetadata</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>boxMetadataAttributes</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>232</x>
+     <y>103</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>372</x>
+     <y>245</y>
     </hint>
    </hints>
   </connection>
