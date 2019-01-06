@@ -3,13 +3,14 @@ import sys
 import platform
 import logging
 from PyQt5 import QtWidgets
+
 from config import configurations, constants
-from modules import functions
+import helpers.functions
+import ui.functions
 from ui.window.ui_preferences import Ui_PrefsDialog
 
 logger = logging.getLogger(__name__)
 
-# Declare var here first for use in methods below
 DEFAULT_PATH = constants.DEFAULT_PATH
 INI_PATH = constants.INI_PATH
 PROJECT_PATH = constants.PROJECT_PATH
@@ -20,127 +21,122 @@ class Preferences(QtWidgets.QDialog, Ui_PrefsDialog):
     def __init__(self, parent=None):
         super(Preferences, self).__init__(parent)
         self.setupUi(self)
-        self.projectpath_line.setText(PROJECT_PATH)
-        functions.set_window_icon(self)
+        self.projectPathLine.setText(PROJECT_PATH)
+        ui.functions.set_window_icon(self)
 
-        # Create config_check to reduce DRY (Don't Repeat Yourself)
-        def config_check(ui, section, setting, value):
-            if configurations.get_setting(INI_PATH, section, setting) == value:
-                ui.setChecked(True)
-            else:
-                ui.setChecked(False)
+        # 1. Setup QDialogButtonBox
+        self.btnDialogBox.button(QtWidgets.QDialogButtonBox.RestoreDefaults).setToolTip('Restore Defaults')
+        self.btnDialogBox.button(QtWidgets.QDialogButtonBox.RestoreDefaults).clicked.connect(helpers.functions.ham)
+        self.btnDialogBox.button(QtWidgets.QDialogButtonBox.Apply).setToolTip('Apply')
+        self.btnDialogBox.button(QtWidgets.QDialogButtonBox.Apply).clicked.connect(helpers.functions.ham)
+        self.btnDialogBox.accepted.connect(self._apply)
+        self.btnDialogBox.rejected.connect(self.reject)
 
-        config_check(self.desc_check, 'Settings', 'ShowDescriptionPanel', 'True')
-        # config_check(self.debug_check, 'Settings', 'ShowDebugLog', 'True')
-
-        # Checked the relevant radio button for Theme at runtime
-        system = platform.system()
-        # theme = configurations.get_setting(INI_PATH, 'UI', 'Theme')
-        if system != 'Windows' and THEME == 'Fusion':
-            self.theme_radio1.setChecked(True)
-            self.theme_radio2.setDisabled(True)
-        elif THEME == 'Fusion':
-            self.theme_radio1.setChecked(True)
+        # 1.1 Set configurable fields from INI
+        self.checkDesc.setChecked(self._get_ini_value('Settings', 'ShowDescriptionPanel'))
+        self.checkDebug.setChecked(self._get_ini_value('Settings', 'ShowDebugLog'))
+        if THEME == 'Default (Light)':
+            self.themeRadioLight.setChecked(True)
         else:
-            self.theme_radio2.setChecked(True)
+            self.themeRadioDark.setChecked(True)
 
-        # Connect the clicked Qt UI to function
-        self.projectpath_tool.clicked.connect(self.browser_project_path)
-        self.desc_check.clicked.connect(self.show_description)
-        self.debug_check.clicked.connect(self.enable_debug)
-        self.theme_radio1.clicked.connect(self.theme_fusion)
-        self.theme_radio2.clicked.connect(self.theme_windows)
-        self.btn_ok.clicked.connect(self.apply)
-        self.btn_cancel.clicked.connect(self.reject)
+        # 3.1 Setup Settings input/button here
+        self.projectPathTool.clicked.connect(self._project_path_dialog)
 
-        configurations.get_config(INI_PATH)
+        # 3.2 Setup Assets input/button here
+        # 3.3 Setup Advanced input/button here
 
-    def apply(self):
-        # Function as reusable code for CheckBox elements
-        def apply_checkbox(ui, param):
-            if ui.isChecked():
-                configurations.update_setting(INI_PATH, 'Settings', param, 'True')
-            else:
-                configurations.update_setting(INI_PATH, 'Settings', param, 'False')
+    def _get_ini_value(self, section, setting):
+        """Get INI value for Preferences UI elements.
 
-        apply_checkbox(self.desc_check, 'ShowDescriptionPanel')
+        Parameters
+        ----------
+        section : str
+            Section name.
+        setting : str
+            Setting name.
 
-        # Theme function as radio toggle
-        def apply_theme():
-            if self.theme_radio1.isChecked():
-                configurations.update_setting(INI_PATH, 'UI', 'Theme', 'Fusion')
-            else:
-                configurations.update_setting(INI_PATH, 'UI', 'Theme', 'WindowsVista')
-            theme = configurations.get_setting(INI_PATH, 'UI', 'Theme')
-            QtWidgets.QApplication.setStyle(theme)
+        Returns
+        -------
+        str or bool
+            The value of the setting.
 
-        apply_theme()
+        """
+        value = configurations.get_setting(INI_PATH, section, setting)
+        return value
 
-        # Update the Project Path in the INI file
-        def apply_project_path():
-            path = self.projectpath_line.text()
-            configurations.update_setting(INI_PATH, 'Settings', 'ProjectPath', path)
+    def _project_path_dialog(self):
+        """Opens Project Path Dialog.
 
-        apply_project_path()
+        Uses QFileDialog for user to choose the directory for their project path.
 
-        self.accept()  # For MainWindow to execute restart_app when OK
-
-    def browser_project_path(self):
+        """
+        # 1. Prepare `path` var with selected directory path through QFileDialog
         path = str(QtWidgets.QFileDialog.getExistingDirectory(
             self,
             'Choose Directory',
             os.path.expanduser('~'),  # Defaults to home directory
             QtWidgets.QFileDialog.ShowDirsOnly,  # Filter list to Directory only
-        )
-        )
+        ))
 
-        # If user cancel, popup Warning and reuse the original INI ProjectPath
+        # 2. If user cancel, popup Warning and reuse the original INI ProjectPath
         if path == '':
             widget = QtWidgets.QWidget()
             text = 'Please choose a directory!'
             QtWidgets.QMessageBox.warning(widget, 'Warning', text)
-            self.projectpath_line.setText(DEFAULT_PATH)
-        else:
-            # Replace Windows style to UNIX style separator
-            new_path = path.replace('\\', '/')
-            system = platform.system()
-            if system == 'Linux':
-                unix_path = (new_path + '/')
-                logger.info(unix_path)
-                self.projectpath_line.setText(unix_path)
-            elif system == 'Darwin':
-                mac_path = (new_path + '/')
-                logger.info(mac_path)
-                self.projectpath_line.setText(mac_path)
-            else:
-                logger.info(new_path)
-                self.projectpath_line.setText(new_path)
+            self.projectPathLine.setText(DEFAULT_PATH)
 
-    def show_description(self):
-        if self.desc_check.isChecked():
-            print('Description Panel ON')
-        else:
-            print('Description Panel OFF')
+        # 3. Replace Windows style to UNIX style separator
+        new_path = (path + '/') if platform.system() != 'Windows' else path
+        new_path.replace('\\', '/')
 
-    def enable_debug(self):
-        if self.debug_check.isChecked():
-            print('Debugger ON')
-        else:
-            print('Debugger OFF')
+        # 4. Set Project Path Line text field with new_path value
+        logger.info(new_path)
+        self.projectPathLine.setText(new_path)
 
-    def theme_fusion(self):
-        self.theme_radio1.setChecked(True)
-        print('Fusion Theme')
+    def _apply(self):
+        def apply_checkbox(checkbox, param):
+            """Save checkbox value in INI after apply.
 
-    def theme_windows(self):
-        self.theme_radio2.setChecked(True)
-        print('Windows Theme')
+            Parameters
+            ----------
+            checkbox : QtWidgets.QCheckBox
+                QCheckbox element
+            param : str
+                Parameter name
+
+            Returns
+            -------
+            None
+
+            """
+            value = 'True' if checkbox.isChecked() else 'False'
+            configurations.update_setting(INI_PATH, 'Settings', param, value)
+
+        apply_checkbox(self.checkDesc, 'ShowDescriptionPanel')
+        apply_checkbox(self.checkDebug, 'ShowDebugLog')
+
+        def apply_theme():
+            value = str(self.themeBtnGroup.checkedButton().text())
+            logger.info(value)
+            configurations.update_setting(INI_PATH, 'UI', 'Theme', value)
+
+        apply_theme()
+
+        # Update the Project Path in the INI file
+        def apply_project_path():
+            path = self.projectPathLine.text()
+            configurations.update_setting(INI_PATH, 'Settings', 'ProjectPath', path)
+
+        apply_project_path()
+        self.accept()  # Execute restart_app when OK
 
 
 def show_dialog():
     dialog = Preferences()
-    if dialog.exec_():  # If OK, restart app to reinitialize new INI settings
-        functions.restart_app()
+    if dialog.exec_():
+        # Restart app to reinitialize new INI settings
+        helpers.functions.restart_app()
 
 
 if __name__ == '__main__':

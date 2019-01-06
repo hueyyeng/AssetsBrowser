@@ -39,7 +39,12 @@ def create_config(path):
     config.set(
         'Settings',
         'ShowDescriptionPanel',
-        'True',
+        'False',
+    )
+    config.set(
+        'Settings',
+        'ShowDebugLog',
+        'False',
     )
     config.set(
         'Settings',
@@ -57,7 +62,7 @@ def create_config(path):
     config.set(
         'UI',
         'Theme',
-        'Fusion',
+        'Default',
     )
 
     # 3. Assets (Assets' settings for Assets Browser)
@@ -119,12 +124,15 @@ def get_setting(path, section, setting):
 
     Returns
     -------
-    str
+    str or bool
         The value of the setting.
 
     """
     ini = get_config(path)
-    value = ini.get(section, setting)
+    try:
+        value = ini.getboolean(section, setting)
+    except ValueError:
+        value = ini.get(section, setting)
     message = (
         '{section} {setting} is {value}'.format(
             section=section,
