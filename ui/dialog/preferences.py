@@ -35,7 +35,10 @@ class Preferences(QtWidgets.QDialog, Ui_PrefsDialog):
         # 1.1 Set configurable fields from INI
         self.checkDesc.setChecked(self._get_ini_value('Settings', 'ShowDescriptionPanel'))
         self.checkDebug.setChecked(self._get_ini_value('Settings', 'ShowDebugLog'))
-        self.themeRadioLight.setChecked(True) if THEME == 'Default (Light)' else self.themeRadioDark.setChecked(True)
+        if THEME == 'Default (Light)':
+            self.themeRadioLight.setChecked(True)
+        else:
+            self.themeRadioDark.setChecked(True)
 
         # 3.1 Setup Settings input/button here
         self.projectPathTool.clicked.connect(self._project_path_dialog)

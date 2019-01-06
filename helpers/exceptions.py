@@ -6,6 +6,7 @@ logger = logging.getLogger(__name__)
 
 class InvalidProjectPath(Exception):
     def __init__(self, path):
+        Exception.__init__(self, path)
         self.message = "Project Path doesn't exists: %s", str(path)
         logger.error(self.message)
 
@@ -15,6 +16,7 @@ class InvalidProjectPath(Exception):
 
 class ApplicationAlreadyExists(Exception):
     def __init__(self, app):
+        Exception.__init__(self, app)
         self.message = "QApplication instance already exists: %s", str(app)
         logger.error(self.message)
 
