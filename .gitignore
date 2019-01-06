@@ -3,7 +3,6 @@ _old/
 _bak/
 _tmp/
 .tmp/
-.github/
 build/
 bin/
 settings.ini
