@@ -32,19 +32,26 @@ class Preferences(QtWidgets.QDialog, Ui_PrefsDialog):
         self.btnDialogBox.accepted.connect(self._apply)
         self.btnDialogBox.rejected.connect(self.reject)
 
-        # 1.1 Set configurable fields from INI
-        self.checkDesc.setChecked(self._get_ini_value('Settings', 'ShowDescriptionPanel'))
-        self.checkDebug.setChecked(self._get_ini_value('Settings', 'ShowDebugLog'))
-        if THEME == 'Default (Light)':
-            self.themeRadioLight.setChecked(True)
-        else:
+        # 2.1 Setup Settings input/button here
+        self.projectPathTool.clicked.connect(self._project_path_dialog)
+        self.descCheck.setChecked(self._get_ini_value('Settings', 'ShowDescriptionPanel'))
+        self.debugCheck.setChecked(self._get_ini_value('Settings', 'ShowDebugLog'))
+        self.themeRadioLight.setChecked(True)
+        if THEME == 'Dark':
             self.themeRadioDark.setChecked(True)
 
-        # 3.1 Setup Settings input/button here
-        self.projectPathTool.clicked.connect(self._project_path_dialog)
+        # 2.2 Setup Assets input/button here
+        self.boxPrefix.setChecked(self._get_ini_value('Assets', 'UsePrefix'))
+        self.boxSuffix.setChecked(self._get_ini_value('Assets', 'UseSuffix'))
+        self.categoryBtnAdd.clicked.connect(helpers.functions.ham)
+        self.categoryBtnRemove.clicked.connect(helpers.functions.ham)
+        self.subfolderBtnAdd.clicked.connect(helpers.functions.ham)
+        self.subfolderBtnRemove.clicked.connect(helpers.functions.ham)
 
-        # 3.2 Setup Assets input/button here
-        # 3.3 Setup Advanced input/button here
+        # 2.3 Setup Advanced input/button here
+        self.metadataCheck.setChecked(self._get_ini_value('Advanced', 'UseMetadata'))
+        self.metadataBtnClear.clicked.connect(helpers.functions.ham)
+        self.metadataBtnRebuild.clicked.connect(helpers.functions.ham)
 
     def _get_ini_value(self, section, setting):
         """Get INI value for Preferences UI elements.
@@ -95,6 +102,7 @@ class Preferences(QtWidgets.QDialog, Ui_PrefsDialog):
         self.projectPathLine.setText(new_path)
 
     def _apply(self):
+        # TODO: Rework apply function to be more inclusive of every functions?
         def apply_checkbox(checkbox, param):
             """Save checkbox value in INI after apply.
 
@@ -113,20 +121,20 @@ class Preferences(QtWidgets.QDialog, Ui_PrefsDialog):
             value = 'True' if checkbox.isChecked() else 'False'
             configurations.update_setting(INI_PATH, 'Settings', param, value)
 
-        apply_checkbox(self.checkDesc, 'ShowDescriptionPanel')
-        apply_checkbox(self.checkDebug, 'ShowDebugLog')
+        apply_checkbox(self.descCheck, 'ShowDescriptionPanel')
+        apply_checkbox(self.debugCheck, 'ShowDebugLog')
 
         def apply_theme():
-            value = str(self.themeBtnGroup.checkedButton().text())
+            value = str(self.themeBtnGrp.checkedButton().text())
             logger.info(value)
             configurations.update_setting(INI_PATH, 'UI', 'Theme', value)
 
         apply_theme()
 
-        # Update the Project Path in the INI file
         def apply_project_path():
-            path = self.projectPathLine.text()
-            configurations.update_setting(INI_PATH, 'Settings', 'ProjectPath', path)
+            value = self.projectPathLine.text()
+            logger.info(value)
+            configurations.update_setting(INI_PATH, 'Settings', 'ProjectPath', value)
 
         apply_project_path()
         self.accept()  # Execute restart_app when OK
