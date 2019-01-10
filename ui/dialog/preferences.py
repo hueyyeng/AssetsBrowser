@@ -59,7 +59,7 @@ class Preferences(QtWidgets.QDialog, Ui_PrefsDialog):
 
         Parameters
         ----------
-        list_widget : PyQt5.QtWidgets.QListWidget
+        list_widget : QtWidgets.QListWidget
             QListWidget instance
         title : str
             Suffix for input dialog's title.
@@ -81,7 +81,7 @@ class Preferences(QtWidgets.QDialog, Ui_PrefsDialog):
 
         Parameters
         ----------
-        list_widget : PyQt5.QtWidgets.QListWidget
+        list_widget : QtWidgets.QListWidget
             QListWidget instance
 
         Returns
@@ -90,6 +90,7 @@ class Preferences(QtWidgets.QDialog, Ui_PrefsDialog):
 
         """
         items = list_widget.selectedItems()
+        # Exit early if there is no selected items!
         if not items:
             return
         for item in items:
@@ -150,7 +151,7 @@ class Preferences(QtWidgets.QDialog, Ui_PrefsDialog):
 
             Parameters
             ----------
-            checkbox : PyQt5.QtWidgets.QCheckBox
+            checkbox : QtWidgets.QCheckBox
                 QCheckbox instance
             section : str
                 Section name
