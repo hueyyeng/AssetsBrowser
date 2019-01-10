@@ -21,7 +21,6 @@ class Preferences(QtWidgets.QDialog, Ui_PrefsDialog):
     def __init__(self, parent=None):
         super(Preferences, self).__init__(parent)
         self.setupUi(self)
-        self.projectPathLine.setText(PROJECT_PATH)
         ui.functions.set_window_icon(self)
 
         # 1. Setup QDialogButtonBox
@@ -33,6 +32,7 @@ class Preferences(QtWidgets.QDialog, Ui_PrefsDialog):
         self.btnDialogBox.rejected.connect(self.reject)
 
         # 2.1 Setup Settings input/button here
+        self.projectPathLine.setText(PROJECT_PATH)
         self.projectPathTool.clicked.connect(self._project_path_dialog)
         self.descCheck.setChecked(self._get_ini_value('Settings', 'ShowDescriptionPanel'))
         self.debugCheck.setChecked(self._get_ini_value('Settings', 'ShowDebugLog'))
@@ -43,15 +43,57 @@ class Preferences(QtWidgets.QDialog, Ui_PrefsDialog):
         # 2.2 Setup Assets input/button here
         self.boxPrefix.setChecked(self._get_ini_value('Assets', 'UsePrefix'))
         self.boxSuffix.setChecked(self._get_ini_value('Assets', 'UseSuffix'))
-        self.categoryBtnAdd.clicked.connect(helpers.functions.ham)
-        self.categoryBtnRemove.clicked.connect(helpers.functions.ham)
-        self.subfolderBtnAdd.clicked.connect(helpers.functions.ham)
-        self.subfolderBtnRemove.clicked.connect(helpers.functions.ham)
+        self.suffixCustomName.setText(self._get_ini_value('Assets', 'SuffixCustomName'))
+        self.categoryBtnAdd.clicked.connect(lambda: self._add_item_list(self.categoryList, "Category"))
+        self.categoryBtnRemove.clicked.connect(lambda: self._remove_item_list(self.categoryList))
+        self.subfolderBtnAdd.clicked.connect(lambda: self._add_item_list(self.subfolderList, "Subfolder"))
+        self.subfolderBtnRemove.clicked.connect(lambda: self._remove_item_list(self.subfolderList))
 
         # 2.3 Setup Advanced input/button here
         self.metadataCheck.setChecked(self._get_ini_value('Advanced', 'UseMetadata'))
         self.metadataBtnClear.clicked.connect(helpers.functions.ham)
         self.metadataBtnRebuild.clicked.connect(helpers.functions.ham)
+
+    def _add_item_list(self, list_widget, title="..."):
+        """Add item to QListWidget.
+
+        Parameters
+        ----------
+        list_widget : PyQt5.QtWidgets.QListWidget
+            QListWidget instance
+        title : str
+            Suffix for input dialog's title.
+
+        Returns
+        -------
+        None
+
+        """
+        item = QtWidgets.QListWidgetItem()
+        text, ok = QtWidgets.QInputDialog.getText(self, ("Add " + str(title)), "Name:", QtWidgets.QLineEdit.Normal, "")
+
+        if ok and text != '':
+            item.setText(str(text))
+            list_widget.addItem(item)
+
+    def _remove_item_list(self, list_widget):
+        """Remove items from QListWidget.
+
+        Parameters
+        ----------
+        list_widget : PyQt5.QtWidgets.QListWidget
+            QListWidget instance
+
+        Returns
+        -------
+        None
+
+        """
+        items = list_widget.selectedItems()
+        if not items:
+            return
+        for item in items:
+            list_widget.takeItem(list_widget.row(item))
 
     def _get_ini_value(self, section, setting):
         """Get INI value for Preferences UI elements.
@@ -103,13 +145,15 @@ class Preferences(QtWidgets.QDialog, Ui_PrefsDialog):
 
     def _apply(self):
         # TODO: Rework apply function to be more inclusive of every functions?
-        def apply_checkbox(checkbox, param):
+        def apply_checkbox(checkbox, section, param):
             """Save checkbox value in INI after apply.
 
             Parameters
             ----------
-            checkbox : QtWidgets.QCheckBox
-                QCheckbox element
+            checkbox : PyQt5.QtWidgets.QCheckBox
+                QCheckbox instance
+            section : str
+                Section name
             param : str
                 Parameter name
 
@@ -119,10 +163,14 @@ class Preferences(QtWidgets.QDialog, Ui_PrefsDialog):
 
             """
             value = 'True' if checkbox.isChecked() else 'False'
-            configurations.update_setting(INI_PATH, 'Settings', param, value)
+            logger.info(value)
+            configurations.update_setting(INI_PATH, section, param, value)
 
-        apply_checkbox(self.descCheck, 'ShowDescriptionPanel')
-        apply_checkbox(self.debugCheck, 'ShowDebugLog')
+        apply_checkbox(self.descCheck, 'Settings', 'ShowDescriptionPanel')
+        apply_checkbox(self.debugCheck, 'Settings', 'ShowDebugLog')
+        apply_checkbox(self.boxPrefix, 'Assets', 'UsePrefix')
+        apply_checkbox(self.boxSuffix, 'Assets', 'UseSuffix')
+        apply_checkbox(self.metadataCheck, 'Advanced', 'UseMetadata')
 
         def apply_theme():
             value = str(self.themeBtnGrp.checkedButton().text())
