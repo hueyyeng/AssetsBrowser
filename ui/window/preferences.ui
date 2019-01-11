@@ -454,31 +454,6 @@
             <property name="selectionMode">
              <enum>QAbstractItemView::ExtendedSelection</enum>
             </property>
-            <item>
-             <property name="text">
-              <string>BG</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>CH</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>FX</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Props</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Vehicles</string>
-             </property>
-            </item>
            </widget>
           </item>
          </layout>
@@ -513,26 +488,6 @@
             <property name="selectionMode">
              <enum>QAbstractItemView::ExtendedSelection</enum>
             </property>
-            <item>
-             <property name="text">
-              <string>References</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Scenes</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Textures</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>WIP</string>
-             </property>
-            </item>
            </widget>
           </item>
          </layout>
@@ -721,8 +676,8 @@
   </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="themeBtnGrp"/>
   <buttongroup name="prefixBtnGrp"/>
+  <buttongroup name="themeBtnGrp"/>
   <buttongroup name="suffixBtnGrp"/>
  </buttongroups>
 </ui>

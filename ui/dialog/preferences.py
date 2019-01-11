@@ -1,6 +1,7 @@
 import os
 import sys
 import platform
+import json
 import logging
 from PyQt5 import QtWidgets
 
@@ -54,6 +55,9 @@ class Preferences(QtWidgets.QDialog, Ui_PrefsDialog):
         self.metadataBtnClear.clicked.connect(helpers.functions.ham)
         self.metadataBtnRebuild.clicked.connect(helpers.functions.ham)
 
+        self._populate_list_value("Assets", "CategoryList", self.categoryList)
+        self._populate_list_value("Assets", "SubfolderList", self.subfolderList)
+
     def _add_item_list(self, list_widget, title="..."):
         """Add item to QListWidget.
 
@@ -90,11 +94,13 @@ class Preferences(QtWidgets.QDialog, Ui_PrefsDialog):
 
         """
         items = list_widget.selectedItems()
+
         # Exit early if there is no selected items!
         if not items:
             return
         for item in items:
             list_widget.takeItem(list_widget.row(item))
+            return
 
     def _get_ini_value(self, section, setting):
         """Get INI value for Preferences UI elements.
@@ -114,6 +120,22 @@ class Preferences(QtWidgets.QDialog, Ui_PrefsDialog):
         """
         value = configurations.get_setting(INI_PATH, section, setting)
         return value
+
+    def _populate_list_value(self, section, setting, list_widget):
+        value = self._get_ini_value(section, setting)
+        value_list = json.loads(value)
+
+        # 1. Exit early and log error if not a valid list object
+        if not isinstance(value_list, list):
+            logger.error("Not a valid list: %s", value_list)
+            return
+
+        # 2. Loop through list object and populate target list
+        for value in value_list:
+            item = QtWidgets.QListWidgetItem()
+            item.setText(str(value))
+            list_widget.addItem(item)
+
 
     def _project_path_dialog(self):
         """Opens Project Path Dialog.
@@ -146,12 +168,12 @@ class Preferences(QtWidgets.QDialog, Ui_PrefsDialog):
 
     def _apply(self):
         # TODO: Rework apply function to be more inclusive of every functions?
-        def apply_checkbox(checkbox, section, param):
+        def apply_checkbox(checkbox_widget, section, param):
             """Save checkbox value in INI after apply.
 
             Parameters
             ----------
-            checkbox : QtWidgets.QCheckBox
+            checkbox_widget : QtWidgets.QCheckBox
                 QCheckbox instance
             section : str
                 Section name
@@ -163,7 +185,7 @@ class Preferences(QtWidgets.QDialog, Ui_PrefsDialog):
             None
 
             """
-            value = 'True' if checkbox.isChecked() else 'False'
+            value = 'True' if checkbox_widget.isChecked() else 'False'
             logger.info(value)
             configurations.update_setting(INI_PATH, section, param, value)
 
@@ -173,6 +195,63 @@ class Preferences(QtWidgets.QDialog, Ui_PrefsDialog):
         apply_checkbox(self.boxSuffix, 'Assets', 'UseSuffix')
         apply_checkbox(self.metadataCheck, 'Advanced', 'UseMetadata')
 
+        def apply_line_value(line_widget, section, param):
+            """Save line value in INI after apply.
+
+            Parameters
+            ----------
+            line_widget : QtWidgets.QLineEdit
+                QLineEdit instance
+            section : str
+                Section name
+            param : str
+                Parameter name
+
+            Returns
+            -------
+            None
+
+            """
+            value = line_widget.text()
+            logger.info(value)
+            configurations.update_setting(INI_PATH, section, param, value)
+
+        apply_line_value(self.projectPathLine, 'Settings', 'ProjectPath')
+        apply_line_value(self.suffixCustomName, 'Assets', 'SuffixCustomName')
+
+        def apply_list_value(list_widget, section, param):
+            """Save list value in INI after apply.
+
+            Parameters
+            ----------
+            list_widget : QtWidgets.QListWidget
+                QListWidget instance
+            section : str
+                Section name
+            param : str
+                Parameter name
+
+            Notes
+            -----
+            Python stores string value with single quote marks and the JSON library
+            requires values to be store with double quote marks for it to load properly
+            hence the replace function.
+
+            Returns
+            -------
+            None
+
+            """
+            items = []
+            for x in range(list_widget.count()):
+                value = list_widget.item(x).text()
+                items.append(value)
+            logger.info(items)
+            configurations.update_setting(INI_PATH, section, param, str(items).replace("'", '"'))
+
+        apply_list_value(self.categoryList, "Assets", "CategoryList")
+        apply_list_value(self.subfolderList, "Assets", "SubfolderList")
+
         def apply_theme():
             value = str(self.themeBtnGrp.checkedButton().text())
             logger.info(value)
@@ -180,12 +259,6 @@ class Preferences(QtWidgets.QDialog, Ui_PrefsDialog):
 
         apply_theme()
 
-        def apply_project_path():
-            value = self.projectPathLine.text()
-            logger.info(value)
-            configurations.update_setting(INI_PATH, 'Settings', 'ProjectPath', value)
-
-        apply_project_path()
         self.accept()  # Execute restart_app when OK
 
 
