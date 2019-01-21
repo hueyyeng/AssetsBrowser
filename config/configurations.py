@@ -1,14 +1,13 @@
 import os
 import configparser
 import logging
+from .exceptions import ConfigNotFoundException
 
 logger = logging.getLogger(__name__)
 
 ROOT_DIR = 'config/'
 INI_FILE = 'settings.ini'
 INI_PATH = (ROOT_DIR + INI_FILE)
-
-config = configparser.ConfigParser(strict=False)
 
 
 def create_config(path):
@@ -26,6 +25,7 @@ def create_config(path):
     None
 
     """
+    config = configparser.ConfigParser(strict=False)
     config.optionxform = str
     home = os.path.expanduser('~')  # Defaults to home directory
 
@@ -139,10 +139,12 @@ def get_config(path):
 
     """
     if not os.path.exists(path):
-        create_config(path)
-        logger.error('ERROR INI FILE NOT FOUND')
-        logger.debug('Creating INI file at %s', path)
+        # create_config(path)
+        # logger.debug('Creating INI file at %s', path)
+        logger.error('ERROR: INI FILE NOT FOUND AT %s', path)
+        raise ConfigNotFoundException
 
+    config = configparser.ConfigParser(strict=False)
     config.optionxform = str
     config.read(path)
     return config
