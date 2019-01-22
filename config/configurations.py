@@ -1,14 +1,13 @@
 import os
 import configparser
 import logging
+from .exceptions import ConfigNotFoundException
 
 logger = logging.getLogger(__name__)
 
 ROOT_DIR = 'config/'
 INI_FILE = 'settings.ini'
 INI_PATH = (ROOT_DIR + INI_FILE)
-
-config = configparser.ConfigParser(strict=False)
 
 
 def create_config(path):
@@ -26,10 +25,11 @@ def create_config(path):
     None
 
     """
+    config = configparser.ConfigParser(strict=False)
     config.optionxform = str
     home = os.path.expanduser('~')  # Defaults to home directory
 
-    # 1. Settings (General settings for Assets Browser)
+    # 1.1 Settings
     config.add_section('Settings')
     config.set(
         'Settings',
@@ -52,7 +52,7 @@ def create_config(path):
         '.nodefaultvalue'
     )
 
-    # 2. UI (UI settings for Assets Browser)
+    # 1.2 UI
     config.add_section('UI')
     config.set(
         'UI',
@@ -65,8 +65,33 @@ def create_config(path):
         'Default',
     )
 
-    # 3. Assets (Assets' settings for Assets Browser)
+    # 1.3 Assets
     config.add_section('Assets')
+    config.set(
+        'Assets',
+        'UsePrefix',
+        'True',
+    )
+    config.set(
+        'Assets',
+        'PrefixType',
+        '0',
+    )
+    config.set(
+        'Assets',
+        'UseSuffix',
+        'False',
+    )
+    config.set(
+        'Assets',
+        'SuffixType',
+        '0',
+    )
+    config.set(
+        'Assets',
+        'SuffixCustomName',
+        '',
+    )
     config.set(
         'Assets',
         'CategoryList',
@@ -78,7 +103,20 @@ def create_config(path):
         '["Scenes","Textures","References","WIP"]',
     )
 
-    # 4.1 Write to INI file
+    # 1.4 Advanced
+    config.add_section('Advanced')
+    config.set(
+        'Advanced',
+        'UseMetadata',
+        'False',
+    )
+    config.set(
+        'Advanced',
+        'MetadataAttributes',
+        '["Author","Category","Date Created","Date Modified","Description","Format","Name","Project","Version"]',
+    )
+
+    # 2. Write to INI file
     try:
         with open(path, 'w') as config_file:
             config.write(config_file)
@@ -101,10 +139,12 @@ def get_config(path):
 
     """
     if not os.path.exists(path):
-        create_config(path)
-        logger.error('ERROR INI FILE NOT FOUND')
-        logger.debug('Creating INI file at %s', path)
+        # create_config(path)
+        # logger.debug('Creating INI file at %s', path)
+        logger.error('ERROR: INI FILE NOT FOUND AT %s', path)
+        raise ConfigNotFoundException
 
+    config = configparser.ConfigParser(strict=False)
     config.optionxform = str
     config.read(path)
     return config

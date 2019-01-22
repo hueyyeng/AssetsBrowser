@@ -117,11 +117,11 @@ class OutLog():
 
         Parameters
         ----------
-        edit : PyQt5.QtWidgets.QTextEdit
+        edit : QtWidgets.QTextEdit
             QTextEdit object.
         out : object
             Alternate stream (can be the original sys.stdout).
-        color : PyQt5.QtGui.QColor
+        color : QtGui.QColor
             QColor object (i.e. color stderr a different color).
 
         Returns

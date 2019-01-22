@@ -93,7 +93,7 @@ def hidpi_check(app):
 
     Parameters
     ----------
-    app : PyQt5.QtWidgets.QApplication
+    app : QtWidgets.QApplication
 
     Returns
     -------
@@ -113,7 +113,7 @@ def theme_loader(app):
 
     Parameters
     ----------
-    app : PyQt5.QtWidgets.QApplication
+    app : QtWidgets.QApplication
 
     Returns
     -------

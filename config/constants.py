@@ -20,3 +20,18 @@ IMAGE_FORMAT = [
     'tif',
     'tiff',
 ]
+
+DEFAULT_CATEGORY = [
+    "BG",
+    "CH",
+    "FX",
+    "Props",
+    "Vehicles",
+]
+
+DEFAULT_SUBFOLDER = [
+    "References",
+    "Scenes",
+    "Textures",
+    "WIP",
+]

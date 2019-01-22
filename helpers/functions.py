@@ -66,9 +66,9 @@ def preview_widget(widget, tab):
 
     Parameters
     ----------
-    widget : PyQt5.QtWidgets.QWidget
+    widget : QtWidgets.QWidget
         QtWidget object.
-    tab : PyQt5.QtWidgets.QColumnView
+    tab : QtWidgets.QColumnView
         QColumnView object.
 
     Returns
@@ -128,7 +128,7 @@ def column_views(column_view, category, project):
 
     Parameters
     ----------
-    column_view : PyQt5.QtWidgets.QColumnView
+    column_view : QtWidgets.QColumnView
         QColumnView object.
     category : str
         Category name.
@@ -164,7 +164,7 @@ def column_views(column_view, category, project):
 
         Parameters
         ----------
-        index : PyQt5.QtCore.QModelIndex
+        index : QtCore.QModelIndex
             QModelIndex using decorator method.
 
         Returns

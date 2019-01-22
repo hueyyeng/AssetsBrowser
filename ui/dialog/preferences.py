@@ -1,6 +1,7 @@
 import os
 import sys
 import platform
+import json
 import logging
 from PyQt5 import QtWidgets
 
@@ -21,7 +22,6 @@ class Preferences(QtWidgets.QDialog, Ui_PrefsDialog):
     def __init__(self, parent=None):
         super(Preferences, self).__init__(parent)
         self.setupUi(self)
-        self.projectPathLine.setText(PROJECT_PATH)
         ui.functions.set_window_icon(self)
 
         # 1. Setup QDialogButtonBox
@@ -32,19 +32,75 @@ class Preferences(QtWidgets.QDialog, Ui_PrefsDialog):
         self.btnDialogBox.accepted.connect(self._apply)
         self.btnDialogBox.rejected.connect(self.reject)
 
-        # 1.1 Set configurable fields from INI
-        self.checkDesc.setChecked(self._get_ini_value('Settings', 'ShowDescriptionPanel'))
-        self.checkDebug.setChecked(self._get_ini_value('Settings', 'ShowDebugLog'))
-        if THEME == 'Default (Light)':
-            self.themeRadioLight.setChecked(True)
-        else:
+        # 2.1 Setup Settings input/button here
+        self.projectPathLine.setText(PROJECT_PATH)
+        self.projectPathTool.clicked.connect(self._project_path_dialog)
+        self.descCheck.setChecked(self._get_ini_value('Settings', 'ShowDescriptionPanel'))
+        self.debugCheck.setChecked(self._get_ini_value('Settings', 'ShowDebugLog'))
+        self.themeRadioLight.setChecked(True)
+        if THEME == 'Dark':
             self.themeRadioDark.setChecked(True)
 
-        # 3.1 Setup Settings input/button here
-        self.projectPathTool.clicked.connect(self._project_path_dialog)
+        # 2.2 Setup Assets input/button here
+        self.boxPrefix.setChecked(self._get_ini_value('Assets', 'UsePrefix'))
+        self.boxSuffix.setChecked(self._get_ini_value('Assets', 'UseSuffix'))
+        self.suffixCustomName.setText(self._get_ini_value('Assets', 'SuffixCustomName'))
+        self.categoryBtnAdd.clicked.connect(lambda: self._add_item_list(self.categoryList, "Category"))
+        self.categoryBtnRemove.clicked.connect(lambda: self._remove_item_list(self.categoryList))
+        self.subfolderBtnAdd.clicked.connect(lambda: self._add_item_list(self.subfolderList, "Subfolder"))
+        self.subfolderBtnRemove.clicked.connect(lambda: self._remove_item_list(self.subfolderList))
 
-        # 3.2 Setup Assets input/button here
-        # 3.3 Setup Advanced input/button here
+        # 2.3 Setup Advanced input/button here
+        self.metadataCheck.setChecked(self._get_ini_value('Advanced', 'UseMetadata'))
+        self.metadataBtnClear.clicked.connect(helpers.functions.ham)
+        self.metadataBtnRebuild.clicked.connect(helpers.functions.ham)
+
+        self._populate_list_value("Assets", "CategoryList", self.categoryList)
+        self._populate_list_value("Assets", "SubfolderList", self.subfolderList)
+
+    def _add_item_list(self, list_widget, title="..."):
+        """Add item to QListWidget.
+
+        Parameters
+        ----------
+        list_widget : QtWidgets.QListWidget
+            QListWidget instance
+        title : str
+            Suffix for input dialog's title.
+
+        Returns
+        -------
+        None
+
+        """
+        item = QtWidgets.QListWidgetItem()
+        text, ok = QtWidgets.QInputDialog.getText(self, ("Add " + str(title)), "Name:", QtWidgets.QLineEdit.Normal, "")
+
+        if ok and text != '':
+            item.setText(str(text))
+            list_widget.addItem(item)
+
+    def _remove_item_list(self, list_widget):
+        """Remove items from QListWidget.
+
+        Parameters
+        ----------
+        list_widget : QtWidgets.QListWidget
+            QListWidget instance
+
+        Returns
+        -------
+        None
+
+        """
+        items = list_widget.selectedItems()
+
+        # Exit early if there is no selected items!
+        if not items:
+            return
+        for item in items:
+            list_widget.takeItem(list_widget.row(item))
+            return
 
     def _get_ini_value(self, section, setting):
         """Get INI value for Preferences UI elements.
@@ -64,6 +120,22 @@ class Preferences(QtWidgets.QDialog, Ui_PrefsDialog):
         """
         value = configurations.get_setting(INI_PATH, section, setting)
         return value
+
+    def _populate_list_value(self, section, setting, list_widget):
+        value = self._get_ini_value(section, setting)
+        value_list = json.loads(value)
+
+        # 1. Exit early and log error if not a valid list object
+        if not isinstance(value_list, list):
+            logger.error("Not a valid list: %s", value_list)
+            return
+
+        # 2. Loop through list object and populate target list
+        for value in value_list:
+            item = QtWidgets.QListWidgetItem()
+            item.setText(str(value))
+            list_widget.addItem(item)
+
 
     def _project_path_dialog(self):
         """Opens Project Path Dialog.
@@ -95,13 +167,16 @@ class Preferences(QtWidgets.QDialog, Ui_PrefsDialog):
         self.projectPathLine.setText(new_path)
 
     def _apply(self):
-        def apply_checkbox(checkbox, param):
+        # TODO: Rework apply function to be more inclusive of every functions?
+        def apply_checkbox(checkbox_widget, section, param):
             """Save checkbox value in INI after apply.
 
             Parameters
             ----------
-            checkbox : QtWidgets.QCheckBox
-                QCheckbox element
+            checkbox_widget : QtWidgets.QCheckBox
+                QCheckbox instance
+            section : str
+                Section name
             param : str
                 Parameter name
 
@@ -110,25 +185,80 @@ class Preferences(QtWidgets.QDialog, Ui_PrefsDialog):
             None
 
             """
-            value = 'True' if checkbox.isChecked() else 'False'
-            configurations.update_setting(INI_PATH, 'Settings', param, value)
+            value = 'True' if checkbox_widget.isChecked() else 'False'
+            logger.info(value)
+            configurations.update_setting(INI_PATH, section, param, value)
 
-        apply_checkbox(self.checkDesc, 'ShowDescriptionPanel')
-        apply_checkbox(self.checkDebug, 'ShowDebugLog')
+        apply_checkbox(self.descCheck, 'Settings', 'ShowDescriptionPanel')
+        apply_checkbox(self.debugCheck, 'Settings', 'ShowDebugLog')
+        apply_checkbox(self.boxPrefix, 'Assets', 'UsePrefix')
+        apply_checkbox(self.boxSuffix, 'Assets', 'UseSuffix')
+        apply_checkbox(self.metadataCheck, 'Advanced', 'UseMetadata')
+
+        def apply_line_value(line_widget, section, param):
+            """Save line value in INI after apply.
+
+            Parameters
+            ----------
+            line_widget : QtWidgets.QLineEdit
+                QLineEdit instance
+            section : str
+                Section name
+            param : str
+                Parameter name
+
+            Returns
+            -------
+            None
+
+            """
+            value = line_widget.text()
+            logger.info(value)
+            configurations.update_setting(INI_PATH, section, param, value)
+
+        apply_line_value(self.projectPathLine, 'Settings', 'ProjectPath')
+        apply_line_value(self.suffixCustomName, 'Assets', 'SuffixCustomName')
+
+        def apply_list_value(list_widget, section, param):
+            """Save list value in INI after apply.
+
+            Parameters
+            ----------
+            list_widget : QtWidgets.QListWidget
+                QListWidget instance
+            section : str
+                Section name
+            param : str
+                Parameter name
+
+            Notes
+            -----
+            Python stores string value with single quote marks and the JSON library
+            requires values to be store with double quote marks for it to load properly
+            hence the replace function.
+
+            Returns
+            -------
+            None
+
+            """
+            items = []
+            for x in range(list_widget.count()):
+                value = list_widget.item(x).text()
+                items.append(value)
+            logger.info(items)
+            configurations.update_setting(INI_PATH, section, param, str(items).replace("'", '"'))
+
+        apply_list_value(self.categoryList, "Assets", "CategoryList")
+        apply_list_value(self.subfolderList, "Assets", "SubfolderList")
 
         def apply_theme():
-            value = str(self.themeBtnGroup.checkedButton().text())
+            value = str(self.themeBtnGrp.checkedButton().text())
             logger.info(value)
             configurations.update_setting(INI_PATH, 'UI', 'Theme', value)
 
         apply_theme()
 
-        # Update the Project Path in the INI file
-        def apply_project_path():
-            path = self.projectPathLine.text()
-            configurations.update_setting(INI_PATH, 'Settings', 'ProjectPath', path)
-
-        apply_project_path()
         self.accept()  # Execute restart_app when OK
 
 

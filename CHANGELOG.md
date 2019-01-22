@@ -1,8 +1,11 @@
 # Changelog
 ## Unreleased
 ### Core
-- Dynamically generate radio buttons in `Create New Asset` dialog from `CategoryList` in INI file.
 - Add CHANGELOG.
+- Add `requirements.txt` for dependencies.
+- Dynamically generate radio buttons in `Create New Asset` dialog from `CategoryList` in INI file.
+- Add `config` unit test.
+- Refactor and update `Settings` and `Assets` functions in Preferences Dialog.
 
 ### UI
 - Minor update to `AssetDialog` UI.

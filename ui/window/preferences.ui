@@ -124,7 +124,7 @@
           <bool>true</bool>
          </property>
          <attribute name="buttonGroup">
-          <string notr="true">themeBtnGroup</string>
+          <string notr="true">themeBtnGrp</string>
          </attribute>
         </widget>
        </item>
@@ -137,7 +137,7 @@
           <string/>
          </property>
          <attribute name="buttonGroup">
-          <string notr="true">themeBtnGroup</string>
+          <string notr="true">themeBtnGrp</string>
          </attribute>
         </widget>
        </item>
@@ -194,7 +194,7 @@
         </layout>
        </item>
        <item row="2" column="0" colspan="2">
-        <widget class="QCheckBox" name="checkDebug">
+        <widget class="QCheckBox" name="debugCheck">
          <property name="toolTip">
           <string>Log file will be stored in log directory.</string>
          </property>
@@ -204,7 +204,7 @@
         </widget>
        </item>
        <item row="1" column="0" colspan="2">
-        <widget class="QCheckBox" name="checkDesc">
+        <widget class="QCheckBox" name="descCheck">
          <property name="toolTip">
           <string>Display description for selected assets.</string>
          </property>
@@ -309,30 +309,39 @@
             </property>
             <layout class="QVBoxLayout" name="verticalLayout">
              <item>
-              <widget class="QRadioButton" name="radioPrefix1">
+              <widget class="QRadioButton" name="prefixRadio1">
                <property name="text">
                 <string>Use first character of category (e.g.: p)</string>
                </property>
                <property name="checked">
                 <bool>true</bool>
                </property>
+               <attribute name="buttonGroup">
+                <string notr="true">prefixBtnGrp</string>
+               </attribute>
               </widget>
              </item>
              <item>
-              <widget class="QRadioButton" name="radioPrefix2">
+              <widget class="QRadioButton" name="prefixRadio2">
                <property name="text">
                 <string>Use whole category (e.g.: props)</string>
                </property>
                <property name="checked">
                 <bool>false</bool>
                </property>
+               <attribute name="buttonGroup">
+                <string notr="true">prefixBtnGrp</string>
+               </attribute>
               </widget>
              </item>
              <item>
-              <widget class="QRadioButton" name="radioPrefix3">
+              <widget class="QRadioButton" name="prefixRadio3">
                <property name="text">
                 <string>Use custom naming (JSON mapping)</string>
                </property>
+               <attribute name="buttonGroup">
+                <string notr="true">prefixBtnGrp</string>
+               </attribute>
               </widget>
              </item>
             </layout>
@@ -351,9 +360,9 @@
             </property>
             <layout class="QVBoxLayout" name="verticalLayout_2">
              <item>
-              <layout class="QFormLayout" name="verVersioningLayout">
+              <layout class="QFormLayout" name="suffixVersionLayout">
                <item row="0" column="0">
-                <widget class="QRadioButton" name="radioSuffix1">
+                <widget class="QRadioButton" name="suffixRadio1">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -366,10 +375,13 @@
                  <property name="checked">
                   <bool>true</bool>
                  </property>
+                 <attribute name="buttonGroup">
+                  <string notr="true">suffixBtnGrp</string>
+                 </attribute>
                 </widget>
                </item>
                <item row="0" column="1">
-                <widget class="QComboBox" name="verVersioningCombo">
+                <widget class="QComboBox" name="suffixVersionCombo">
                  <property name="maximumSize">
                   <size>
                    <width>120</width>
@@ -391,16 +403,19 @@
               </layout>
              </item>
              <item>
-              <layout class="QHBoxLayout" name="verCustomLayout">
+              <layout class="QHBoxLayout" name="suffixCustomLayout">
                <item>
-                <widget class="QRadioButton" name="radioSuffix2">
+                <widget class="QRadioButton" name="suffixRadio2">
                  <property name="text">
                   <string>Use custom naming:</string>
                  </property>
+                 <attribute name="buttonGroup">
+                  <string notr="true">suffixBtnGrp</string>
+                 </attribute>
                 </widget>
                </item>
                <item>
-                <widget class="QLineEdit" name="verCustomName"/>
+                <widget class="QLineEdit" name="suffixCustomName"/>
                </item>
               </layout>
              </item>
@@ -436,31 +451,9 @@
           </item>
           <item row="0" column="1">
            <widget class="QListWidget" name="categoryList">
-            <item>
-             <property name="text">
-              <string>BG</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>CH</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>FX</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Props</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Vehicles</string>
-             </property>
-            </item>
+            <property name="selectionMode">
+             <enum>QAbstractItemView::ExtendedSelection</enum>
+            </property>
            </widget>
           </item>
          </layout>
@@ -492,26 +485,9 @@
           </item>
           <item row="0" column="1">
            <widget class="QListWidget" name="subfolderList">
-            <item>
-             <property name="text">
-              <string>References</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Scenes</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Textures</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>WIP</string>
-             </property>
-            </item>
+            <property name="selectionMode">
+             <enum>QAbstractItemView::ExtendedSelection</enum>
+            </property>
            </widget>
           </item>
          </layout>
@@ -538,7 +514,7 @@
            </widget>
           </item>
           <item row="1" column="0">
-           <widget class="QCheckBox" name="checkMetadata">
+           <widget class="QCheckBox" name="metadataCheck">
             <property name="text">
              <string>Use Metadata</string>
             </property>
@@ -566,7 +542,7 @@
            </layout>
           </item>
           <item row="2" column="0" colspan="2">
-           <widget class="QGroupBox" name="boxMetadataAttributes">
+           <widget class="QGroupBox" name="boxMetadataAttrib">
             <property name="enabled">
              <bool>false</bool>
             </property>
@@ -575,14 +551,14 @@
             </property>
             <layout class="QFormLayout" name="formLayout_2">
              <item row="1" column="0">
-              <widget class="QLabel" name="metadataAttributesTip">
+              <widget class="QLabel" name="metadataAttribTip">
                <property name="text">
                 <string>Hold Ctrl/Cmd to select more than one attributes.</string>
                </property>
               </widget>
              </item>
              <item row="0" column="0" colspan="2">
-              <widget class="QListWidget" name="metadataAttributesList">
+              <widget class="QListWidget" name="metadataAttribList">
                <property name="selectionMode">
                 <enum>QAbstractItemView::ExtendedSelection</enum>
                </property>
@@ -667,9 +643,9 @@
    </hints>
   </connection>
   <connection>
-   <sender>radioSuffix1</sender>
+   <sender>suffixRadio1</sender>
    <signal>toggled(bool)</signal>
-   <receiver>verVersioningCombo</receiver>
+   <receiver>suffixVersionCombo</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -683,9 +659,9 @@
    </hints>
   </connection>
   <connection>
-   <sender>checkMetadata</sender>
+   <sender>metadataCheck</sender>
    <signal>toggled(bool)</signal>
-   <receiver>boxMetadataAttributes</receiver>
+   <receiver>boxMetadataAttrib</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -700,6 +676,8 @@
   </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="themeBtnGroup"/>
+  <buttongroup name="prefixBtnGrp"/>
+  <buttongroup name="themeBtnGrp"/>
+  <buttongroup name="suffixBtnGrp"/>
  </buttongroups>
 </ui>
