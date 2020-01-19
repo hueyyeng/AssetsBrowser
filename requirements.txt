@@ -1,3 +1,6 @@
 PyQt5==5.11.3
 sip==4.19
-qdarkstyle==2.6.5
+qdarkstyle==2.7
+peewee==3.8.2
+voluptuous==0.11.7
+pytz
