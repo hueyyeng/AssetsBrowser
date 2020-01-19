@@ -9,6 +9,7 @@ settings.ini
 setup.py
 *.psd
 *.ai
+*.sqlite3
 
 
 # Created by https://www.gitignore.io/api/code,linux,macos,python,windows,pycharm
