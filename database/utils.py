@@ -22,19 +22,19 @@ def validate_db(db_path):
     if not db_path == SQLITE_MEMORY:
         try:
             open(db_path, 'r').close()
-            logger.info('DB file found: %s' % db_path)
+            logger.info('DB file found: %s', db_path)
         except IOError:
             open(db_path, 'w').close()
-            logger.error('DB file not found! Creating new empty DB at: %s' % db_path)
+            logger.error('DB file not found! Creating new empty DB at: %s', db_path)
 
 
 def delete_db(db_path=DEFAULT_DB_PATH):
     username = os.getlogin()
     try:
         os.remove(db_path)
-        logger.info("Database deleted by user: %s" % username)
+        logger.info("Database deleted by user: %s", username)
     except OSError as e:
-        logger.error("Error deleting database: %s - %s." % (e.filename, e.strerror))
+        logger.error("Error deleting database: %s - %s.", e.filename, e.strerror)
 
 
 def create_tables(db, table):
