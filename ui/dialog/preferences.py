@@ -58,6 +58,17 @@ class Preferences(QtWidgets.QDialog, Ui_PrefsDialog):
         self._populate_list_value("Assets", "CategoryList", self.categoryList)
         self._populate_list_value("Assets", "SubfolderList", self.subfolderList)
 
+    def _clear_metadata(self):
+        # Find all Metadata files (JSON) and remove the file
+        # TODO: Better ot use sqlite3 to handle metadata as DB...
+        # TODO: Probably a good idea to allow to export assets metadata as a ZIP?
+        pass
+
+    def _rebuild_metadata(self):
+        # Rebuild every assets' metadata (will destroy the existing metadata)
+        # TODO: Maybe backup existing metadata to a tmp directory?
+        pass
+
     def _add_item_list(self, list_widget, title="..."):
         """Add item to QListWidget.
 
@@ -135,7 +146,6 @@ class Preferences(QtWidgets.QDialog, Ui_PrefsDialog):
             item = QtWidgets.QListWidgetItem()
             item.setText(str(value))
             list_widget.addItem(item)
-
 
     def _project_path_dialog(self):
         """Opens Project Path Dialog.

@@ -17,6 +17,7 @@ PROJECT_PATH = constants.PROJECT_PATH
 INI_PATH = constants.INI_PATH
 
 # File/Directory Path Dictionary for easy access by any methods
+# TODO: Might want to move to constants.py
 selected_path = {'Path': ''}
 selected_file = {'File': ''}
 file_manager = {
@@ -37,10 +38,6 @@ def create_tabs(self, categories, project):
         Array of categories in str format.
     project : str
         The project name.
-
-    Returns
-    -------
-    None
 
     """
     for category in categories:
@@ -71,9 +68,6 @@ def preview_widget(widget, tab):
     tab : QtWidgets.QColumnView
         QColumnView object.
 
-    Returns
-    -------
-    None
 
     """
     # File Category Labels
@@ -135,9 +129,6 @@ def column_views(column_view, category, project):
     project : str
         Project name.
 
-    Returns
-    -------
-    None
 
     """
     default_path = (PROJECT_PATH + project + "/Assets/" + category)
@@ -282,10 +273,6 @@ def valid_path(ini, project):
     project : str
         Path to project directory.
 
-    Returns
-    -------
-    None
-
     Raises
     ------
     InvalidProjectPath
@@ -384,20 +371,18 @@ def reveal_in_os(path):
     path : str
         The path of the file/directory.
 
-    Returns
-    -------
-    None
 
     """
     system = platform.system()
     win_path = path.replace("/", "\\")
 
+    # Default to macOS since no extra handling
+    cmd = (['open', '-R', path])
+
     if system == 'Windows' and os.path.isdir(path):
         cmd = str('explorer /e,' + win_path)
     elif system == 'Windows' and os.path.exists(path):
         cmd = str('explorer /select,' + win_path)
-    elif system == 'Darwin':  # OSX/macOS
-        cmd = (['open', '-R', path])
     elif system == 'Linux':
         dir_path = '/'.join(path.split('/')[0:-1])  # Omit file_name from path
         # subprocess.Popen(['xdg-open', dir_path])
@@ -414,9 +399,6 @@ def open_file(target):
     target : str
         Path to file/directory.
 
-    Returns
-    -------
-    None
 
     """
     system = platform.system()
