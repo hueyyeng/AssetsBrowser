@@ -7,4 +7,4 @@ install:
   - pip install -r dev_requirements.txt
 before_script:
   - prospector
-script: pytest
+script: python -m pytest

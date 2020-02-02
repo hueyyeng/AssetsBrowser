@@ -29,11 +29,22 @@ the necessary dependencies has been installed.
 
 ## Usage
 Requirements
-* **[Python  3.6.xx](https://www.python.org/)** - Tested on 3.6.5 x64
-* **[PyQt5](https://riverbankcomputing.com/software/pyqt/intro)** - Tested on 5.9.1 for Python 3 x64
+* **[Python  3.6.xx](https://www.python.org/)** - Tested on 3.6.7 x64
+* **[PyQt5](https://riverbankcomputing.com/software/pyqt/intro)** - Tested on 5.11.3 for Python 3 x64
 
-_The codes has been tested on Windows 7, macOS High Sierra and Lubuntu 17.10 for cross-platform compatibility._
+> Currently develop on Windows 7 and verify manually on Ubuntu 16.10. macOS support are not guaranteed
+> as I do not have access to macOS devices.
 
 1. Clone or download the repository.
 2. Extract to your chosen destination.
 3. Run `assetsbrowser.py`
+
+
+## Tests
+```python
+# Run every tests
+python -m pytest
+
+# Run specific module tests
+python -m pytest <module_name>/tests
+```

@@ -8,11 +8,11 @@ from config.configurations import (
 )
 from config.exceptions import ConfigNotFoundException
 
-from .conftest import (
-    default_category,
-    default_subfolder,
-    list_double_quotes,
-    list_single_quotes,
+from config.tests.conftest import (
+    DEFAULT_CATEGORY,
+    DEFAULT_SUBFOLDER,
+    DOUBLE_QUOTES,
+    SINGLE_QUOTES,
 )
 
 
@@ -67,11 +67,11 @@ def test_config_not_found():
 
 
 def test_double_quotes_value():
-    value = list_double_quotes
+    value = DOUBLE_QUOTES
     assert json.loads(value)
 
 
 def test_single_quotes_value():
-    value = list_single_quotes
+    value = SINGLE_QUOTES
     with pytest.raises(json.JSONDecodeError):
         assert json.loads(value)
