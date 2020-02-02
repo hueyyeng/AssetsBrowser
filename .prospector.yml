@@ -4,6 +4,8 @@ ignore-paths:
   - window
   - _bak
   - _tmp
+  - env
+  - tests
 
 pylint:
   options:
