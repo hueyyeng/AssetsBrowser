@@ -1,14 +1,18 @@
 """Assets Browser Mainwindow"""
+import logging
 import os
 import sys
-import logging
-from PyQt5 import QtGui, QtCore, QtWidgets
 
-from config import configurations, constants
-from helpers.exceptions import ApplicationAlreadyExists
+from PyQt5 import QtCore, QtGui, QtWidgets
+
 import helpers.functions
 import helpers.utils
 import ui.functions
+from config import configurations
+from config.constants import INI_PATH, PROJECT_PATH, THEME
+from helpers.exceptions import ApplicationAlreadyExists
+from helpers.functions import create_column_view
+from helpers.widgets import ColumnViewWidget
 from ui.dialog import about, asset, preferences
 from ui.help import repath
 from ui.window import ui_main
@@ -16,9 +20,7 @@ from ui.window import ui_main
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
-PROJECT_PATH = constants.PROJECT_PATH
-INI_PATH = constants.INI_PATH
-THEME = constants.THEME
+EXIT_CODE_REBOOT = -123
 
 
 class AssetsBrowser(QtWidgets.QMainWindow, ui_main.Ui_MainWindow):
@@ -42,7 +44,7 @@ class AssetsBrowser(QtWidgets.QMainWindow, ui_main.Ui_MainWindow):
 
         # 1.3 Setup input/button here
         self.pushBtnNew.clicked.connect(asset.show_dialog)
-        self.checkBoxDebug.clicked.connect(lambda: helpers.functions.show_debug(self))
+        self.checkBoxDebug.clicked.connect(self._show_debug)
 
         # 1.3.1 Debug textbox
         self.textEdit.clear()
@@ -61,7 +63,7 @@ class AssetsBrowser(QtWidgets.QMainWindow, ui_main.Ui_MainWindow):
         self.comboBox.setModel(self.comboBox.fsm)
         self.comboBox.setRootModelIndex(self.comboBox.rootindex)
         self.comboBox.setCurrentIndex(1)
-        self.comboBox.activated[str].connect(lambda: helpers.functions.project_list(self))
+        self.comboBox.activated[str].connect(self.project_list)
 
         current_project = self._current_project()
 
@@ -88,13 +90,76 @@ class AssetsBrowser(QtWidgets.QMainWindow, ui_main.Ui_MainWindow):
                 self.category.append(category)
 
         # 4.4.1 Generate Tabs using create_tabs
-        helpers.functions.create_tabs(self, self.category, current_project)
+        self.create_tabs(self.category, current_project)
         self.splitter.setSizes([150, 500])
 
         # 4.4.2 Help Tab
         html_file = 'ui/help/help.html'
         temp_html_path = ('file:///' + str(repath(html_file)))
         self.textBrowserHelp.setSource(QtCore.QUrl(temp_html_path))
+
+    def create_tabs(self, categories, project):
+        """Create QColumnView tabs.
+
+        Create QColumnView tabs dynamically from Assets' List.
+
+        Parameters
+        ----------
+        categories : :obj:`list` of :obj:`str`
+            Array of categories in str format.
+        project : str
+            The project name.
+
+        Notes
+        -----
+        Uses ColumnViewWidget that inherit QColumnView with custom properties
+
+        """
+        for category in categories:
+            self.column_view = ColumnViewWidget()
+            self.column_view.setAlternatingRowColors(False)
+            self.column_view.setResizeGripsVisible(True)
+
+            self.assets[f"column_view{category}"] = self.column_view
+
+            self.tab = QtWidgets.QWidget()
+            self.horizontalLayout = QtWidgets.QHBoxLayout(self.tab)
+            self.horizontalLayout.setContentsMargins(0, 0, 0, 0)
+            self.horizontalLayout.addWidget(self.column_view)
+
+            self.tabWidget.addTab(self.tab, category)
+            create_column_view(self.column_view, category, project)
+
+    def project_list(self):
+        """List Project directories in PROJECT_PATH comboBox.
+
+        Retrieve directories in PROJECT_PATH comboBox, clear existing tabs and create new tabs.
+
+        """
+        # 1. Update INI CurrentProject with chosen project from comboBox
+        project = self.comboBox.currentText()
+        configurations.update_setting(INI_PATH, 'Settings', 'CurrentProject', project)
+
+        # 2. Clear all tabs except Help
+        count = 0
+        while count < 10:
+            count = count + 1
+            self.tabWidget.removeTab(1)
+
+        # 3. Force clear existing self.category and self.assets value
+        self.category = []
+        self.assets = {}
+
+        # 4. Populate self.category list with valid Assets directory name
+        assets_path = (PROJECT_PATH + project + "/Assets/")
+        for item in os.listdir(assets_path):
+            prefix = item.startswith(('_', '.'))
+            is_directory = os.path.isdir(os.path.join(assets_path, item))
+            if not prefix and is_directory:
+                self.category.append(item)
+
+        # 5. Create tabs using self.category list and selected project
+        self.create_tabs(self.category, project)
 
     def _current_project(self):
         """Set current project from Project list dropdown."""
@@ -105,6 +170,17 @@ class AssetsBrowser(QtWidgets.QMainWindow, ui_main.Ui_MainWindow):
         configurations.update_setting(INI_PATH, 'Settings', 'CurrentProject', projects[0])
         current_project = configurations.current_project()
         return current_project
+
+    def _show_debug(self):
+        """Toggle Debug Display."""
+        text = self.textEdit
+        if self.checkBoxDebug.isChecked():
+            text.clear()
+            text.setHidden(False)
+            text.setEnabled(True)
+        else:
+            text.setHidden(True)
+            text.setEnabled(False)
 
     def __del__(self):
         sys.stdout = sys.__stdout__
@@ -124,10 +200,6 @@ class OutLog():
         color : QtGui.QColor
             QColor object (i.e. color stderr a different color).
 
-        Returns
-        -------
-        None
-
         """
         self.edit = edit
         self.out = out
@@ -140,10 +212,6 @@ class OutLog():
         ----------
         text : str
             Print values from stdout.
-
-        Returns
-        -------
-        None
 
         """
         if self.color:
@@ -160,32 +228,28 @@ class OutLog():
         This prevent Exit Code 120 from happening so the process
         can finished with Exit Code 0.
 
-        Returns
-        -------
-        None
-
         """
         self.out.flush()
 
 
 if __name__ == "__main__":
     # 1. Raise error if invalid path
-    helpers.functions.valid_path(INI_PATH, PROJECT_PATH)
+    helpers.utils.valid_path(INI_PATH, PROJECT_PATH)
 
     # 2. Setup OS related settings
-    os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
     ui.functions.taskbar_icon()
+    # os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"  # Temporary disable as scaling is wrong on Ubuntu 16.04 LTS
 
-    # 3. Initialize QApplication instance
-    app = QtWidgets.QApplication.instance()
-    if app is not None:
-        raise ApplicationAlreadyExists(app)
-
-    app = QtWidgets.QApplication(sys.argv)
-    ui.functions.hidpi_check(app)
-    ui.functions.theme_loader(app)
-
-    # 4. Launch main window
-    window = AssetsBrowser()
-    window.show()
-    sys.exit(app.exec_())
+    # 3.1 Launch main window
+    current_exit_code = EXIT_CODE_REBOOT
+    while current_exit_code == EXIT_CODE_REBOOT:
+        # 3.2 Initialize QApplication instance
+        app = QtWidgets.QApplication.instance()
+        if app is not None:
+            raise ApplicationAlreadyExists(app)
+        app = QtWidgets.QApplication(sys.argv)
+        ui.functions.theme_loader(app)
+        window = AssetsBrowser()
+        window.show()
+        exit_code = app.exec_()
+        app = None
