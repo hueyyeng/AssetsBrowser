@@ -1,13 +1,14 @@
-import os
-import sys
-import platform
 import json
 import logging
+import os
+import platform
+import sys
+
 from PyQt5 import QtWidgets
 
-from config import configurations, constants
 import helpers.functions
 import ui.functions
+from config import configurations, constants
 from ui.window.ui_preferences import Ui_PrefsDialog
 
 logger = logging.getLogger(__name__)
@@ -79,10 +80,6 @@ class Preferences(QtWidgets.QDialog, Ui_PrefsDialog):
         title : str
             Suffix for input dialog's title.
 
-        Returns
-        -------
-        None
-
         """
         item = QtWidgets.QListWidgetItem()
         text, ok = QtWidgets.QInputDialog.getText(self, ("Add " + str(title)), "Name:", QtWidgets.QLineEdit.Normal, "")
@@ -98,10 +95,6 @@ class Preferences(QtWidgets.QDialog, Ui_PrefsDialog):
         ----------
         list_widget : QtWidgets.QListWidget
             QListWidget instance
-
-        Returns
-        -------
-        None
 
         """
         items = list_widget.selectedItems()
@@ -190,10 +183,6 @@ class Preferences(QtWidgets.QDialog, Ui_PrefsDialog):
             param : str
                 Parameter name
 
-            Returns
-            -------
-            None
-
             """
             value = 'True' if checkbox_widget.isChecked() else 'False'
             logger.info(value)
@@ -216,10 +205,6 @@ class Preferences(QtWidgets.QDialog, Ui_PrefsDialog):
                 Section name
             param : str
                 Parameter name
-
-            Returns
-            -------
-            None
 
             """
             value = line_widget.text()
@@ -246,10 +231,6 @@ class Preferences(QtWidgets.QDialog, Ui_PrefsDialog):
             Python stores string value with single quote marks and the JSON library
             requires values to be store with double quote marks for it to load properly
             hence the replace function.
-
-            Returns
-            -------
-            None
 
             """
             items = []

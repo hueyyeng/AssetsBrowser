@@ -1,18 +1,18 @@
-import os
-import sys
 import json
 import logging
-from PyQt5 import QtGui, QtCore, QtWidgets
+import os
+import sys
 
-from config import configurations, constants
-from helpers import utils
+import sip
+from PyQt5 import QtCore, QtGui, QtWidgets
+
 import ui.functions
+from config import configurations, constants
+from config.constants import INI_PATH, PROJECT_PATH
+from helpers import utils
 from ui.window.ui_asset import Ui_AssetDialog
 
 logger = logging.getLogger(__name__)
-
-PROJECT_PATH = constants.PROJECT_PATH
-INI_PATH = constants.INI_PATH
 
 
 class Asset(QtWidgets.QDialog, Ui_AssetDialog):
@@ -30,7 +30,7 @@ class Asset(QtWidgets.QDialog, Ui_AssetDialog):
         # 1.2 Setup category radio buttons
         asset_categories = json.loads(constants.ASSETS_CATEGORY_LIST)
         # TODO: Rework dynamic radio buttons to retrieve categories per project basis instead of INI
-        placeholder = True if len(asset_categories) == 0 else False
+        placeholder = bool(len(asset_categories))
         self._remove_radio_button(placeholder)
         for asset_category in asset_categories:
             self._generate_radio_button(asset_category)
@@ -52,7 +52,6 @@ class Asset(QtWidgets.QDialog, Ui_AssetDialog):
         """Remove radio button."""
         # TODO: Allow removal of any radio buttons
         if not placeholder:
-            import sip
             self.layoutVtlCat.removeWidget(self.catPlaceholder)
             sip.delete(self.catPlaceholder)
             self.catPlaceholder = None
