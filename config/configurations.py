@@ -1,162 +1,99 @@
-import os
-import configparser
+"""Configurations"""
 import logging
-from .exceptions import ConfigNotFoundException
+import os
+from typing import Any
+
+import toml
+
+from config.exceptions import ConfigNotFoundException
 
 logger = logging.getLogger(__name__)
 
 ROOT_DIR = 'config/'
-INI_FILE = 'settings.ini'
-INI_PATH = (ROOT_DIR + INI_FILE)
+TOML_FILE = 'settings.toml'
+TOML_PATH = (ROOT_DIR + TOML_FILE)
 
 
-def create_config(path):
-    # TODO: Break create_config into smaller chunk (DRY)
-    # TODO: Handle PermissionError when trying to open directory as file
-    """Create an INI config file with default value.
+def create_config(path: str):
+    """Create TOML config file
 
     Parameters
     ----------
     path : str
-        Directory path for INI file.
-
-    Returns
-    -------
-    None
+        Path to TOML config file
 
     """
-    config = configparser.ConfigParser(strict=False)
-    config.optionxform = str
     home = os.path.expanduser('~')  # Defaults to home directory
+    config = {}
 
     # 1.1 Settings
-    config.add_section('Settings')
-    config.set(
-        'Settings',
-        'ProjectPath',
-        home.replace('\\', '/'),
-    )
-    config.set(
-        'Settings',
-        'ShowDescriptionPanel',
-        'False',
-    )
-    config.set(
-        'Settings',
-        'ShowDebugLog',
-        'False',
-    )
-    config.set(
-        'Settings',
-        'CurrentProject',
-        '.nodefaultvalue'
-    )
+    settings = config['Settings'] = {}
+    settings['ProjectPath'] = home.replace('\\', '/')
+    settings['ShowDescriptionPanel'] = False
+    settings['ShowDebugLog'] = False
+    settings['CurrentProject'] = '.nodefaultvalue'
 
-    # 1.2 UI
-    config.add_section('UI')
-    config.set(
-        'UI',
-        'Font',
-        'Arial',
-    )
-    config.set(
-        'UI',
-        'Theme',
-        'Default',
-    )
+    ui = config['UI'] = {}
+    ui['Font'] = 'Arial'
+    ui['Theme'] = 'Default'
 
-    # 1.3 Assets
-    config.add_section('Assets')
-    config.set(
-        'Assets',
-        'UsePrefix',
-        'True',
-    )
-    config.set(
-        'Assets',
-        'PrefixType',
-        '0',
-    )
-    config.set(
-        'Assets',
-        'UseSuffix',
-        'False',
-    )
-    config.set(
-        'Assets',
-        'SuffixType',
-        '0',
-    )
-    config.set(
-        'Assets',
-        'SuffixCustomName',
-        '',
-    )
-    config.set(
-        'Assets',
-        'CategoryList',
-        '["BG","CH","FX","Props","Vehicles"]',
-    )
-    config.set(
-        'Assets',
-        'SubfolderList',
-        '["Scenes","Textures","References","WIP"]',
-    )
+    assets = config['Assets'] = {}
+    assets['UsePrefix'] = True
+    assets['PrefixType'] = 0
+    assets['UseSuffix'] = False
+    assets['SuffixType'] = 0
+    assets['SuffixCustomName'] = ''
+    assets['CategoryList'] = [
+        "BG",
+        "CH",
+        "FX",
+        "Props",
+        "Vehicles",
+    ]
+    assets['SubfolderList'] = [
+        "Scenes",
+        "Textures",
+        "References",
+        "WIP",
+    ]
 
-    # 1.4 Advanced
-    config.add_section('Advanced')
-    config.set(
-        'Advanced',
-        'UseMetadata',
-        'False',
-    )
-    config.set(
-        'Advanced',
-        'MetadataAttributes',
-        '["Author","Category","Date Created","Date Modified","Description","Format","Name","Project","Version"]',
-    )
-
-    # 2. Write to INI file
+    # 2. Write to TOML file
     try:
         with open(path, 'w') as config_file:
-            config.write(config_file)
+            toml.dump(config, config_file)
     except PermissionError as e:
         logger.error(e)
 
 
-def get_config(path):
-    """Returns the INI config object.
+def get_config(path: str) -> dict:
+    """Returns dict from parsed TOML config file.
 
     Parameters
     ----------
     path : str
-        Directory path for INI file.
+        Directory path for TOML file.
 
     Returns
     -------
-    object
-        INI Config object.
+    dict
+        Dict from TOML config file.
 
     """
     if not os.path.exists(path):
-        # create_config(path)
-        # logger.debug('Creating INI file at %s', path)
         logger.error('ERROR: INI FILE NOT FOUND AT %s', path)
         raise ConfigNotFoundException
 
-    config = configparser.ConfigParser(strict=False)
-    config.optionxform = str
-    config.read(path)
+    config = toml.load(path)
     return config
 
 
-def get_setting(path, section, setting):
-    """Returns a setting from the INI file.
+def get_setting(path: str, section: str, setting: str) -> Any:
+    """Returns a setting from the TOML file.
 
     Parameters
     ----------
     path : str
-        Directory path for INI file.
+        Directory path for TOML file.
     section : str
         Section name.
     setting : str
@@ -164,15 +101,12 @@ def get_setting(path, section, setting):
 
     Returns
     -------
-    str or bool
+    Any
         The value of the setting.
 
     """
-    ini = get_config(path)
-    try:
-        value = ini.getboolean(section, setting)
-    except ValueError:
-        value = ini.get(section, setting)
+    config = get_config(path)
+    value = config[section][setting]
     message = (
         '{section} {setting} is {value}'.format(
             section=section,
@@ -184,56 +118,29 @@ def get_setting(path, section, setting):
     return value
 
 
-def update_setting(path, section, setting, value):
-    """Update a setting in the INI file.
+def update_setting(path: str, section: str, setting: str, value: Any):
+    """Update a setting in the TOML file.
 
     Parameters
     ----------
     path : str
-        Directory path for INI file.
+        Directory path for TOML file.
     section : str
         Section name.
     setting : str
         Setting name.
-    value : str or int
+    value : Any
         Value of the setting.
 
-    Returns
-    -------
-    None
-
     """
-    ini = get_config(path)
-    ini.set(section, setting, value)
+    config = get_config(path)
+    config[section][setting] = value
     with open(path, 'w') as config_file:
-        ini.write(config_file)
-
-
-def delete_setting(path, section, setting):
-    """Delete a setting from the INI file.
-
-    Parameters
-    ----------
-    path : str
-        Directory path for INI file.
-    section : str
-        Section name.
-    setting : str
-        Setting name.
-
-    Returns
-    -------
-    None
-
-    """
-    ini = get_config(path)
-    ini.set(section, setting)
-    with open(path, 'w') as config_file:
-        ini.write(config_file)
+        toml.dump(config, config_file)
 
 
 def current_project():
-    """Get current project from INI file.
+    """Get current project from TOML file.
 
     Returns
     -------
@@ -241,5 +148,5 @@ def current_project():
         The project name.
 
     """
-    project = get_setting(INI_PATH, 'Settings', 'CurrentProject')
+    project = get_setting(TOML_PATH, 'Settings', 'CurrentProject')
     return project
