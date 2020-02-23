@@ -1,5 +1,4 @@
-"""Test Create Config"""
-import json
+"""Test Config"""
 import pytest
 from config.configurations import (
     create_config,
@@ -18,8 +17,8 @@ from config.tests.conftest import (
 
 def test_create_config_successful(tmpdir):
     # 1. Create INI in temp directory
-    ini_file = tmpdir.mkdir("create_config").join('test.ini')
-    create_config(ini_file)
+    toml_file = tmpdir.mkdir("create_config").join('test.toml')
+    create_config(toml_file)
 
     # 2. List of expected tuples
     expected_sections_options = [
@@ -33,17 +32,16 @@ def test_create_config_successful(tmpdir):
     ]
 
     # 3. Check if the value is valid.
-    config = get_config(ini_file)
+    config = get_config(toml_file)
     for section, option in expected_sections_options:
-        print(section, option)
-        assert config.has_option(section, option) is True
+        assert option in config[section]
 
 
 def test_load_list(tmpdir):
-    ini_file = tmpdir.mkdir("load_list").join('test.ini')
-    create_config(ini_file)
+    test_toml = tmpdir.mkdir("load_list").join('test.toml')
+    create_config(test_toml)
 
-    existing_assets = json.loads(get_setting(ini_file, 'Assets', 'CategoryList'))
+    existing_assets = get_setting(test_toml, 'Assets', 'CategoryList')
     existing_qty = len(existing_assets)
 
     expected_assets = [
@@ -61,17 +59,6 @@ def test_load_list(tmpdir):
 
 
 def test_config_not_found():
-    invalid_path = "foo/bar/spam.ini"
+    invalid_path = "foo/bar/spam.toml"
     with pytest.raises(ConfigNotFoundException):
         get_config(invalid_path)
-
-
-def test_double_quotes_value():
-    value = DOUBLE_QUOTES
-    assert json.loads(value)
-
-
-def test_single_quotes_value():
-    value = SINGLE_QUOTES
-    with pytest.raises(json.JSONDecodeError):
-        assert json.loads(value)

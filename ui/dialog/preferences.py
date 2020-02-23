@@ -1,8 +1,9 @@
-import json
+"""Preferences Dialog"""
 import logging
 import os
 import platform
 import sys
+from typing import Any
 
 from PyQt5 import QtWidgets
 
@@ -13,8 +14,8 @@ from ui.window.ui_preferences import Ui_PrefsDialog
 
 logger = logging.getLogger(__name__)
 
-DEFAULT_PATH = constants.DEFAULT_PATH
-INI_PATH = constants.INI_PATH
+DEFAULT_PATH = constants.PROJECT_PATH
+TOML_PATH = constants.TOML_PATH
 PROJECT_PATH = constants.PROJECT_PATH
 THEME = constants.THEME
 
@@ -36,28 +37,28 @@ class Preferences(QtWidgets.QDialog, Ui_PrefsDialog):
         # 2.1 Setup Settings input/button here
         self.projectPathLine.setText(PROJECT_PATH)
         self.projectPathTool.clicked.connect(self._project_path_dialog)
-        self.descCheck.setChecked(self._get_ini_value('Settings', 'ShowDescriptionPanel'))
-        self.debugCheck.setChecked(self._get_ini_value('Settings', 'ShowDebugLog'))
+        self.descCheck.setChecked(self._get_toml_value('Settings', 'ShowDescriptionPanel'))
+        self.debugCheck.setChecked(self._get_toml_value('Settings', 'ShowDebugLog'))
         self.themeRadioLight.setChecked(True)
         if THEME == 'Dark':
             self.themeRadioDark.setChecked(True)
 
         # 2.2 Setup Assets input/button here
-        self.boxPrefix.setChecked(self._get_ini_value('Assets', 'UsePrefix'))
-        self.boxSuffix.setChecked(self._get_ini_value('Assets', 'UseSuffix'))
-        self.suffixCustomName.setText(self._get_ini_value('Assets', 'SuffixCustomName'))
+        self.boxPrefix.setChecked(self._get_toml_value('Assets', 'UsePrefix'))
+        self.boxSuffix.setChecked(self._get_toml_value('Assets', 'UseSuffix'))
+        self.suffixCustomName.setText(self._get_toml_value('Assets', 'SuffixCustomName'))
         self.categoryBtnAdd.clicked.connect(lambda: self._add_item_list(self.categoryList, "Category"))
         self.categoryBtnRemove.clicked.connect(lambda: self._remove_item_list(self.categoryList))
         self.subfolderBtnAdd.clicked.connect(lambda: self._add_item_list(self.subfolderList, "Subfolder"))
         self.subfolderBtnRemove.clicked.connect(lambda: self._remove_item_list(self.subfolderList))
 
         # 2.3 Setup Advanced input/button here
-        self.metadataCheck.setChecked(self._get_ini_value('Advanced', 'UseMetadata'))
+        self.metadataCheck.setChecked(self._get_toml_value('Advanced', 'UseMetadata'))
         self.metadataBtnClear.clicked.connect(helpers.functions.ham)
         self.metadataBtnRebuild.clicked.connect(helpers.functions.ham)
 
-        self._populate_list_value("Assets", "CategoryList", self.categoryList)
-        self._populate_list_value("Assets", "SubfolderList", self.subfolderList)
+        self._populate_list_value(self.categoryList, "Assets", "CategoryList")
+        self._populate_list_value(self.subfolderList, "Assets", "SubfolderList")
 
     def _clear_metadata(self):
         # Find all Metadata files (JSON) and remove the file
@@ -70,7 +71,7 @@ class Preferences(QtWidgets.QDialog, Ui_PrefsDialog):
         # TODO: Maybe backup existing metadata to a tmp directory?
         pass
 
-    def _add_item_list(self, list_widget, title="..."):
+    def _add_item_list(self, list_widget: QtWidgets.QListWidget, title="..."):
         """Add item to QListWidget.
 
         Parameters
@@ -88,7 +89,7 @@ class Preferences(QtWidgets.QDialog, Ui_PrefsDialog):
             item.setText(str(text))
             list_widget.addItem(item)
 
-    def _remove_item_list(self, list_widget):
+    def _remove_item_list(self, list_widget: QtWidgets.QListWidget):
         """Remove items from QListWidget.
 
         Parameters
@@ -106,8 +107,8 @@ class Preferences(QtWidgets.QDialog, Ui_PrefsDialog):
             list_widget.takeItem(list_widget.row(item))
             return
 
-    def _get_ini_value(self, section, setting):
-        """Get INI value for Preferences UI elements.
+    def _get_toml_value(self, section: str, setting: str) -> Any:
+        """Get TOML value for Preferences UI elements.
 
         Parameters
         ----------
@@ -118,16 +119,15 @@ class Preferences(QtWidgets.QDialog, Ui_PrefsDialog):
 
         Returns
         -------
-        str or bool
+        Any
             The value of the setting.
 
         """
-        value = configurations.get_setting(INI_PATH, section, setting)
+        value = configurations.get_setting(TOML_PATH, section, setting)
         return value
 
-    def _populate_list_value(self, section, setting, list_widget):
-        value = self._get_ini_value(section, setting)
-        value_list = json.loads(value)
+    def _populate_list_value(self, list_widget: QtWidgets.QListWidget, section: str, setting: str):
+        value_list = self._get_toml_value(section, setting)
 
         # 1. Exit early and log error if not a valid list object
         if not isinstance(value_list, list):
@@ -146,7 +146,7 @@ class Preferences(QtWidgets.QDialog, Ui_PrefsDialog):
         Uses QFileDialog for user to choose the directory for their project path.
 
         """
-        # 1. Prepare `path` var with selected directory path through QFileDialog
+        # 1. Initialize selected directory path through QFileDialog
         path = str(QtWidgets.QFileDialog.getExistingDirectory(
             self,
             'Choose Directory',
@@ -171,8 +171,8 @@ class Preferences(QtWidgets.QDialog, Ui_PrefsDialog):
 
     def _apply(self):
         # TODO: Rework apply function to be more inclusive of every functions?
-        def apply_checkbox(checkbox_widget, section, param):
-            """Save checkbox value in INI after apply.
+        def apply_checkbox(checkbox_widget: QtWidgets.QCheckBox, section: str, param: str):
+            """Save checkbox value in TOML after apply.
 
             Parameters
             ----------
@@ -186,7 +186,7 @@ class Preferences(QtWidgets.QDialog, Ui_PrefsDialog):
             """
             value = 'True' if checkbox_widget.isChecked() else 'False'
             logger.info(value)
-            configurations.update_setting(INI_PATH, section, param, value)
+            configurations.update_setting(TOML_PATH, section, param, value)
 
         apply_checkbox(self.descCheck, 'Settings', 'ShowDescriptionPanel')
         apply_checkbox(self.debugCheck, 'Settings', 'ShowDebugLog')
@@ -194,8 +194,8 @@ class Preferences(QtWidgets.QDialog, Ui_PrefsDialog):
         apply_checkbox(self.boxSuffix, 'Assets', 'UseSuffix')
         apply_checkbox(self.metadataCheck, 'Advanced', 'UseMetadata')
 
-        def apply_line_value(line_widget, section, param):
-            """Save line value in INI after apply.
+        def apply_line_value(line_widget: QtWidgets.QLineEdit, section: str, param: str):
+            """Save line value in TOML after apply.
 
             Parameters
             ----------
@@ -209,13 +209,13 @@ class Preferences(QtWidgets.QDialog, Ui_PrefsDialog):
             """
             value = line_widget.text()
             logger.info(value)
-            configurations.update_setting(INI_PATH, section, param, value)
+            configurations.update_setting(TOML_PATH, section, param, value)
 
         apply_line_value(self.projectPathLine, 'Settings', 'ProjectPath')
         apply_line_value(self.suffixCustomName, 'Assets', 'SuffixCustomName')
 
-        def apply_list_value(list_widget, section, param):
-            """Save list value in INI after apply.
+        def apply_list_value(list_widget: QtWidgets.QListWidget, section: str, param: str):
+            """Save list value in TOML  after apply.
 
             Parameters
             ----------
@@ -226,19 +226,13 @@ class Preferences(QtWidgets.QDialog, Ui_PrefsDialog):
             param : str
                 Parameter name
 
-            Notes
-            -----
-            Python stores string value with single quote marks and the JSON library
-            requires values to be store with double quote marks for it to load properly
-            hence the replace function.
-
             """
             items = []
             for x in range(list_widget.count()):
                 value = list_widget.item(x).text()
                 items.append(value)
             logger.info(items)
-            configurations.update_setting(INI_PATH, section, param, str(items).replace("'", '"'))
+            configurations.update_setting(TOML_PATH, section, param, str(items))
 
         apply_list_value(self.categoryList, "Assets", "CategoryList")
         apply_list_value(self.subfolderList, "Assets", "SubfolderList")
@@ -246,7 +240,7 @@ class Preferences(QtWidgets.QDialog, Ui_PrefsDialog):
         def apply_theme():
             value = str(self.themeBtnGrp.checkedButton().text())
             logger.info(value)
-            configurations.update_setting(INI_PATH, 'UI', 'Theme', value)
+            configurations.update_setting(TOML_PATH, 'UI', 'Theme', value)
 
         apply_theme()
 
