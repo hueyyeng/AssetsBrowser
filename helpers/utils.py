@@ -1,4 +1,4 @@
-"""Utilities."""
+"""Utilities"""
 import os
 import platform
 import subprocess
@@ -10,7 +10,7 @@ from config import configurations
 from helpers.exceptions import InvalidProjectPath
 
 
-def alert_window(title, text):
+def alert_window(title: str, text: str):
     """PyQt MessageBox Alert Window
 
     Reusable generic alert window.
@@ -40,8 +40,8 @@ def alert_window(title, text):
     widget.show()
 
 
-def valid_path(ini, project):
-    """Check path validity and update INI if invalid.
+def valid_project_path(toml: str, project: str):
+    """Check path validity and update TOML if invalid.
 
     Check if PROJECT_PATH is valid and reset to home directory if error.
 
@@ -50,15 +50,15 @@ def valid_path(ini, project):
 
     Parameters
     ----------
-    ini : str
-        Path to INI file.
+    toml : str
+        Path to TOML file.
     project : str
         Path to project directory.
 
     Raises
     ------
     InvalidProjectPath
-        If project path value in INI is invalid.
+        If project path value in TOML is invalid.
 
     """
     exists = os.path.exists(project)
@@ -71,12 +71,12 @@ def valid_path(ini, project):
         if system == 'Windows':
             home = (home + '\\')
 
-        # 2. Update ProjectPath in INI with User's Home directory path
+        # 2. Update ProjectPath in TOML with User's Home directory path
         configurations.update_setting(
-                    ini,
+                    toml,
                     'Settings',
                     'ProjectPath',
-                    home.replace('\\', '/'),
+                    home,
         )
 
         #  3. Raise Alert Window
@@ -87,12 +87,11 @@ def valid_path(ini, project):
                 + "\n"
                 + "Please restart Assets Browser."
         )
-
         alert_window('Warning', warning_text)
         raise InvalidProjectPath(project)
 
 
-def get_file_size(size, precision=2):
+def get_file_size(size: int or float, precision=2) -> str:
     """Get file size.
 
     Refactor from https://stackoverflow.com/a/32009595/8337847
@@ -123,7 +122,7 @@ def get_file_size(size, precision=2):
     return "%.*f %s" % (precision, size, suffixes[suffix_index])
 
 
-def reveal_in_os(path):
+def reveal_in_os(path: str):
     """Reveal in OS.
 
     Reveal the file/directory path using the OS File Manager.
@@ -152,7 +151,7 @@ def reveal_in_os(path):
     subprocess.call(cmd)
 
 
-def open_file(target):
+def open_file(target: str):
     """ Open selected file using the OS associated program.
 
     Parameters

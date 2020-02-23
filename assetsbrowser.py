@@ -9,7 +9,7 @@ import helpers.functions
 import helpers.utils
 import ui.functions
 from config import configurations
-from config.constants import INI_PATH, PROJECT_PATH, THEME
+from config.constants import TOML_PATH, PROJECT_PATH, THEME
 from helpers.exceptions import ApplicationAlreadyExists
 from helpers.functions import create_column_view
 from helpers.widgets import ColumnViewWidget
@@ -70,7 +70,8 @@ class AssetsBrowser(QtWidgets.QMainWindow, ui_main.Ui_MainWindow):
         # 4.1 Create empty list and dictionary for ColumnView tabs
         self.category = []
         self.assets = {}
-        assets_path = (PROJECT_PATH + current_project + "/Assets/")
+        assets_path = os.path.join(PROJECT_PATH, current_project, "Assets")
+        # assets_path = (PROJECT_PATH + current_project + "/Assets/")
 
         # 4.2 Warn user if Assets directory doesn't exists
         if not os.path.isdir(assets_path):
@@ -98,7 +99,7 @@ class AssetsBrowser(QtWidgets.QMainWindow, ui_main.Ui_MainWindow):
         temp_html_path = ('file:///' + str(repath(html_file)))
         self.textBrowserHelp.setSource(QtCore.QUrl(temp_html_path))
 
-    def create_tabs(self, categories, project):
+    def create_tabs(self, categories: list, project: str):
         """Create QColumnView tabs.
 
         Create QColumnView tabs dynamically from Assets' List.
@@ -138,7 +139,7 @@ class AssetsBrowser(QtWidgets.QMainWindow, ui_main.Ui_MainWindow):
         """
         # 1. Update INI CurrentProject with chosen project from comboBox
         project = self.comboBox.currentText()
-        configurations.update_setting(INI_PATH, 'Settings', 'CurrentProject', project)
+        configurations.update_setting(TOML_PATH, 'Settings', 'CurrentProject', project)
 
         # 2. Clear all tabs except Help
         count = 0
@@ -167,7 +168,7 @@ class AssetsBrowser(QtWidgets.QMainWindow, ui_main.Ui_MainWindow):
         for project in os.listdir(PROJECT_PATH):
             if not project.startswith(('_', '.')) and os.path.isdir(os.path.join(PROJECT_PATH, project)):
                 projects.append(project)
-        configurations.update_setting(INI_PATH, 'Settings', 'CurrentProject', projects[0])
+        configurations.update_setting(TOML_PATH, 'Settings', 'CurrentProject', projects[0])
         current_project = configurations.current_project()
         return current_project
 
@@ -188,16 +189,16 @@ class AssetsBrowser(QtWidgets.QMainWindow, ui_main.Ui_MainWindow):
 
 
 class OutLog():
-    def __init__(self, edit, out=None, color=None):
+    def __init__(self, edit: QtWidgets.QTextEdit, out=None, color=None):
         """Redirect stdout to QTextEdit widget.
 
         Parameters
         ----------
         edit : QtWidgets.QTextEdit
             QTextEdit object.
-        out : object
+        out : object or None
             Alternate stream (can be the original sys.stdout).
-        color : QtGui.QColor
+        color : QtGui.QColor or None
             QColor object (i.e. color stderr a different color).
 
         """
@@ -205,7 +206,7 @@ class OutLog():
         self.out = out
         self.color = color
 
-    def write(self, text):
+    def write(self, text: str):
         """Write stdout print values to QTextEdit widget.
 
         Parameters
@@ -233,8 +234,8 @@ class OutLog():
 
 
 if __name__ == "__main__":
-    # 1. Raise error if invalid path
-    helpers.utils.valid_path(INI_PATH, PROJECT_PATH)
+    # 1. Raise error if invalid project path
+    helpers.utils.valid_project_path(TOML_PATH, PROJECT_PATH)
 
     # 2. Setup OS related settings
     ui.functions.taskbar_icon()

@@ -9,7 +9,7 @@ from config import configurations, constants
 
 logger = logging.getLogger(__name__)
 
-INI_PATH = constants.INI_PATH
+INI_PATH = constants.TOML_PATH
 
 
 def set_window_icon(self, icon='icons/file.png'):

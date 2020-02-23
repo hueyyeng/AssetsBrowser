@@ -1,4 +1,4 @@
-import json
+"""Asset Dialog"""
 import logging
 import os
 import sys
@@ -8,8 +8,8 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 
 import ui.functions
 from config import configurations, constants
-from config.constants import INI_PATH, PROJECT_PATH
-from helpers import utils
+from config.constants import PROJECT_PATH, TOML_PATH
+from helpers.utils import alert_window
 from ui.window.ui_asset import Ui_AssetDialog
 
 logger = logging.getLogger(__name__)
@@ -28,7 +28,7 @@ class Asset(QtWidgets.QDialog, Ui_AssetDialog):
         self.previewGroup.clicked.connect(self._preview)
 
         # 1.2 Setup category radio buttons
-        asset_categories = json.loads(constants.ASSETS_CATEGORY_LIST)
+        asset_categories = constants.ASSETS_CATEGORY_LIST
         # TODO: Rework dynamic radio buttons to retrieve categories per project basis instead of INI
         placeholder = bool(len(asset_categories))
         self._remove_radio_button(placeholder)
@@ -75,20 +75,20 @@ class Asset(QtWidgets.QDialog, Ui_AssetDialog):
         """Create asset with preconfigure directories structure."""
         # 1. Prepare variables
         category = str(self.catBtnGroup.checkedButton().text())
-        project = configurations.get_setting(INI_PATH, 'Settings', 'CurrentProject')
-        asset_path = (PROJECT_PATH + project + "/Assets/" + category)
+        project = configurations.get_setting(TOML_PATH, 'Settings', 'CurrentProject')
+        asset_path = os.path.join(PROJECT_PATH, project, "Assets", category)
         asset_name = str(self._preview())
-        full_path = (asset_path + '/' + asset_name)
+        full_path = os.path.join(asset_path, asset_name)
 
         # 2.1 Raise error if `full_path` exists
         try:
             os.mkdir(full_path)
         except OSError:
-            utils.alert_window('Warning', 'ERROR! Asset already exists!')
+            alert_window('Warning', 'ERROR! Asset already exists!')
         logger.debug('Assets will be created at %s', full_path)
 
         # 2.2 Create Assets directory
-        folders = json.loads(constants.ASSETS_SUBFOLDER_LIST)
+        folders = constants.ASSETS_SUBFOLDER_LIST
         logger.debug(folders)
         for folder in folders:
             try:
@@ -144,7 +144,7 @@ class Asset(QtWidgets.QDialog, Ui_AssetDialog):
             message = "Ensure asset's name is three characters length!"
         if checked and name_length == 3:
             self.btnCreate.setDisabled(False)
-            project = configurations.get_setting(INI_PATH, 'Settings', 'CurrentProject')
+            project = configurations.get_setting(TOML_PATH, 'Settings', 'CurrentProject')
             message = (
                     'The asset name will be ' + asset_name + '.\n'
                     + 'Ensure the asset name is correct before proceeding.\n'
