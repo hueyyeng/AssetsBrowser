@@ -4,14 +4,10 @@ import os
 from typing import Any
 
 import toml
-
+from config.constants import TOML_PATH
 from config.exceptions import ConfigNotFoundException
 
 logger = logging.getLogger(__name__)
-
-ROOT_DIR = 'config/'
-TOML_FILE = 'settings.toml'
-TOML_PATH = (ROOT_DIR + TOML_FILE)
 
 
 def create_config(path: str):
@@ -80,24 +76,24 @@ def get_config(path: str) -> dict:
 
     """
     if not os.path.exists(path):
-        logger.error('ERROR: INI FILE NOT FOUND AT %s', path)
+        logger.error('ERROR: TOML FILE NOT FOUND AT %s', path)
         raise ConfigNotFoundException
 
     config = toml.load(path)
     return config
 
 
-def get_setting(path: str, section: str, setting: str) -> Any:
+def get_setting(section: str, setting: str, path=None) -> Any:
     """Returns a setting from the TOML file.
 
     Parameters
     ----------
-    path : str
-        Directory path for TOML file.
     section : str
         Section name.
     setting : str
         Setting name.
+    path : str or None
+        Directory path for TOML file. If None, default to TOML_PATH
 
     Returns
     -------
@@ -105,6 +101,8 @@ def get_setting(path: str, section: str, setting: str) -> Any:
         The value of the setting.
 
     """
+    if not path:
+        path = TOML_PATH
     config = get_config(path)
     value = config[section][setting]
     message = (
@@ -118,35 +116,24 @@ def get_setting(path: str, section: str, setting: str) -> Any:
     return value
 
 
-def update_setting(path: str, section: str, setting: str, value: Any):
+def update_setting(section: str, setting: str, value: Any, path=None):
     """Update a setting in the TOML file.
 
     Parameters
     ----------
-    path : str
-        Directory path for TOML file.
     section : str
         Section name.
     setting : str
         Setting name.
     value : Any
         Value of the setting.
+    path : str or None
+        Directory path for TOML file. If None, default to TOML_PATH
 
     """
+    if not path:
+        path = TOML_PATH
     config = get_config(path)
     config[section][setting] = value
     with open(path, 'w') as config_file:
         toml.dump(config, config_file)
-
-
-def current_project():
-    """Get current project from TOML file.
-
-    Returns
-    -------
-    str
-        The project name.
-
-    """
-    project = get_setting(TOML_PATH, 'Settings', 'CurrentProject')
-    return project

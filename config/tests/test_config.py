@@ -41,7 +41,7 @@ def test_load_list(tmpdir):
     test_toml = tmpdir.mkdir("load_list").join('test.toml')
     create_config(test_toml)
 
-    existing_assets = get_setting(test_toml, 'Assets', 'CategoryList')
+    existing_assets = get_setting('Assets', 'CategoryList', test_toml)
     existing_qty = len(existing_assets)
 
     expected_assets = [
