@@ -9,15 +9,10 @@ from PyQt5 import QtWidgets
 
 import helpers.functions
 import ui.functions
-from config import configurations, constants
+from config import configurations
 from ui.window.ui_preferences import Ui_PrefsDialog
 
 logger = logging.getLogger(__name__)
-
-DEFAULT_PATH = constants.PROJECT_PATH
-TOML_PATH = constants.TOML_PATH
-PROJECT_PATH = constants.PROJECT_PATH
-THEME = constants.THEME
 
 
 class Preferences(QtWidgets.QDialog, Ui_PrefsDialog):
@@ -25,6 +20,9 @@ class Preferences(QtWidgets.QDialog, Ui_PrefsDialog):
         super(Preferences, self).__init__(parent)
         self.setupUi(self)
         ui.functions.set_window_icon(self)
+
+        project_path = configurations.get_setting('Settings', 'ProjectPath')
+        self.default_path = project_path
 
         # 1. Setup QDialogButtonBox
         self.btnDialogBox.button(QtWidgets.QDialogButtonBox.RestoreDefaults).setToolTip('Restore Defaults')
@@ -35,12 +33,13 @@ class Preferences(QtWidgets.QDialog, Ui_PrefsDialog):
         self.btnDialogBox.rejected.connect(self.reject)
 
         # 2.1 Setup Settings input/button here
-        self.projectPathLine.setText(PROJECT_PATH)
+        self.projectPathLine.setText(project_path)
         self.projectPathTool.clicked.connect(self._project_path_dialog)
         self.descCheck.setChecked(self._get_toml_value('Settings', 'ShowDescriptionPanel'))
         self.debugCheck.setChecked(self._get_toml_value('Settings', 'ShowDebugLog'))
         self.themeRadioLight.setChecked(True)
-        if THEME == 'Dark':
+        theme = configurations.get_setting('UI', 'Theme')
+        if theme == 'Dark':
             self.themeRadioDark.setChecked(True)
 
         # 2.2 Setup Assets input/button here
@@ -123,7 +122,7 @@ class Preferences(QtWidgets.QDialog, Ui_PrefsDialog):
             The value of the setting.
 
         """
-        value = configurations.get_setting(TOML_PATH, section, setting)
+        value = configurations.get_setting(section, setting)
         return value
 
     def _populate_list_value(self, list_widget: QtWidgets.QListWidget, section: str, setting: str):
@@ -159,7 +158,7 @@ class Preferences(QtWidgets.QDialog, Ui_PrefsDialog):
             widget = QtWidgets.QWidget()
             text = 'Please choose a directory!'
             QtWidgets.QMessageBox.warning(widget, 'Warning', text)
-            self.projectPathLine.setText(DEFAULT_PATH)
+            self.projectPathLine.setText(self.default_path)
 
         # 3. Replace Windows style to UNIX style separator
         new_path = (path + '/') if platform.system() != 'Windows' else path
@@ -186,7 +185,7 @@ class Preferences(QtWidgets.QDialog, Ui_PrefsDialog):
             """
             value = 'True' if checkbox_widget.isChecked() else 'False'
             logger.info(value)
-            configurations.update_setting(TOML_PATH, section, param, value)
+            configurations.update_setting(section, param, value)
 
         apply_checkbox(self.descCheck, 'Settings', 'ShowDescriptionPanel')
         apply_checkbox(self.debugCheck, 'Settings', 'ShowDebugLog')
@@ -209,7 +208,7 @@ class Preferences(QtWidgets.QDialog, Ui_PrefsDialog):
             """
             value = line_widget.text()
             logger.info(value)
-            configurations.update_setting(TOML_PATH, section, param, value)
+            configurations.update_setting(section, param, value)
 
         apply_line_value(self.projectPathLine, 'Settings', 'ProjectPath')
         apply_line_value(self.suffixCustomName, 'Assets', 'SuffixCustomName')
@@ -232,7 +231,7 @@ class Preferences(QtWidgets.QDialog, Ui_PrefsDialog):
                 value = list_widget.item(x).text()
                 items.append(value)
             logger.info(items)
-            configurations.update_setting(TOML_PATH, section, param, str(items))
+            configurations.update_setting(section, param, str(items))
 
         apply_list_value(self.categoryList, "Assets", "CategoryList")
         apply_list_value(self.subfolderList, "Assets", "SubfolderList")
@@ -240,7 +239,7 @@ class Preferences(QtWidgets.QDialog, Ui_PrefsDialog):
         def apply_theme():
             value = str(self.themeBtnGrp.checkedButton().text())
             logger.info(value)
-            configurations.update_setting(TOML_PATH, 'UI', 'Theme', value)
+            configurations.update_setting('UI', 'Theme', value)
 
         apply_theme()
 

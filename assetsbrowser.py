@@ -9,7 +9,8 @@ import helpers.functions
 import helpers.utils
 import ui.functions
 from config import configurations
-from config.constants import TOML_PATH, PROJECT_PATH, THEME
+from config.constants import TOML_PATH
+from config.utils import check_config_file
 from helpers.exceptions import ApplicationAlreadyExists
 from helpers.functions import create_column_view
 from helpers.widgets import ColumnViewWidget
@@ -34,7 +35,7 @@ class AssetsBrowser(QtWidgets.QMainWindow, ui_main.Ui_MainWindow):
         ui.functions.center_screen(self)
         ui.functions.font_size_overrides(self)
         ui.functions.set_window_icon(self)
-        QtWidgets.QApplication.setStyle(THEME)
+        QtWidgets.QApplication.setStyle(configurations.get_setting('UI', 'Theme'))
 
         # 1.2 Menu action goes here
         self.actionAbout.triggered.connect(about.show_dialog)
@@ -58,20 +59,19 @@ class AssetsBrowser(QtWidgets.QMainWindow, ui_main.Ui_MainWindow):
         logging.basicConfig(stream=sys.stdout, level=logging.DEBUG, format=formatter)
 
         # 3. Project List Dropdown ComboBox
+        self.project_path = configurations.get_setting('Settings', 'ProjectPath')
         self.comboBox.fsm = QtWidgets.QFileSystemModel()
-        self.comboBox.rootindex = self.comboBox.fsm.setRootPath(PROJECT_PATH)
+        self.comboBox.rootindex = self.comboBox.fsm.setRootPath(self.project_path)
         self.comboBox.setModel(self.comboBox.fsm)
         self.comboBox.setRootModelIndex(self.comboBox.rootindex)
         self.comboBox.setCurrentIndex(1)
         self.comboBox.activated[str].connect(self.project_list)
 
-        current_project = self._current_project()
-
         # 4.1 Create empty list and dictionary for ColumnView tabs
         self.category = []
         self.assets = {}
-        assets_path = os.path.join(PROJECT_PATH, current_project, "Assets")
-        # assets_path = (PROJECT_PATH + current_project + "/Assets/")
+        self.current_project = self._current_project()
+        assets_path = os.path.join(self.project_path, self.current_project, "Assets")
 
         # 4.2 Warn user if Assets directory doesn't exists
         if not os.path.isdir(assets_path):
@@ -91,7 +91,7 @@ class AssetsBrowser(QtWidgets.QMainWindow, ui_main.Ui_MainWindow):
                 self.category.append(category)
 
         # 4.4.1 Generate Tabs using create_tabs
-        self.create_tabs(self.category, current_project)
+        self.create_tabs(self.category, self.current_project)
         self.splitter.setSizes([150, 500])
 
         # 4.4.2 Help Tab
@@ -139,7 +139,7 @@ class AssetsBrowser(QtWidgets.QMainWindow, ui_main.Ui_MainWindow):
         """
         # 1. Update INI CurrentProject with chosen project from comboBox
         project = self.comboBox.currentText()
-        configurations.update_setting(TOML_PATH, 'Settings', 'CurrentProject', project)
+        configurations.update_setting('Settings', 'CurrentProject', project)
 
         # 2. Clear all tabs except Help
         count = 0
@@ -152,7 +152,7 @@ class AssetsBrowser(QtWidgets.QMainWindow, ui_main.Ui_MainWindow):
         self.assets = {}
 
         # 4. Populate self.category list with valid Assets directory name
-        assets_path = (PROJECT_PATH + project + "/Assets/")
+        assets_path = (self.project_path + project + "/Assets/")
         for item in os.listdir(assets_path):
             prefix = item.startswith(('_', '.'))
             is_directory = os.path.isdir(os.path.join(assets_path, item))
@@ -165,11 +165,11 @@ class AssetsBrowser(QtWidgets.QMainWindow, ui_main.Ui_MainWindow):
     def _current_project(self):
         """Set current project from Project list dropdown."""
         projects = []
-        for project in os.listdir(PROJECT_PATH):
-            if not project.startswith(('_', '.')) and os.path.isdir(os.path.join(PROJECT_PATH, project)):
+        for project in os.listdir(self.project_path):
+            if not project.startswith(('_', '.')) and os.path.isdir(os.path.join(self.project_path, project)):
                 projects.append(project)
-        configurations.update_setting(TOML_PATH, 'Settings', 'CurrentProject', projects[0])
-        current_project = configurations.current_project()
+        configurations.update_setting('Settings', 'CurrentProject', projects[0])
+        current_project = configurations.get_setting('Settings', 'CurrentProject')
         return current_project
 
     def _show_debug(self):
@@ -234,8 +234,11 @@ class OutLog():
 
 
 if __name__ == "__main__":
-    # 1. Raise error if invalid project path
-    helpers.utils.valid_project_path(TOML_PATH, PROJECT_PATH)
+    # 1.1 Check for config file and create one if doesn't exists
+    check_config_file(TOML_PATH)
+
+    # 1.2 Raise error if invalid project path
+    helpers.utils.valid_project_path(configurations.get_setting('Settings', 'ProjectPath'))
 
     # 2. Setup OS related settings
     ui.functions.taskbar_icon()

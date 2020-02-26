@@ -5,7 +5,7 @@ import sys
 
 from PyQt5 import QtCore, QtWidgets
 
-from config.constants import PROJECT_PATH
+from config.configurations import get_setting
 from helpers.widgets import ColumnViewWidget
 
 logger = logging.getLogger(__name__)
@@ -30,7 +30,7 @@ def create_column_view(
         Project name.
 
     """
-    default_path = (PROJECT_PATH + project + "/Assets/" + category)
+    default_path = (get_setting('Settings', 'ProjectPath') + project + "/Assets/" + category)
     default_path_log = "Load... " + default_path
     logger.debug(default_path_log)
 
