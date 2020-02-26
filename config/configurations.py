@@ -4,7 +4,7 @@ import os
 from typing import Any
 
 import toml
-from config.constants import TOML_PATH
+from config.constants import TOML_PATH, DEFAULT_CATEGORY, DEFAULT_SUBFOLDER
 from config.exceptions import ConfigNotFoundException
 
 logger = logging.getLogger(__name__)
@@ -39,19 +39,8 @@ def create_config(path: str):
     assets['UseSuffix'] = False
     assets['SuffixType'] = 0
     assets['SuffixCustomName'] = ''
-    assets['CategoryList'] = [
-        "BG",
-        "CH",
-        "FX",
-        "Props",
-        "Vehicles",
-    ]
-    assets['SubfolderList'] = [
-        "Scenes",
-        "Textures",
-        "References",
-        "WIP",
-    ]
+    assets['CategoryList'] = DEFAULT_CATEGORY
+    assets['SubfolderList'] = DEFAULT_SUBFOLDER
 
     # 2. Write to TOML file
     try:
