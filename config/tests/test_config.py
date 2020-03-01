@@ -4,15 +4,10 @@ from config.configurations import (
     create_config,
     get_config,
     get_setting,
+    update_setting,
+    bulk_update_settings,
 )
 from config.exceptions import ConfigNotFoundException
-
-from config.tests.conftest import (
-    DEFAULT_CATEGORY,
-    DEFAULT_SUBFOLDER,
-    DOUBLE_QUOTES,
-    SINGLE_QUOTES,
-)
 
 
 def test_create_config_successful(tmpdir):
@@ -28,6 +23,7 @@ def test_create_config_successful(tmpdir):
         ('UI', 'Font'),
         ('UI', 'Theme'),
         ('Assets', 'CategoryList'),
+        ('Assets', 'MaxChars'),
         ('Assets', 'SubfolderList'),
     ]
 
@@ -62,3 +58,29 @@ def test_config_not_found():
     invalid_path = "foo/bar/spam.toml"
     with pytest.raises(ConfigNotFoundException):
         get_config(invalid_path)
+
+
+def test_update_config(tmpdir):
+    test_toml = tmpdir.mkdir("update_config").join('test.toml')
+    create_config(test_toml)
+
+    old_font = get_setting('UI', 'Font', test_toml)
+    assert old_font == 'Arial'
+    update_setting('UI', 'Font', 'Comic Sans MS', test_toml)
+    new_font = get_setting('UI', 'Font', test_toml)
+    assert new_font == 'Comic Sans MS'
+
+
+def test_bulk_update_settings(tmpdir):
+    test_toml = tmpdir.mkdir('bulk_update_settings').join('test.toml')
+    create_config(test_toml)
+
+    new_config = {
+        'Font': 'Times New Roman',
+        'MaxChars': 666,
+    }
+    bulk_update_settings(new_config, test_toml)
+    font = get_setting('UI', 'Font', test_toml)
+    assert font == 'Times New Roman'
+    max_chars = get_setting('Assets', 'MaxChars', test_toml)
+    assert max_chars == 666
