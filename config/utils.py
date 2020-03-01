@@ -27,8 +27,13 @@ def check_config_file(path: str):
 def create_project_structure_dirs(project=None):
     """Create sample project structure directories
 
-    Project structure tree
-    ----------------------
+    Parameters
+    ----------
+    project : str or None
+        Project name. If None, default to Project
+
+    Notes
+    -----
     Project
         Category 1
             Subfolder 1
@@ -37,11 +42,6 @@ def create_project_structure_dirs(project=None):
             Subfolder 1
             Subfolder 2
 
-    Parameters
-    ----------
-    project : str or None
-        Project name. If None, default to Project
-
     """
     home = os.path.expanduser('~')  # Defaults to home directory
     if not project:
@@ -49,5 +49,5 @@ def create_project_structure_dirs(project=None):
     for category in DEFAULT_CATEGORY:
         for subfolder in DEFAULT_SUBFOLDER:
             path = os.path.join(home, project, category, subfolder)
-            logger.info("Create %s directory", path)
             os.makedirs(path)
+            logger.info("%s directory created", path)

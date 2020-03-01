@@ -39,6 +39,7 @@ def create_config(path: str):
     assets['UseSuffix'] = False
     assets['SuffixType'] = 0
     assets['SuffixCustomName'] = ''
+    assets['MaxChars'] = 3
     assets['CategoryList'] = DEFAULT_CATEGORY
     assets['SubfolderList'] = DEFAULT_SUBFOLDER
 
@@ -124,5 +125,38 @@ def update_setting(section: str, setting: str, value: Any, path=None):
         path = TOML_PATH
     config = get_config(path)
     config[section][setting] = value
+    with open(path, 'w') as config_file:
+        toml.dump(config, config_file)
+
+
+def bulk_update_settings(settings: dict, path=None):
+    """Bulk update settings in TOML file.
+
+    Use in Preferences dialog.
+
+    Parameters
+    ----------
+    settings : dict
+    path : str or None
+        Directory path for TOML file. If None, default to TOML_PATH
+
+    """
+    if not path:
+        path = TOML_PATH
+    config = get_config(path)
+
+    for section in config.keys():
+        for setting in settings.keys():
+            if setting in config[section].keys() and config[section][setting] != settings[setting]:
+                old_value = config[section][setting]
+                new_value = settings[setting]
+                config[section][setting] = new_value
+                logger.info({
+                    "msg": "Updating TOML file",
+                    "setting": setting,
+                    "old_value": old_value,
+                    "new_value": new_value,
+                })
+
     with open(path, 'w') as config_file:
         toml.dump(config, config_file)
