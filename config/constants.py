@@ -1,12 +1,9 @@
 """Configurations Constants"""
-from config.configurations import TOML_PATH, get_setting
+import os
 
-ASSETS_CATEGORY_LIST = get_setting(TOML_PATH, 'Assets', 'CategoryList')
-ASSETS_SUBFOLDER_LIST = get_setting(TOML_PATH, 'Assets', 'SubfolderList')
-CURRENT_PROJECT = get_setting(TOML_PATH, 'Settings', 'CurrentProject')
-PROJECT_PATH = get_setting(TOML_PATH, 'Settings', 'ProjectPath')
-THEME = get_setting(TOML_PATH, 'UI', 'Theme')
-
+CONFIG_DIR = os.path.abspath(os.path.dirname(__file__))
+TOML_FILE = 'settings.toml'
+TOML_PATH = os.path.join(CONFIG_DIR, TOML_FILE)
 
 IMAGE_FORMAT = [
     'jpg',

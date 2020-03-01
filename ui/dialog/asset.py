@@ -7,8 +7,7 @@ import sip
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 import ui.functions
-from config import configurations, constants
-from config.constants import PROJECT_PATH, TOML_PATH
+from config import configurations
 from helpers.utils import alert_window
 from ui.window.ui_asset import Ui_AssetDialog
 
@@ -28,7 +27,7 @@ class Asset(QtWidgets.QDialog, Ui_AssetDialog):
         self.previewGroup.clicked.connect(self._preview)
 
         # 1.2 Setup category radio buttons
-        asset_categories = constants.ASSETS_CATEGORY_LIST
+        asset_categories = configurations.get_setting('Assets', 'CategoryList')
         # TODO: Rework dynamic radio buttons to retrieve categories per project basis instead of INI
         placeholder = bool(len(asset_categories))
         self._remove_radio_button(placeholder)
@@ -75,8 +74,9 @@ class Asset(QtWidgets.QDialog, Ui_AssetDialog):
         """Create asset with preconfigure directories structure."""
         # 1. Prepare variables
         category = str(self.catBtnGroup.checkedButton().text())
-        project = configurations.get_setting(TOML_PATH, 'Settings', 'CurrentProject')
-        asset_path = os.path.join(PROJECT_PATH, project, "Assets", category)
+        project = configurations.get_setting('Settings', 'CurrentProject')
+        project_path = configurations.get_setting('Settings', 'ProjectPath')
+        asset_path = os.path.join(project_path, project, "Assets", category)
         asset_name = str(self._preview())
         full_path = os.path.join(asset_path, asset_name)
 
@@ -88,7 +88,7 @@ class Asset(QtWidgets.QDialog, Ui_AssetDialog):
         logger.debug('Assets will be created at %s', full_path)
 
         # 2.2 Create Assets directory
-        folders = constants.ASSETS_SUBFOLDER_LIST
+        folders = configurations.get_setting('Assets', 'SubfolderList')
         logger.debug(folders)
         for folder in folders:
             try:
@@ -144,7 +144,7 @@ class Asset(QtWidgets.QDialog, Ui_AssetDialog):
             message = "Ensure asset's name is three characters length!"
         if checked and name_length == 3:
             self.btnCreate.setDisabled(False)
-            project = configurations.get_setting(TOML_PATH, 'Settings', 'CurrentProject')
+            project = configurations.get_setting('Settings', 'CurrentProject')
             message = (
                     'The asset name will be ' + asset_name + '.\n'
                     + 'Ensure the asset name is correct before proceeding.\n'

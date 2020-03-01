@@ -1,4 +1,5 @@
 """Utilities"""
+import logging
 import os
 import platform
 import subprocess
@@ -7,7 +8,10 @@ import sys
 from PyQt5 import QtGui, QtWidgets
 
 from config import configurations
+from config.constants import TOML_PATH
 from helpers.exceptions import InvalidProjectPath
+
+logger = logging.getLogger(__name__)
 
 
 def alert_window(title: str, text: str):
@@ -40,7 +44,7 @@ def alert_window(title: str, text: str):
     widget.show()
 
 
-def valid_project_path(toml: str, project: str):
+def valid_project_path(project: str, toml=None):
     """Check path validity and update TOML if invalid.
 
     Check if PROJECT_PATH is valid and reset to home directory if error.
@@ -50,10 +54,10 @@ def valid_project_path(toml: str, project: str):
 
     Parameters
     ----------
-    toml : str
-        Path to TOML file.
     project : str
         Path to project directory.
+    toml : str or None
+        Path to TOML file. If None, default to TOML_PATH
 
     Raises
     ------
@@ -61,34 +65,41 @@ def valid_project_path(toml: str, project: str):
         If project path value in TOML is invalid.
 
     """
+    if not toml:
+        toml = TOML_PATH
+
+    # 1. Exit early if exists
     exists = os.path.exists(project)
-    if not exists:
-        # 1. Set Project Path to User's Home directory
-        home = os.path.expanduser('~')
-        system = platform.system()
-        if system == 'Darwin' or 'Linux':
-            home = (home + '/')
-        if system == 'Windows':
-            home = (home + '\\')
+    if exists:
+        logger.info("Project path exists: %s", project)
+        return
 
-        # 2. Update ProjectPath in TOML with User's Home directory path
-        configurations.update_setting(
-                    toml,
-                    'Settings',
-                    'ProjectPath',
-                    home,
-        )
+    # 2. Set Project Path to User's Home directory
+    home = os.path.expanduser('~')
+    system = platform.system()
+    if system == 'Darwin' or 'Linux':
+        home = (home + '/')
+    if system == 'Windows':
+        home = (home + '\\')
 
-        #  3. Raise Alert Window
-        warning_text = (
-                "Project Path doesn't exists!\n"
-                + "\n"
-                + "Project Path has been set to " + home + " temporarily.\n"
-                + "\n"
-                + "Please restart Assets Browser."
-        )
-        alert_window('Warning', warning_text)
-        raise InvalidProjectPath(project)
+    # 3. Update ProjectPath in TOML with User's Home directory path
+    configurations.update_setting(
+                'Settings',
+                'ProjectPath',
+                value=home,
+                path=toml,
+    )
+
+    # 4. Raise Alert Window
+    warning_text = (
+            "Project Path doesn't exists!\n"
+            + "\n"
+            + "Project Path has been set to " + home + " temporarily.\n"
+            + "\n"
+            + "Please restart Assets Browser."
+    )
+    alert_window('Warning', warning_text)
+    raise InvalidProjectPath(project)
 
 
 def get_file_size(size: int or float, precision=2) -> str:
