@@ -137,7 +137,7 @@ class AssetsBrowser(QtWidgets.QMainWindow, ui_main.Ui_MainWindow):
         Retrieve directories in PROJECT_PATH comboBox, clear existing tabs and create new tabs.
 
         """
-        # 1. Update INI CurrentProject with chosen project from comboBox
+        # 1. Update TOML CurrentProject with chosen project from comboBox
         project = self.comboBox.currentText()
         configurations.update_setting('Settings', 'CurrentProject', project)
 
