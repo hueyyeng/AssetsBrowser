@@ -4,7 +4,12 @@ python:
   - "3.6"
 cache: pip
 install:
-  - pip install -r dev_requirements.txt
-before_script:
-  - prospector
-script: python -m pytest
+  - pip install -r requirements/development.txt
+jobs:
+  include:
+    - script: prospector
+      env:
+        - JOB_LABEL='prospector linting'
+    - script: pytest --cov
+      env:
+        - JOB_LABEL='pytest and coverage'
