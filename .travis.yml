@@ -4,7 +4,7 @@ python:
   - "3.6"
 cache: pip
 install:
-  - pip install -r dev_requirements.txt
+  - pip install -r requirements/development.txt
 before_script:
   - prospector
-script: python -m pytest
+script: pytest --cov
