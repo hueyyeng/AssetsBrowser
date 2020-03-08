@@ -12,10 +12,8 @@ from config import configurations
 from config.constants import TOML_PATH
 from config.utils import check_config_file
 from helpers.exceptions import ApplicationAlreadyExists
-from helpers.functions import create_column_view
 from helpers.widgets import ColumnViewWidget
 from ui.dialog import about, asset, preferences
-from ui.help import repath
 from ui.window import ui_main
 
 logger = logging.getLogger(__name__)
@@ -95,9 +93,9 @@ class AssetsBrowser(QtWidgets.QMainWindow, ui_main.Ui_MainWindow):
         self.splitter.setSizes([150, 500])
 
         # 4.4.2 Help Tab
-        html_file = 'ui/help/help.html'
-        temp_html_path = ('file:///' + str(repath(html_file)))
-        self.textBrowserHelp.setSource(QtCore.QUrl(temp_html_path))
+        absolute_path = os.path.abspath(os.path.dirname(__file__))
+        help_file = os.path.join(absolute_path, 'ui', 'help', 'help.html')
+        self.textBrowserHelp.setSource(QtCore.QUrl.fromLocalFile(help_file))
 
     def create_tabs(self, categories: list, project: str):
         """Create QColumnView tabs.
@@ -129,7 +127,7 @@ class AssetsBrowser(QtWidgets.QMainWindow, ui_main.Ui_MainWindow):
             self.horizontalLayout.addWidget(self.column_view)
 
             self.tabWidget.addTab(self.tab, category)
-            create_column_view(self.column_view, category, project)
+            helpers.functions.create_column_view(self.column_view, category, project)
 
     def project_list(self):
         """List Project directories in PROJECT_PATH comboBox.
