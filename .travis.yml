@@ -5,6 +5,11 @@ python:
 cache: pip
 install:
   - pip install -r requirements/development.txt
-before_script:
-  - prospector
-script: pytest --cov
+jobs:
+  include:
+    - script: prospector
+      env:
+        - JOB_LABEL='prospector linting'
+    - script: pytest --cov
+      env:
+        - JOB_LABEL='pytest and coverage'
