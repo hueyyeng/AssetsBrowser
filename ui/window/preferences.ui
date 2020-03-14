@@ -13,6 +13,12 @@
     <height>614</height>
    </rect>
   </property>
+  <property name="minimumSize">
+   <size>
+    <width>519</width>
+    <height>614</height>
+   </size>
+  </property>
   <property name="focusPolicy">
    <enum>Qt::StrongFocus</enum>
   </property>
@@ -44,7 +50,7 @@
        </property>
        <item>
         <property name="text">
-         <string>Settings</string>
+         <string>General</string>
         </property>
        </item>
        <item>
@@ -83,64 +89,16 @@
    <item row="4" column="1">
     <widget class="QStackedWidget" name="stackedWidget">
      <property name="currentIndex">
-      <number>2</number>
+      <number>1</number>
      </property>
-     <widget class="QWidget" name="pageSettings">
+     <widget class="QWidget" name="pageGeneral">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
         <horstretch>0</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
       </property>
-      <layout class="QFormLayout" name="formLayout">
-       <item row="3" column="0">
-        <widget class="QLabel" name="themeLabel">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="font">
-          <font>
-           <weight>50</weight>
-           <bold>false</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>Theme:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="0">
-        <widget class="QRadioButton" name="themeRadioLight">
-         <property name="text">
-          <string>Default (Light)</string>
-         </property>
-         <property name="shortcut">
-          <string/>
-         </property>
-         <property name="checked">
-          <bool>true</bool>
-         </property>
-         <attribute name="buttonGroup">
-          <string notr="true">themeBtnGrp</string>
-         </attribute>
-        </widget>
-       </item>
-       <item row="5" column="0">
-        <widget class="QRadioButton" name="themeRadioDark">
-         <property name="text">
-          <string>Dark</string>
-         </property>
-         <property name="shortcut">
-          <string/>
-         </property>
-         <attribute name="buttonGroup">
-          <string notr="true">themeBtnGrp</string>
-         </attribute>
-        </widget>
-       </item>
+      <layout class="QFormLayout" name="formLayout_11">
        <item row="0" column="0" colspan="2">
         <layout class="QHBoxLayout" name="projectPathLayout">
          <item>
@@ -193,24 +151,157 @@
          </item>
         </layout>
        </item>
-       <item row="2" column="0" colspan="2">
-        <widget class="QCheckBox" name="debugCheck">
-         <property name="toolTip">
-          <string>Log file will be stored in log directory.</string>
-         </property>
-         <property name="text">
-          <string>Enable Debug Log</string>
+       <item row="1" column="0">
+        <widget class="Line" name="settingsDivider1">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
          </property>
         </widget>
        </item>
-       <item row="1" column="0" colspan="2">
+       <item row="2" column="0">
         <widget class="QCheckBox" name="descCheck">
          <property name="toolTip">
-          <string>Display description for selected assets.</string>
+          <string>Display description for assets.</string>
          </property>
          <property name="text">
           <string>Show Description Panel</string>
          </property>
+        </widget>
+       </item>
+       <item row="3" column="0">
+        <widget class="Line" name="settingsDivider2">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="0" colspan="2">
+        <widget class="QGroupBox" name="boxTheme">
+         <property name="title">
+          <string>Theme</string>
+         </property>
+         <layout class="QFormLayout" name="formLayout">
+          <item row="0" column="0">
+           <widget class="QRadioButton" name="themeRadioLight">
+            <property name="toolTip">
+             <string>Fusion Style</string>
+            </property>
+            <property name="text">
+             <string>Default (Light)</string>
+            </property>
+            <property name="shortcut">
+             <string/>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+            <attribute name="buttonGroup">
+             <string notr="true">themeBtnGrp</string>
+            </attribute>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QRadioButton" name="themeRadioDark">
+            <property name="toolTip">
+             <string>QDarkStyle</string>
+            </property>
+            <property name="text">
+             <string>Dark</string>
+            </property>
+            <property name="shortcut">
+             <string/>
+            </property>
+            <attribute name="buttonGroup">
+             <string notr="true">themeBtnGrp</string>
+            </attribute>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="5" column="0" colspan="2">
+        <widget class="QGroupBox" name="boxFont">
+         <property name="title">
+          <string>Font</string>
+         </property>
+         <layout class="QFormLayout" name="formLayout_10">
+          <item row="0" column="0">
+           <widget class="QRadioButton" name="fontRadioDefault">
+            <property name="text">
+             <string>Default (Sans Serif)</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+            <attribute name="buttonGroup">
+             <string notr="true">fontBtnGrp</string>
+            </attribute>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QRadioButton" name="fontRadioMonospace">
+            <property name="text">
+             <string>Monospace</string>
+            </property>
+            <attribute name="buttonGroup">
+             <string notr="true">fontBtnGrp</string>
+            </attribute>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QLabel" name="fontSizeLabel">
+            <property name="text">
+             <string>Size:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="0">
+           <widget class="QComboBox" name="fontSizeComboBox">
+            <item>
+             <property name="text">
+              <string>Default</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Tiny</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Large</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="2" column="0" colspan="2">
+           <layout class="QHBoxLayout" name="fontCustomLayout" stretch="0,1">
+            <property name="spacing">
+             <number>24</number>
+            </property>
+            <item>
+             <widget class="QRadioButton" name="fontRadioCustom">
+              <property name="toolTip">
+               <string>Select font that best suited to your project locale and language</string>
+              </property>
+              <property name="text">
+               <string>Custom font</string>
+              </property>
+              <attribute name="buttonGroup">
+               <string notr="true">fontBtnGrp</string>
+              </attribute>
+             </widget>
+            </item>
+            <item>
+             <widget class="QFontComboBox" name="fontListComboBox">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
         </widget>
        </item>
       </layout>
@@ -309,7 +400,7 @@
             </property>
             <layout class="QVBoxLayout" name="verticalLayout">
              <item>
-              <widget class="QRadioButton" name="prefixRadio1">
+              <widget class="QRadioButton" name="prefixRadioFirst">
                <property name="text">
                 <string>Use first character of category (e.g.: p)</string>
                </property>
@@ -322,22 +413,12 @@
               </widget>
              </item>
              <item>
-              <widget class="QRadioButton" name="prefixRadio2">
+              <widget class="QRadioButton" name="prefixRadioWhole">
                <property name="text">
                 <string>Use whole category (e.g.: props)</string>
                </property>
                <property name="checked">
                 <bool>false</bool>
-               </property>
-               <attribute name="buttonGroup">
-                <string notr="true">prefixBtnGrp</string>
-               </attribute>
-              </widget>
-             </item>
-             <item>
-              <widget class="QRadioButton" name="prefixRadio3">
-               <property name="text">
-                <string>Use custom naming (JSON mapping)</string>
                </property>
                <attribute name="buttonGroup">
                 <string notr="true">prefixBtnGrp</string>
@@ -356,13 +437,13 @@
              <bool>true</bool>
             </property>
             <property name="checked">
-             <bool>false</bool>
+             <bool>true</bool>
             </property>
             <layout class="QVBoxLayout" name="verticalLayout_2">
              <item>
               <layout class="QFormLayout" name="suffixVersionLayout">
                <item row="0" column="0">
-                <widget class="QRadioButton" name="suffixRadio1">
+                <widget class="QRadioButton" name="suffixRadioVersion">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -405,7 +486,7 @@
              <item>
               <layout class="QHBoxLayout" name="suffixCustomLayout">
                <item>
-                <widget class="QRadioButton" name="suffixRadio2">
+                <widget class="QRadioButton" name="suffixRadioCustomName">
                  <property name="text">
                   <string>Use custom naming:</string>
                  </property>
@@ -415,7 +496,11 @@
                 </widget>
                </item>
                <item>
-                <widget class="QLineEdit" name="suffixCustomName"/>
+                <widget class="QLineEdit" name="suffixCustomName">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                </widget>
                </item>
               </layout>
              </item>
@@ -496,121 +581,219 @@
       </layout>
      </widget>
      <widget class="QWidget" name="pageAdvanced">
-      <layout class="QVBoxLayout" name="verticalLayout_4">
-       <item>
-        <widget class="QGroupBox" name="boxMetadata">
+      <layout class="QFormLayout" name="formLayout_9">
+       <item row="1" column="0" colspan="2">
+        <widget class="QGroupBox" name="boxLog">
          <property name="title">
-          <string>Metadata</string>
+          <string>Logs</string>
          </property>
          <layout class="QFormLayout" name="formLayout_6">
-          <item row="0" column="0" colspan="2">
-           <widget class="QLabel" name="metadataTip">
-            <property name="text">
-             <string>This optional feature allows the following attributes to be store as a JSON file per asset. Useful for organizing internal assets for integration with other DCC softwares.</string>
+          <item row="0" column="0">
+           <widget class="QCheckBox" name="logDebugCheck">
+            <property name="toolTip">
+             <string>Log file will include debug statement. Useful for troubleshooting.</string>
             </property>
-            <property name="wordWrap">
-             <bool>true</bool>
+            <property name="text">
+             <string>Enable Debug Log</string>
             </property>
            </widget>
           </item>
           <item row="1" column="0">
-           <widget class="QCheckBox" name="metadataCheck">
-            <property name="text">
-             <string>Use Metadata</string>
+           <widget class="Line" name="logDivider2">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
             </property>
-            <property name="checked">
-             <bool>false</bool>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="logDebugWarning">
+            <property name="text">
+             <string>WARNING: Debug log will result in bigger log file size!</string>
             </property>
            </widget>
           </item>
           <item row="3" column="0">
-           <layout class="QHBoxLayout" name="metadataBtnLayout">
+           <widget class="Line" name="logDivider1">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="0">
+           <layout class="QHBoxLayout" name="logButtonLayout">
             <item>
-             <widget class="QPushButton" name="metadataBtnClear">
+             <widget class="QPushButton" name="logButtonOpen">
+              <property name="toolTip">
+               <string>Clear current log contents</string>
+              </property>
               <property name="text">
-               <string>Clear All Metadata</string>
+               <string>Open Log Location</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="metadataBtnRebuild">
+             <widget class="QPushButton" name="logButtonClear">
+              <property name="toolTip">
+               <string>Clear current log contents</string>
+              </property>
               <property name="text">
-               <string>Rebuild Metadata</string>
+               <string>Clear Log</string>
               </property>
              </widget>
             </item>
            </layout>
           </item>
-          <item row="2" column="0" colspan="2">
-           <widget class="QGroupBox" name="boxMetadataAttrib">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
+         </layout>
+        </widget>
+       </item>
+       <item row="0" column="0" colspan="2">
+        <widget class="QGroupBox" name="boxColumnView">
+         <property name="title">
+          <string>Column View</string>
+         </property>
+         <layout class="QFormLayout" name="formLayout_8">
+          <item row="0" column="0" colspan="2">
+           <widget class="QGroupBox" name="boxPreview">
             <property name="title">
-             <string>Attributes</string>
+             <string>Preview</string>
             </property>
-            <layout class="QFormLayout" name="formLayout_2">
-             <item row="1" column="0">
-              <widget class="QLabel" name="metadataAttribTip">
+            <layout class="QFormLayout" name="formLayout_7">
+             <item row="0" column="0">
+              <widget class="QLabel" name="previewHelpLabel">
                <property name="text">
-                <string>Hold Ctrl/Cmd to select more than one attributes.</string>
+                <string>Preview size for supported images</string>
                </property>
               </widget>
              </item>
-             <item row="0" column="0" colspan="2">
-              <widget class="QListWidget" name="metadataAttribList">
-               <property name="selectionMode">
-                <enum>QAbstractItemView::ExtendedSelection</enum>
-               </property>
-               <property name="selectionRectVisible">
-                <bool>true</bool>
-               </property>
+             <item row="1" column="0">
+              <layout class="QVBoxLayout" name="previewLayout">
                <item>
-                <property name="text">
-                 <string>Author</string>
-                </property>
+                <widget class="QRadioButton" name="previewRadioSmall">
+                 <property name="toolTip">
+                  <string>150px</string>
+                 </property>
+                 <property name="text">
+                  <string>Small</string>
+                 </property>
+                 <property name="checked">
+                  <bool>true</bool>
+                 </property>
+                 <attribute name="buttonGroup">
+                  <string notr="true">previewBtnGrp</string>
+                 </attribute>
+                </widget>
                </item>
                <item>
-                <property name="text">
-                 <string>Category</string>
-                </property>
+                <widget class="QRadioButton" name="previewRadioBig">
+                 <property name="toolTip">
+                  <string>300px</string>
+                 </property>
+                 <property name="text">
+                  <string>Big</string>
+                 </property>
+                 <attribute name="buttonGroup">
+                  <string notr="true">previewBtnGrp</string>
+                 </attribute>
+                </widget>
                </item>
                <item>
-                <property name="text">
-                 <string>Date Created</string>
-                </property>
+                <layout class="QHBoxLayout" name="previewCustomLayout">
+                 <item>
+                  <widget class="QRadioButton" name="previewRadioCustom">
+                   <property name="toolTip">
+                    <string>Valid range: 150 to 1000</string>
+                   </property>
+                   <property name="text">
+                    <string>Custom max size:</string>
+                   </property>
+                   <attribute name="buttonGroup">
+                    <string notr="true">previewBtnGrp</string>
+                   </attribute>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QSpinBox" name="previewSpinnerCustom">
+                   <property name="enabled">
+                    <bool>false</bool>
+                   </property>
+                   <property name="minimum">
+                    <number>150</number>
+                   </property>
+                   <property name="maximum">
+                    <number>1000</number>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+              </layout>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item row="1" column="0" colspan="2">
+           <widget class="QGroupBox" name="boxIcon">
+            <property name="title">
+             <string>Icon Thumbnails</string>
+            </property>
+            <layout class="QFormLayout" name="formLayout_2">
+             <item row="0" column="0">
+              <layout class="QVBoxLayout" name="iconRadioLayout">
+               <item>
+                <widget class="QRadioButton" name="iconRadioEnable">
+                 <property name="toolTip">
+                  <string>Default. Performance hit when navigating directory with lots of supported images.</string>
+                 </property>
+                 <property name="text">
+                  <string>Enable</string>
+                 </property>
+                 <property name="checked">
+                  <bool>true</bool>
+                 </property>
+                 <attribute name="buttonGroup">
+                  <string notr="true">iconBtnGrp</string>
+                 </attribute>
+                </widget>
                </item>
                <item>
-                <property name="text">
-                 <string>Date Modified</string>
-                </property>
+                <widget class="QRadioButton" name="iconRadioDisable">
+                 <property name="toolTip">
+                  <string>No icons display in Column View. Fastest performance.</string>
+                 </property>
+                 <property name="text">
+                  <string>Disable (fastest)</string>
+                 </property>
+                 <property name="checked">
+                  <bool>false</bool>
+                 </property>
+                 <attribute name="buttonGroup">
+                  <string notr="true">iconBtnGrp</string>
+                 </attribute>
+                </widget>
                </item>
                <item>
-                <property name="text">
-                 <string>Description</string>
-                </property>
+                <widget class="QRadioButton" name="iconRadioGeneric">
+                 <property name="maximumSize">
+                  <size>
+                   <width>331</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <property name="toolTip">
+                  <string>Display generic icons by disabling icon thumbnail generation for supported images.</string>
+                 </property>
+                 <property name="text">
+                  <string>Use generic icons</string>
+                 </property>
+                 <property name="checked">
+                  <bool>false</bool>
+                 </property>
+                 <attribute name="buttonGroup">
+                  <string notr="true">iconBtnGrp</string>
+                 </attribute>
+                </widget>
                </item>
-               <item>
-                <property name="text">
-                 <string>Format</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>Name</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>Project</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>Version</string>
-                </property>
-               </item>
-              </widget>
+              </layout>
              </item>
             </layout>
            </widget>
@@ -643,7 +826,7 @@
    </hints>
   </connection>
   <connection>
-   <sender>suffixRadio1</sender>
+   <sender>suffixRadioVersion</sender>
    <signal>toggled(bool)</signal>
    <receiver>suffixVersionCombo</receiver>
    <slot>setEnabled(bool)</slot>
@@ -659,25 +842,60 @@
    </hints>
   </connection>
   <connection>
-   <sender>metadataCheck</sender>
+   <sender>previewRadioCustom</sender>
    <signal>toggled(bool)</signal>
-   <receiver>boxMetadataAttrib</receiver>
+   <receiver>previewSpinnerCustom</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>232</x>
-     <y>103</y>
+     <x>211</x>
+     <y>241</y>
     </hint>
     <hint type="destinationlabel">
-     <x>372</x>
-     <y>245</y>
+     <x>295</x>
+     <y>241</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>fontRadioCustom</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>fontListComboBox</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>166</x>
+     <y>251</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>355</x>
+     <y>251</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>suffixRadioCustomName</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>suffixCustomName</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>206</x>
+     <y>243</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>375</x>
+     <y>243</y>
     </hint>
    </hints>
   </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="prefixBtnGrp"/>
+  <buttongroup name="fontBtnGrp"/>
   <buttongroup name="themeBtnGrp"/>
+  <buttongroup name="prefixBtnGrp"/>
+  <buttongroup name="iconBtnGrp"/>
+  <buttongroup name="previewBtnGrp"/>
   <buttongroup name="suffixBtnGrp"/>
  </buttongroups>
 </ui>
