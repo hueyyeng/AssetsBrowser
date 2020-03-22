@@ -4,6 +4,7 @@ import os
 import platform
 import subprocess
 import sys
+from pathlib import Path
 
 from PyQt5 import QtGui, QtWidgets
 
@@ -69,34 +70,26 @@ def valid_project_path(project: str, toml=None):
         toml = TOML_PATH
 
     # 1. Exit early if exists
-    exists = os.path.exists(project)
-    if exists:
+    if Path(project).exists():
         logger.info("Project path exists: %s", project)
         return
 
     # 2. Set Project Path to User's Home directory
-    home = os.path.expanduser('~')
-    system = platform.system()
-    if system == 'Darwin' or 'Linux':
-        home = (home + '/')
-    if system == 'Windows':
-        home = (home + '\\')
+    home = Path.home().as_posix()
 
     # 3. Update ProjectPath in TOML with User's Home directory path
     configurations.update_setting(
-                'Settings',
-                'ProjectPath',
-                value=home,
-                path=toml,
+        'Settings',
+        'ProjectPath',
+        value=home,
+        path=toml,
     )
 
     # 4. Raise Alert Window
     warning_text = (
-            "Project Path doesn't exists!\n"
-            + "\n"
-            + "Project Path has been set to " + home + " temporarily.\n"
-            + "\n"
-            + "Please restart Assets Browser."
+            "Project Path doesn't exists!\n\n"
+            f"Project Path has been set to {home} temporarily.\n\n"
+            "Please restart Assets Browser."
     )
     alert_window('Warning', warning_text)
     raise InvalidProjectPath(project)
@@ -145,15 +138,15 @@ def reveal_in_os(path: str):
 
     """
     system = platform.system()
-    win_path = path.replace("/", "\\")
+    path = Path(path)
 
     # Default to macOS since no extra handling
-    cmd = (['open', '-R', path])
+    cmd = (['open', '-R', path.as_posix()])
 
-    if system == 'Windows' and os.path.isdir(path):
-        cmd = str('explorer /e,' + win_path)
-    elif system == 'Windows' and os.path.exists(path):
-        cmd = str('explorer /select,' + win_path)
+    if system == 'Windows' and path.is_dir():
+        cmd = str('explorer /e,' + path)
+    elif system == 'Windows' and path.exists():
+        cmd = str('explorer /select,' + path)
     elif system == 'Linux':
         dir_path = '/'.join(path.split('/')[0:-1])  # Omit file_name from path
         # subprocess.Popen(['xdg-open', dir_path])
@@ -175,7 +168,7 @@ def open_file(target: str):
     try:
         os.startfile(target)
     except OSError:
-        if system == 'Linux':
-            subprocess.call(['xdg-open', target])
+        command = 'xdg-open'  # Linux
         if system == 'Darwin':
-            subprocess.call(['open', target])
+            command = 'open'
+        subprocess.call([command, target])

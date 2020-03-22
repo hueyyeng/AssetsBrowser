@@ -3,47 +3,9 @@ import logging
 import os
 import sys
 
-from PyQt5 import QtCore, QtWidgets
-
-from config.configurations import get_setting
-from helpers.widgets import ColumnViewWidget
+from PyQt5 import QtWidgets
 
 logger = logging.getLogger(__name__)
-
-
-def create_column_view(
-    column_view: ColumnViewWidget,
-    category: str,
-    project: str
-):
-    """Create column_view tabs.
-
-    Create new column_view tabs to for each categories.
-
-    Parameters
-    ----------
-    column_view : ColumnViewWidget
-        ColumnViewWidget object.
-    category : str
-        Category name.
-    project : str
-        Project name.
-
-    """
-    default_path = (get_setting('Settings', 'ProjectPath') + project + "/Assets/" + category)
-    default_path_log = "Load... " + default_path
-    logger.debug(default_path_log)
-
-    column_view.setColumnWidths([200] * 9)  # Column width multiply by the amount of columns
-    column_view.setEnabled(True)
-    column_view.fsm = QtWidgets.QFileSystemModel()
-    column_view.fsm.setReadOnly(False)
-    column_view.rootindex = column_view.fsm.setRootPath(default_path)
-    column_view.setModel(column_view.fsm)
-    column_view.setRootIndex(column_view.rootindex)
-    column_view.clicked.connect(column_view.get_file_info)
-    column_view.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
-    column_view.customContextMenuRequested.connect(column_view.context_menu)
 
 
 def clear_layout(layout):
