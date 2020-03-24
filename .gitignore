@@ -7,6 +7,7 @@ build/
 bin/
 settings.ini
 setup.py
+stylesheet.css
 *.psd
 *.ai
 *.sqlite3
