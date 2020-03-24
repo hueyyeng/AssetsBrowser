@@ -28,7 +28,7 @@ class Asset(QtWidgets.QDialog, Ui_AssetDialog):
 
         # 1.2 Setup category radio buttons
         asset_categories = configurations.get_setting('Assets', 'CategoryList')
-        # TODO: Rework dynamic radio buttons to retrieve categories per project basis instead of INI
+        # TODO: Rework dynamic radio buttons to retrieve categories per project basis
         placeholder = bool(len(asset_categories))
         self._remove_radio_button(placeholder)
         for asset_category in asset_categories:

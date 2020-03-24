@@ -1,4 +1,7 @@
+"""About Dialog"""
 import sys
+from pathlib import Path
+
 from PyQt5 import QtGui, QtWidgets
 
 import ui.functions
@@ -10,8 +13,8 @@ class About(QtWidgets.QDialog, Ui_AboutDialog):
         super(About, self).__init__(parent)
         self.setupUi(self)
         self.buttonBox.clicked.connect(self.close)
-        # Redefine path for graphics/icons when executed from ``assetsbrowser.py``
-        self.labelGraphic.setPixmap(QtGui.QPixmap('icons/about.png'))
+        logo = Path.cwd() / 'icons' / 'about.png'
+        self.labelGraphic.setPixmap(QtGui.QPixmap(str(logo)))
         ui.functions.set_window_icon(self)
 
 
