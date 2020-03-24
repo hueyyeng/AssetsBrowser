@@ -1,29 +1,68 @@
 """Assets Browser Custom Widgets"""
+import logging
 import platform
+from pathlib import Path
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
+from config.configurations import get_setting
 from config.constants import IMAGE_FORMAT
-from helpers.constants import FILE_MANAGER, SELECTED_FILE
+from helpers.enums import FileManager
 from helpers.utils import get_file_size, open_file, reveal_in_os
+from ui.enums import IconRadio, PreviewRadio
+
+logger = logging.getLogger(__name__)
+
+ICON_THUMBNAILS_MODE = IconRadio(get_setting('Advanced', 'IconThumbnails'))
+ICON_THUMBNAILS_SIZE = QtCore.QSize(32, 32)
+MAX_SIZE = PreviewRadio(get_setting('Advanced', 'Preview')).size()
+
+
+class ColumnViewFileIcon(QtWidgets.QFileIconProvider):
+    def icon(self, file_info: QtCore.QFileInfo):
+        if ICON_THUMBNAILS_MODE.value == -3:
+            return QtGui.QIcon()
+
+        path = file_info.filePath()
+        icon = super().icon(file_info)
+        if path.lower().endswith(IMAGE_FORMAT):
+            file_icon = QtGui.QPixmap(ICON_THUMBNAILS_SIZE)
+            file_icon.load(path)
+            icon = QtGui.QIcon(file_icon)
+        return icon
 
 
 class ColumnViewWidget(QtWidgets.QColumnView):
-    def __init__(self):
+    def __init__(self, category, project):
         super().__init__()
+        default_path = Path(get_setting('Settings', 'ProjectPath')) / project / "Assets" / category
+        logger.debug("Load... %s", default_path)
+
+        self.setAlternatingRowColors(False)
+        self.setResizeGripsVisible(True)
+        self.setColumnWidths([200] * 9)  # Column width multiply by the amount of columns
+        self.setEnabled(True)
+        self.fsm = QtWidgets.QFileSystemModel()
+        self.fsm.setReadOnly(False)
+        self.fsm.setIconProvider(ColumnViewFileIcon())
+        self.setModel(self.fsm)
+        self.setRootIndex(self.fsm.setRootPath(str(default_path)))
+        self.clicked.connect(self.get_file_info)
+        self.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.customContextMenuRequested.connect(self.context_menu)
 
         # File Category Labels
-        preview_category_name = QtWidgets.QLabel('Name:')
-        preview_category_size = QtWidgets.QLabel('Size:')
-        preview_category_type = QtWidgets.QLabel('Type:')
-        preview_category_date = QtWidgets.QLabel('Modified:')
+        self.preview_category_name = QtWidgets.QLabel('Name:')
+        self.preview_category_size = QtWidgets.QLabel('Size:')
+        self.preview_category_type = QtWidgets.QLabel('Type:')
+        self.preview_category_date = QtWidgets.QLabel('Modified:')
 
         # Align Right for Prefix Labels
         align_right = QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter
-        preview_category_name.setAlignment(align_right)
-        preview_category_size.setAlignment(align_right)
-        preview_category_type.setAlignment(align_right)
-        preview_category_date.setAlignment(align_right)
+        self.preview_category_name.setAlignment(align_right)
+        self.preview_category_size.setAlignment(align_right)
+        self.preview_category_type.setAlignment(align_right)
+        self.preview_category_date.setAlignment(align_right)
 
         # File Attributes Labels
         self.preview_file_name = QtWidgets.QLabel()
@@ -32,29 +71,29 @@ class ColumnViewWidget(QtWidgets.QColumnView):
         self.preview_file_date = QtWidgets.QLabel()
 
         # File Attributes Layout and Value for Preview Pane
-        sublayout_text = QtWidgets.QGridLayout()
-        sublayout_text.addWidget(preview_category_name, 0, 0)
-        sublayout_text.addWidget(preview_category_size, 1, 0)
-        sublayout_text.addWidget(preview_category_type, 2, 0)
-        sublayout_text.addWidget(preview_category_date, 3, 0)
-        sublayout_text.addWidget(self.preview_file_name, 0, 1)
-        sublayout_text.addWidget(self.preview_file_size, 1, 1)
-        sublayout_text.addWidget(self.preview_file_type, 2, 1)
-        sublayout_text.addWidget(self.preview_file_date, 3, 1)
-        sublayout_text.setRowStretch(4, 1)  # Arrange layout to upper part of widget
+        self.sublayout_text = QtWidgets.QGridLayout()
+        self.sublayout_text.addWidget(self.preview_category_name, 0, 0)
+        self.sublayout_text.addWidget(self.preview_category_size, 1, 0)
+        self.sublayout_text.addWidget(self.preview_category_type, 2, 0)
+        self.sublayout_text.addWidget(self.preview_category_date, 3, 0)
+        self.sublayout_text.addWidget(self.preview_file_name, 0, 1)
+        self.sublayout_text.addWidget(self.preview_file_size, 1, 1)
+        self.sublayout_text.addWidget(self.preview_file_type, 2, 1)
+        self.sublayout_text.addWidget(self.preview_file_date, 3, 1)
+        self.sublayout_text.setRowStretch(4, 1)  # Arrange layout to upper part of widget
 
         # Preview Thumbnails
         self.preview = QtWidgets.QLabel()
-        sublayout_thumbnail = QtWidgets.QVBoxLayout()
-        sublayout_thumbnail.addWidget(self.preview)
-        sublayout_thumbnail.setAlignment(QtCore.Qt.AlignCenter)
+        self.sublayout_thumbnail = QtWidgets.QVBoxLayout()
+        self.sublayout_thumbnail.addWidget(self.preview)
+        self.sublayout_thumbnail.setAlignment(QtCore.Qt.AlignCenter)
 
         # Set Preview Pane for QColumnView
-        preview_widget = QtWidgets.QWidget()
-        preview_pane = QtWidgets.QVBoxLayout(preview_widget)
-        preview_pane.addLayout(sublayout_thumbnail)
-        preview_pane.addLayout(sublayout_text)
-        self.setPreviewWidget(preview_widget)
+        self.preview_widget = QtWidgets.QWidget()
+        self.preview_pane = QtWidgets.QVBoxLayout(self.preview_widget)
+        self.preview_pane.addLayout(self.sublayout_thumbnail)
+        self.preview_pane.addLayout(self.sublayout_text)
+        self.setPreviewWidget(self.preview_widget)
 
     # Custom context menu handling for directory or file
     def context_menu(self, pos):
@@ -74,17 +113,18 @@ class ColumnViewWidget(QtWidgets.QColumnView):
         if is_selection:
             selected_item = self.fsm.index(idx.row(), 0, idx.parent())
             file_name = str(self.fsm.fileName(selected_item))
+            file_name = file_name[:50] + '...' if len(file_name) > 50 else file_name
             file_path = str(self.fsm.filePath(selected_item))
-            SELECTED_FILE['File'] = file_name
-            SELECTED_FILE['Path'] = file_path
 
             is_dir = self.fsm.isDir(selected_item)
             if not is_dir:
-                open_action = menu.addAction('Open ' + SELECTED_FILE['File'])
-                open_action.triggered.connect(lambda: open_file(SELECTED_FILE['Path']))
+                open_action = menu.addAction('Open ' + file_name)
+                open_action.triggered.connect(lambda: open_file(file_path))
 
-            reveal_action = menu.addAction(('Reveal in ' + FILE_MANAGER[platform.system()]))
-            reveal_action.triggered.connect(lambda: reveal_in_os(SELECTED_FILE['Path']))
+            reveal_action = menu.addAction(
+                'Reveal in ' + getattr(FileManager, platform.system().upper()).value
+            )
+            reveal_action.triggered.connect(lambda: reveal_in_os(file_path))
 
             menu.exec_(self.mapToGlobal(pos))
             self.clearSelection()
@@ -109,40 +149,29 @@ class ColumnViewWidget(QtWidgets.QColumnView):
         selected_item = self.fsm.index(idx.row(), 0, idx.parent())
 
         # Retrieve File Attributes
-        file_name = str(self.fsm.fileName(selected_item))
+        file_name = self.fsm.fileName(selected_item)
         file_size = self.fsm.size(selected_item)
-        file_type = str(self.fsm.type(selected_item))
+        file_type = self.fsm.type(selected_item).split(' ')[0]
         file_date = self.fsm.lastModified(selected_item)
-        file_path = str(self.fsm.filePath(selected_item))
-
-        SELECTED_FILE['File'] = file_name
-        SELECTED_FILE['Path'] = file_path
-
-        # Split file_type into array for easy formatting
-        file_type_list = file_type.split(' ')
+        file_path = self.fsm.filePath(selected_item)
 
         # Assign the File Attributes' string into respective labels
         self.preview_file_name.setText(file_name)
         self.preview_file_size.setText(get_file_size(file_size))
-        self.preview_file_type.setText(file_type_list[0].upper() + ' file')
+        self.preview_file_type.setText(file_type.upper() + ' file')
         self.preview_file_date.setText(file_date.toString('yyyy/MM/dd h:m AP'))
 
-        # Retrieve file_path for Thumbnail Preview in __init__
+        # Retrieve image path for Thumbnail Preview
         image_path = self.fsm.filePath(selected_item)
-        image_type = file_type[0:-5]
-        image_types = IMAGE_FORMAT
 
         # Generate thumbnails for Preview Pane
-        max_size = 150  # Thumbnails max size in pixels
-        thumbnail_object = QtGui.QPixmap()
-        thumbnail_object.load(image_path)
-        if image_type in image_types:
-            thumbnail = thumbnail_object.scaled(
-                max_size,
-                max_size,
-                QtCore.Qt.KeepAspectRatio,
-                QtCore.Qt.SmoothTransformation,
-            )
+        if image_path.lower().endswith(IMAGE_FORMAT):
+            image = QtGui.QImageReader()
+            image.setFileName(image_path)
+            scaled_size = image.size()
+            scaled_size.scale(MAX_SIZE, MAX_SIZE, QtCore.Qt.KeepAspectRatio)
+            image.setScaledSize(scaled_size)
+            thumbnail = QtGui.QPixmap.fromImage(image.read())
         else:
             file_info = QtCore.QFileInfo(image_path)  # Retrieve info like icons, path, etc
             file_icon = QtWidgets.QFileIconProvider().icon(file_info)

@@ -1,11 +1,18 @@
 """Configurations"""
 import logging
 import os
+from pathlib import Path
 from typing import Any
 
 import toml
-from config.constants import TOML_PATH, DEFAULT_CATEGORY, DEFAULT_SUBFOLDER
-from config.exceptions import ConfigNotFoundException
+from config.constants import (
+    DEFAULT_CATEGORY,
+    DEFAULT_SUBFOLDER,
+    TOML_PATH,
+)
+from config.exceptions import (
+    ConfigNotFoundException,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -19,29 +26,37 @@ def create_config(path: str):
         Path to TOML config file
 
     """
-    home = os.path.expanduser('~')  # Defaults to home directory
     config = {}
 
     # 1.1 Settings
     settings = config['Settings'] = {}
-    settings['ProjectPath'] = home.replace('\\', '/')
+    settings['ProjectPath'] = Path.home().as_posix()  # Defaults to home directory
     settings['ShowDescriptionPanel'] = False
-    settings['ShowDebugLog'] = False
     settings['CurrentProject'] = '.nodefaultvalue'
 
     ui = config['UI'] = {}
-    ui['Font'] = 'Arial'
-    ui['Theme'] = 'Default'
+    ui['Font'] = 'sans-serif'
+    ui['FontMode'] = -2
+    ui['FontSize'] = 12
+    ui['Theme'] = 'LIGHT'
 
     assets = config['Assets'] = {}
     assets['UsePrefix'] = True
-    assets['PrefixType'] = 0
+    assets['PrefixType'] = -2
     assets['UseSuffix'] = False
-    assets['SuffixType'] = 0
+    assets['SuffixType'] = -2
+    assets['SuffixVersionMode'] = -2
     assets['SuffixCustomName'] = ''
     assets['MaxChars'] = 3
+    assets['Separator'] = "UNDERSCORE"
     assets['CategoryList'] = DEFAULT_CATEGORY
     assets['SubfolderList'] = DEFAULT_SUBFOLDER
+
+    advanced = config['Advanced'] = {}
+    advanced['Preview'] = -2
+    advanced['PreviewCustomMaxSize'] = 150
+    advanced['IconThumbnails'] = -2
+    advanced['UseDebugLog'] = False
 
     # 2. Write to TOML file
     try:

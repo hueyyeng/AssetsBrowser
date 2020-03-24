@@ -2,6 +2,7 @@
 import logging
 import os
 import sys
+from pathlib import Path
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
@@ -25,15 +26,15 @@ EXIT_CODE_REBOOT = -123
 class AssetsBrowser(QtWidgets.QMainWindow, ui_main.Ui_MainWindow):
     def __init__(self, parent=None):
         super(AssetsBrowser, self).__init__(parent)
+        self.categories = []
         self.setupUi(self)
         self.setWindowTitle('Assets Browser [PID: %d]' % QtWidgets.QApplication.applicationPid())
         self.setWindowFlags(QtCore.Qt.WindowMinimizeButtonHint | QtCore.Qt.WindowMaximizeButtonHint)
+        self.splitter.setSizes([150, 500])
 
         # 1.1 Initialize main window
         ui.functions.center_screen(self)
-        ui.functions.font_size_overrides(self)
         ui.functions.set_window_icon(self)
-        QtWidgets.QApplication.setStyle(configurations.get_setting('UI', 'Theme'))
 
         # 1.2 Menu action goes here
         self.actionAbout.triggered.connect(about.show_dialog)
@@ -43,7 +44,7 @@ class AssetsBrowser(QtWidgets.QMainWindow, ui_main.Ui_MainWindow):
 
         # 1.3 Setup input/button here
         self.pushBtnNew.clicked.connect(asset.show_dialog)
-        self.checkBoxDebug.clicked.connect(self._show_debug)
+        self.checkBoxDebug.clicked.connect(self.show_debug)
 
         # 1.3.1 Debug textbox
         self.textEdit.clear()
@@ -58,44 +59,19 @@ class AssetsBrowser(QtWidgets.QMainWindow, ui_main.Ui_MainWindow):
 
         # 3. Project List Dropdown ComboBox
         self.project_path = configurations.get_setting('Settings', 'ProjectPath')
-        self.comboBox.fsm = QtWidgets.QFileSystemModel()
-        self.comboBox.rootindex = self.comboBox.fsm.setRootPath(self.project_path)
-        self.comboBox.setModel(self.comboBox.fsm)
-        self.comboBox.setRootModelIndex(self.comboBox.rootindex)
-        self.comboBox.setCurrentIndex(1)
-        self.comboBox.activated[str].connect(self.project_list)
+        self.combobox_fsm = QtWidgets.QFileSystemModel()
+        self.comboBox.setModel(self.combobox_fsm)
+        root_idx = self.combobox_fsm.setRootPath(self.project_path)
+        self.comboBox.setRootModelIndex(root_idx)
+        self.combobox_fsm.directoryLoaded.connect(self.populate_project_list)
+        self.comboBox.activated[str].connect(self.select_project)
 
-        # 4.1 Create empty list and dictionary for ColumnView tabs
-        self.category = []
-        self.assets = {}
-        self.current_project = self._current_project()
-        assets_path = os.path.join(self.project_path, self.current_project, "Assets")
+        # 4. Create ColumnView tabs using TOML CurrentProject value
+        self.select_project()
 
-        # 4.2 Warn user if Assets directory doesn't exists
-        if not os.path.isdir(assets_path):
-            warning_text = (
-                    "Assets directory is unavailable.\n"
-                    + "\n"
-                    + "Please ensure you have access to it."
-            )
-            helpers.utils.alert_window("Warning", warning_text)
-            helpers.functions.close_app()
-
-        # 4.3 Populate categories list of Assets folder
-        for category in os.listdir(assets_path):
-            name_prefix = category.startswith(('_', '.'))
-            assets_directory = os.path.join(assets_path, category)
-            if not name_prefix and os.path.isdir(assets_directory):
-                self.category.append(category)
-
-        # 4.4.1 Generate Tabs using create_tabs
-        self.create_tabs(self.category, self.current_project)
-        self.splitter.setSizes([150, 500])
-
-        # 4.4.2 Help Tab
-        absolute_path = os.path.abspath(os.path.dirname(__file__))
-        help_file = os.path.join(absolute_path, 'ui', 'help', 'help.html')
-        self.textBrowserHelp.setSource(QtCore.QUrl.fromLocalFile(help_file))
+        # 5. Help Tab
+        help_file = Path(__file__).parent / 'ui' / 'help' / 'help.html'
+        self.textBrowserHelp.setSource(QtCore.QUrl.fromLocalFile(str(help_file)))
 
     def create_tabs(self, categories: list, project: str):
         """Create QColumnView tabs.
@@ -115,62 +91,79 @@ class AssetsBrowser(QtWidgets.QMainWindow, ui_main.Ui_MainWindow):
 
         """
         for category in categories:
-            self.column_view = ColumnViewWidget()
-            self.column_view.setAlternatingRowColors(False)
-            self.column_view.setResizeGripsVisible(True)
-
-            self.assets[f"column_view{category}"] = self.column_view
-
-            self.tab = QtWidgets.QWidget()
-            self.horizontalLayout = QtWidgets.QHBoxLayout(self.tab)
+            tab = QtWidgets.QWidget()
+            self.tabWidget.addTab(tab, category)
+            self.horizontalLayout = QtWidgets.QHBoxLayout(tab)
             self.horizontalLayout.setContentsMargins(0, 0, 0, 0)
-            self.horizontalLayout.addWidget(self.column_view)
+            self.horizontalLayout.addWidget(ColumnViewWidget(category, project))
 
-            self.tabWidget.addTab(self.tab, category)
-            helpers.functions.create_column_view(self.column_view, category, project)
+    def populate_project_list(self, path):
+        """Populate Project directories name in Project List comboBox.
 
-    def project_list(self):
-        """List Project directories in PROJECT_PATH comboBox.
+        This is a workaround to set the current project on startup as Qt will only
+        populate the combobox after initializing QApplication instance due to the
+        way FileSystemModel works.
 
-        Retrieve directories in PROJECT_PATH comboBox, clear existing tabs and create new tabs.
+        By using directoryLoaded signal, this function will be called and populate the
+        combobox using setCurrentIndex and findText to retrieve the current project index.
 
         """
-        # 1. Update TOML CurrentProject with chosen project from comboBox
-        project = self.comboBox.currentText()
-        configurations.update_setting('Settings', 'CurrentProject', project)
+        # 1. Loop and add the project directories name
+        fsm_index = self.combobox_fsm.index(path)
+        for i in range(self.combobox_fsm.rowCount(fsm_index)):
+            project_idx = self.combobox_fsm.index(i, 0, fsm_index)
+            self.comboBox.addItem(project_idx.data(), self.combobox_fsm.filePath(project_idx))
 
-        # 2. Clear all tabs except Help
+        # 2. Set the current project based on TOML settings
+        self.comboBox.setCurrentIndex(
+            self.comboBox.findText(
+                configurations.get_setting('Settings', 'CurrentProject'),
+                QtCore.Qt.MatchContains,
+            )
+        )
+
+    def select_project(self, project=None):
+        """Select Project from Project List comboBox.
+
+        Select project, clear existing tabs and create new tabs using the subdirectories
+        in the project's Assets directory.
+
+        """
+        # 1. Use CurrentProject value from TOML on startup
+        if not project:
+            project = configurations.get_setting('Settings', 'CurrentProject')
+        else:
+            project = self.comboBox.currentText()
+            configurations.update_setting('Settings', 'CurrentProject', project)
+
+        # 2. Raised warning if Assets directory not found in project path
+        assets_path = Path(self.project_path) / project / 'Assets'
+        if not assets_path.is_dir():
+            warning_text = (
+                    "Assets directory is unavailable.\n\n"
+                    "The Assets directory is either missing in the selected project\n"
+                    "directory or you do not have permission to access it.\n\n"
+            )
+            helpers.utils.alert_window("Warning", warning_text)
+            helpers.functions.close_app()
+
+        # 3. Clear all tabs except Help
         count = 0
-        while count < 10:
-            count = count + 1
+        total_tabs = self.tabWidget.count()
+        while count < total_tabs:
+            count += 1
             self.tabWidget.removeTab(1)
 
-        # 3. Force clear existing self.category and self.assets value
-        self.category = []
-        self.assets = {}
+        # 4. Create tabs from Assets' subfolders
+        self.categories = []
+        asset_categories = [a for a in os.listdir(str(assets_path)) if not a.startswith(('_', '.'))]
+        for category in asset_categories:
+            category_subfolder = assets_path / category
+            if category_subfolder.is_dir():
+                self.categories.append(str(category))
+        self.create_tabs(self.categories, project)
 
-        # 4. Populate self.category list with valid Assets directory name
-        assets_path = (self.project_path + project + "/Assets/")
-        for item in os.listdir(assets_path):
-            prefix = item.startswith(('_', '.'))
-            is_directory = os.path.isdir(os.path.join(assets_path, item))
-            if not prefix and is_directory:
-                self.category.append(item)
-
-        # 5. Create tabs using self.category list and selected project
-        self.create_tabs(self.category, project)
-
-    def _current_project(self):
-        """Set current project from Project list dropdown."""
-        projects = []
-        for project in os.listdir(self.project_path):
-            if not project.startswith(('_', '.')) and os.path.isdir(os.path.join(self.project_path, project)):
-                projects.append(project)
-        configurations.update_setting('Settings', 'CurrentProject', projects[0])
-        current_project = configurations.get_setting('Settings', 'CurrentProject')
-        return current_project
-
-    def _show_debug(self):
+    def show_debug(self):
         """Toggle Debug Display."""
         text = self.textEdit
         if self.checkBoxDebug.isChecked():
@@ -250,6 +243,7 @@ if __name__ == "__main__":
         if app is not None:
             raise ApplicationAlreadyExists(app)
         app = QtWidgets.QApplication(sys.argv)
+        app.setStyleSheet(open('ui/stylesheet.css').read())
         ui.functions.theme_loader(app)
         window = AssetsBrowser()
         window.show()

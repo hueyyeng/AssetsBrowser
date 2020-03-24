@@ -1,15 +1,23 @@
 """Preferences Dialog"""
 import logging
-import os
-import platform
 import sys
-from typing import Any
+from pathlib import Path
 
-from PyQt5 import QtWidgets
+from PyQt5 import QtCore, QtWidgets
 
 import helpers.functions
 import ui.functions
 from config import configurations
+from ui.enums import (
+    FontRadio,
+    FontSize,
+    IconRadio,
+    PrefixRadio,
+    PreviewRadio,
+    SeparatorCombo,
+    SuffixRadio,
+    ThemeRadio,
+)
 from ui.window.ui_preferences import Ui_PrefsDialog
 
 logger = logging.getLogger(__name__)
@@ -35,30 +43,84 @@ class Preferences(QtWidgets.QDialog, Ui_PrefsDialog):
         # 2.1 Setup Settings input/button here
         self.projectPathLine.setText(project_path)
         self.projectPathTool.clicked.connect(self.project_path_dialog)
-        self.descCheck.setChecked(self.get_toml_value('Settings', 'ShowDescriptionPanel'))
-        self.debugCheck.setChecked(self.get_toml_value('Settings', 'ShowDebugLog'))
-        self.themeRadioLight.setChecked(True)
-        theme = configurations.get_setting('UI', 'Theme')
-        if theme == 'Dark':
-            self.themeRadioDark.setChecked(True)
+        self.descCheck.setChecked(configurations.get_setting('Settings', 'ShowDescriptionPanel'))
+        theme = getattr(ThemeRadio, configurations.get_setting('UI', 'Theme').upper())
+        theme_radios = {
+            "LIGHT": self.themeRadioLight,
+            "DARK": self.themeRadioDark,
+        }
+        ui.functions.checked_radio(theme, theme_radios)
+        font_mode = FontRadio(configurations.get_setting('UI', 'FontMode'))
+        font_radios = {
+            "DEFAULT": self.fontRadioDefault,
+            "MONOSPACE": self.fontRadioMonospace,
+            "CUSTOM": self.fontRadioCustom,
+        }
+        ui.functions.checked_radio(font_mode, font_radios)
+        self.fontSizeComboBox.setCurrentIndex(
+            self.fontSizeComboBox.findText(
+                FontSize(configurations.get_setting('UI', 'FontSize')).name,
+                QtCore.Qt.MatchContains,
+            )
+        )
+        # Show blank in dropdown list if font not found
+        self.fontListComboBox.setCurrentIndex(
+            self.fontListComboBox.findText(
+                configurations.get_setting('UI', 'Font'),
+                QtCore.Qt.MatchContains,
+            )
+        )
 
         # 2.2 Setup Assets input/button here
-        self.maxCharSpinner.setValue(self.get_toml_value('Assets', 'MaxChars'))
-        self.boxPrefix.setChecked(self.get_toml_value('Assets', 'UsePrefix'))
-        self.boxSuffix.setChecked(self.get_toml_value('Assets', 'UseSuffix'))
-        self.suffixCustomName.setText(self.get_toml_value('Assets', 'SuffixCustomName'))
+        self.maxCharSpinner.setValue(configurations.get_setting('Assets', 'MaxChars'))
+        self.separatorCombo.setCurrentIndex(
+            self.separatorCombo.findText(
+                configurations.get_setting('Assets', 'Separator'),
+                QtCore.Qt.MatchContains,
+            )
+        )
+        self.boxPrefix.setChecked(configurations.get_setting('Assets', 'UsePrefix'))
+        prefix_type = PrefixRadio(configurations.get_setting('Assets', 'PrefixType'))
+        prefix_radios = {
+            "FIRST": self.prefixRadioFirst,
+            "WHOLE": self.prefixRadioWhole,
+        }
+        ui.functions.checked_radio(prefix_type, prefix_radios)
+        self.boxSuffix.setChecked(configurations.get_setting('Assets', 'UseSuffix'))
+        suffix_type = SuffixRadio(configurations.get_setting('Assets', 'SuffixType'))
+        suffix_radios = {
+            "VERSION": self.suffixRadioVersion,
+            "CUSTOM": self.suffixRadioCustomName,
+        }
+        ui.functions.checked_radio(suffix_type, suffix_radios)
+        self.suffixVersionCombo.setCurrentIndex(configurations.get_setting('Assets', 'SuffixVersionMode'))
+        self.suffixCustomName.setText(configurations.get_setting('Assets', 'SuffixCustomName'))
+        self.populate_list_value(self.categoryList, "Assets", "CategoryList")
         self.categoryBtnAdd.clicked.connect(lambda: self.add_item_list(self.categoryList, "Category"))
         self.categoryBtnRemove.clicked.connect(lambda: self.remove_item_list(self.categoryList))
+        self.populate_list_value(self.subfolderList, "Assets", "SubfolderList")
         self.subfolderBtnAdd.clicked.connect(lambda: self.add_item_list(self.subfolderList, "Subfolder"))
         self.subfolderBtnRemove.clicked.connect(lambda: self.remove_item_list(self.subfolderList))
 
         # 2.3 Setup Advanced input/button here
-        # self.metadataCheck.setChecked(self._get_toml_value('Advanced', 'UseMetadata'))
-        self.metadataBtnClear.clicked.connect(helpers.functions.ham)
-        self.metadataBtnRebuild.clicked.connect(helpers.functions.ham)
-
-        self.populate_list_value(self.categoryList, "Assets", "CategoryList")
-        self.populate_list_value(self.subfolderList, "Assets", "SubfolderList")
+        preview = PreviewRadio(configurations.get_setting('Advanced', 'Preview'))
+        preview_radios = {
+            "SMALL": self.previewRadioSmall,
+            "BIG": self.previewRadioBig,
+            "CUSTOM": self.previewRadioCustom,
+        }
+        ui.functions.checked_radio(preview, preview_radios)
+        icon = IconRadio(configurations.get_setting('Advanced', 'IconThumbnails'))
+        icon_radios = {
+            "ENABLE": self.iconRadioEnable,
+            "DISABLE": self.iconRadioDisable,
+            "GENERIC": self.iconRadioGeneric,
+        }
+        ui.functions.checked_radio(icon, icon_radios)
+        self.previewSpinnerCustom.setValue(configurations.get_setting('Advanced', 'PreviewCustomMaxSize'))
+        self.logButtonOpen.clicked.connect(helpers.functions.ham)
+        self.logButtonClear.clicked.connect(helpers.functions.ham)
+        self.logDebugCheck.setChecked(configurations.get_setting('Advanced', 'UseDebugLog'))
 
     def add_item_list(self, widget: QtWidgets.QListWidget, title="..."):
         """Add item to QListWidget.
@@ -72,7 +134,13 @@ class Preferences(QtWidgets.QDialog, Ui_PrefsDialog):
 
         """
         item = QtWidgets.QListWidgetItem()
-        text, ok = QtWidgets.QInputDialog.getText(self, ("Add " + str(title)), "Name:", QtWidgets.QLineEdit.Normal, "")
+        text, ok = QtWidgets.QInputDialog.getText(
+            self,
+            f"Add {title}",
+            "Name:",
+            QtWidgets.QLineEdit.Normal,
+            "",
+        )
 
         if ok and text != '':
             item.setText(str(text))
@@ -96,27 +164,8 @@ class Preferences(QtWidgets.QDialog, Ui_PrefsDialog):
             widget.takeItem(widget.row(item))
             return
 
-    def get_toml_value(self, section: str, setting: str) -> Any:
-        """Get TOML value for Preferences UI elements.
-
-        Parameters
-        ----------
-        section : str
-            Section name.
-        setting : str
-            Setting name.
-
-        Returns
-        -------
-        Any
-            The value of the setting.
-
-        """
-        value = configurations.get_setting(section, setting)
-        return value
-
     def populate_list_value(self, list_widget: QtWidgets.QListWidget, section: str, setting: str):
-        value_list = self.get_toml_value(section, setting)
+        value_list = configurations.get_setting(section, setting)
 
         # 1. Exit early and log error if not a valid list object
         if not isinstance(value_list, list):
@@ -135,28 +184,23 @@ class Preferences(QtWidgets.QDialog, Ui_PrefsDialog):
         Uses QFileDialog for user to choose the directory for their project path.
 
         """
+        existing_path = Path(self.projectPathLine.text()).as_posix()
+
         # 1. Initialize selected directory path through QFileDialog
-        path = str(QtWidgets.QFileDialog.getExistingDirectory(
+        path = QtWidgets.QFileDialog.getExistingDirectory(
             self,
             'Choose Directory',
-            os.path.expanduser('~'),  # Defaults to home directory
+            Path.home().as_posix(),  # Defaults to home directory
             QtWidgets.QFileDialog.ShowDirsOnly,  # Filter list to Directory only
-        ))
+        )
 
-        # 2. If user cancel, popup Warning and reuse the original INI ProjectPath
-        if path == '':
-            widget = QtWidgets.QWidget()
-            text = 'Please choose a directory!'
-            QtWidgets.QMessageBox.warning(widget, 'Warning', text)
-            self.projectPathLine.setText(self.default_path)
+        # 2. If user cancel, revert to original value
+        if not path:
+            path = existing_path
 
-        # 3. Replace Windows style to UNIX style separator
-        new_path = (path + '/') if platform.system() != 'Windows' else path
-        new_path.replace('\\', '/')
-
-        # 4. Set Project Path Line text field with new_path value
-        logger.info(new_path)
-        self.projectPathLine.setText(new_path)
+        # 3. Set Project Path Line text field with new_path value
+        logger.info("Selected Project Path: %s", path)
+        self.projectPathLine.setText(path)
 
     def get_checkbox_value(self, widget: QtWidgets.QCheckBox, setting: str):
         value = widget.isChecked()
@@ -176,13 +220,22 @@ class Preferences(QtWidgets.QDialog, Ui_PrefsDialog):
         config = {setting: items}
         return config
 
+    def get_font(self):
+        selection = self.fontBtnGrp.checkedId()
+        if selection == -4:
+            return self.fontListComboBox.currentText()
+        return FontRadio(selection).font()
+
+    def get_font_size(self):
+        font_size = getattr(FontSize, self.fontSizeComboBox.currentText().upper())
+        return font_size.value
+
     def apply(self):
         checkboxes = (
             (self.descCheck, "ShowDescriptionPanel"),
-            (self.debugCheck, "ShowDebugLog"),
+            (self.logDebugCheck, "UseDebugLog"),
             (self.boxPrefix, "UsePrefix"),
             (self.boxSuffix, "UseSuffix"),
-            (self.metadataCheck, "UseMetadata"),
         )
         lines = (
             (self.projectPathLine, "ProjectPath"),
@@ -210,11 +263,25 @@ class Preferences(QtWidgets.QDialog, Ui_PrefsDialog):
             )
 
         config.update({
-            "Theme": str(self.themeBtnGrp.checkedButton().text()),
+            "Theme": ThemeRadio(self.themeBtnGrp.checkedId()).name,
+            "Font": self.get_font(),
+            "FontMode": self.fontBtnGrp.checkedId(),
+            "FontSize": self.get_font_size(),
+            "Preview": self.previewBtnGrp.checkedId(),
+            "Separator": SeparatorCombo(self.separatorCombo.currentIndex()).name,
+            "IconThumbnails": self.iconBtnGrp.checkedId(),
+            "PrefixType": self.prefixBtnGrp.checkedId(),
+            "SuffixType": self.suffixBtnGrp.checkedId(),
+            "SuffixVersionMode": self.suffixVersionCombo.currentIndex(),
             "MaxChars": self.maxCharSpinner.value(),
+            "PreviewCustomMaxSize": self.previewSpinnerCustom.value(),
         })
-
         configurations.bulk_update_settings(config)
+
+        ui.functions.generate_stylesheet(
+            font=configurations.get_setting('UI', 'Font'),
+            size=self.get_font_size(),
+        )
         self.accept()  # Execute restart_app when OK
 
 

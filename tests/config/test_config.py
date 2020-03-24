@@ -64,8 +64,8 @@ def test_update_config(tmpdir):
     test_toml = tmpdir.mkdir("update_config").join('test.toml')
     create_config(test_toml)
 
-    old_font = get_setting('UI', 'Font', test_toml)
-    assert old_font == 'Arial'
+    default_font = get_setting('UI', 'Font', test_toml)
+    assert default_font == 'sans-serif'
     update_setting('UI', 'Font', 'Comic Sans MS', test_toml)
     new_font = get_setting('UI', 'Font', test_toml)
     assert new_font == 'Comic Sans MS'
