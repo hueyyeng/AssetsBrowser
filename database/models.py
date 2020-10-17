@@ -110,7 +110,7 @@ class Asset(
         verbose_name='Project',
     )
     short_name = pw.FixedCharField(
-        max_length=4,
+        max_length=12,
         verbose_name='Short Name',
     )
     version = pw.SmallIntegerField(
