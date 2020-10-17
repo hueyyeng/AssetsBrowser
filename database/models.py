@@ -40,7 +40,7 @@ class User(
         max_length=255,
         verbose_name='Username',
         unique=True,
-    ),
+    )
     name = pw.CharField(
         # Retrieve name from environment variables in Windows and workaround
         # for OSError: [Errno 25] Inappropriate ioctl for device
@@ -50,7 +50,7 @@ class User(
     )
 
     def __str__(self):
-        return self.username
+        return str(self.username)
 
     def validate(self):
         self.validate_username(self.username)
@@ -84,7 +84,7 @@ class Category(
     NameDescriptionMixin,
 ):
     def __str__(self):
-        return self.name
+        return str(self.name)
 
 
 class Asset(

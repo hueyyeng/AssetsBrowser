@@ -11,7 +11,7 @@ class InvalidProjectPath(Exception):
         logger.error(self.message)
 
     def __str__(self):
-        return self.message
+        return str(self.message)
 
 
 class ApplicationAlreadyExists(Exception):
@@ -21,4 +21,4 @@ class ApplicationAlreadyExists(Exception):
         logger.error(self.message)
 
     def __str__(self):
-        return self.message
+        return str(self.message)
