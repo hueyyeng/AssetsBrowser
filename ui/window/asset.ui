@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>350</width>
-    <height>470</height>
+    <height>600</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -19,13 +19,13 @@
   <property name="minimumSize">
    <size>
     <width>350</width>
-    <height>470</height>
+    <height>600</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
-    <width>350</width>
-    <height>470</height>
+    <width>500</width>
+    <height>750</height>
    </size>
   </property>
   <property name="focusPolicy">
@@ -37,137 +37,133 @@
   <property name="windowTitle">
    <string>Create New Asset</string>
   </property>
-  <layout class="QVBoxLayout" name="layoutVtlDialog">
+  <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <layout class="QHBoxLayout" name="layoutHznAsset">
-     <item>
-      <widget class="QLabel" name="assetLabel">
-       <property name="text">
-        <string>Asset Name (max 3 characters) :</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLineEdit" name="assetLineEdit">
-       <property name="toolTip">
-        <string>Alphanumeric only</string>
-       </property>
-       <property name="maxLength">
-        <number>3</number>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
-   <item>
-    <layout class="QHBoxLayout" name="layoutHznCatDesc">
-     <item>
-      <widget class="QGroupBox" name="catGroup">
-       <property name="font">
-        <font>
-         <weight>50</weight>
-         <bold>false</bold>
-        </font>
-       </property>
-       <property name="title">
-        <string>Category</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-       </property>
-       <property name="flat">
-        <bool>false</bool>
-       </property>
-       <property name="checkable">
-        <bool>false</bool>
-       </property>
-       <layout class="QVBoxLayout" name="layoutVtlCat">
-        <item>
-         <widget class="QRadioButton" name="catPlaceholder">
-          <property name="text">
-           <string>Placeholder</string>
-          </property>
-          <attribute name="buttonGroup">
-           <string notr="true">catBtnGroup</string>
-          </attribute>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-     </item>
-     <item>
-      <spacer name="spacerVertical">
-       <property name="orientation">
-        <enum>Qt::Vertical</enum>
-       </property>
-       <property name="sizeType">
-        <enum>QSizePolicy::Preferred</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>20</width>
-         <height>40</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item>
-      <widget class="QGroupBox" name="descGroup">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
-       <property name="title">
-        <string>Description (disabled)</string>
-       </property>
-       <layout class="QVBoxLayout" name="layoutVtlDesc">
-        <item>
-         <widget class="QLabel" name="descName">
-          <property name="text">
-           <string>Full Name:</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLineEdit" name="descNameLineEdit"/>
-        </item>
-        <item>
-         <widget class="QLabel" name="descHint">
-          <property name="text">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Remember to write meaningful Full Name for easy identification. E.g.:&lt;/p&gt;&lt;p&gt;HSE - House&lt;br/&gt;PAU - Pope's Aura Flame&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-          </property>
-          <property name="textFormat">
-           <enum>Qt::AutoText</enum>
-          </property>
-          <property name="scaledContents">
-           <bool>false</bool>
-          </property>
-          <property name="wordWrap">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-       </layout>
-       <zorder>descNameLineEdit</zorder>
-       <zorder>descName</zorder>
-       <zorder>descHint</zorder>
-      </widget>
-     </item>
-    </layout>
-   </item>
-   <item>
-    <widget class="QLabel" name="previewLabel">
-     <property name="text">
-      <string>*Preview must be checked to enable Create</string>
+    <widget class="QGroupBox" name="categoryGroup">
+     <property name="font">
+      <font>
+       <weight>50</weight>
+       <bold>false</bold>
+      </font>
      </property>
+     <property name="title">
+      <string>Category</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+     </property>
+     <property name="flat">
+      <bool>false</bool>
+     </property>
+     <property name="checkable">
+      <bool>false</bool>
+     </property>
+     <layout class="QVBoxLayout" name="layoutVtlCat">
+      <item>
+       <widget class="QComboBox" name="categoryComboBox"/>
+      </item>
+      <item>
+       <widget class="QGroupBox" name="variantGroupBox">
+        <property name="title">
+         <string>Variant</string>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+        <property name="checked">
+         <bool>false</bool>
+        </property>
+        <layout class="QHBoxLayout" name="horizontalLayout">
+         <item>
+          <widget class="QRadioButton" name="variantRadioNumber">
+           <property name="text">
+            <string>Number</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="variantRadioAlphabet">
+           <property name="text">
+            <string>Alphabet</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="detailsGroup">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="title">
+      <string>Details</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_2">
+      <item>
+       <widget class="QLabel" name="shortNameLabel">
+        <property name="text">
+         <string>Shortname</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="shortNameLineEdit">
+        <property name="toolTip">
+         <string>Alphanumeric only</string>
+        </property>
+        <property name="maxLength">
+         <number>3</number>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="nameLabel">
+        <property name="text">
+         <string>Full Name</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="nameLineEdit"/>
+      </item>
+      <item>
+       <widget class="QLabel" name="descLabel">
+        <property name="text">
+         <string>Description</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPlainTextEdit" name="descTextEdit">
+        <property name="placeholderText">
+         <string>Asset's description goes here</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="formatLabel">
+        <property name="text">
+         <string>Format</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QComboBox" name="formatComboBox"/>
+      </item>
+     </layout>
     </widget>
    </item>
    <item>
     <widget class="QGroupBox" name="previewGroup">
      <property name="title">
       <string>Preview</string>
+     </property>
+     <property name="flat">
+      <bool>false</bool>
      </property>
      <property name="checkable">
       <bool>true</bool>
@@ -187,7 +183,7 @@
     </widget>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="layoutHznBtn">
+    <layout class="QHBoxLayout" name="layoutCreateCancel">
      <item>
       <widget class="QPushButton" name="btnCreate">
        <property name="text">
@@ -205,14 +201,7 @@
     </layout>
    </item>
   </layout>
-  <zorder>previewGroup</zorder>
-  <zorder></zorder>
-  <zorder></zorder>
-  <zorder>previewLabel</zorder>
  </widget>
  <resources/>
  <connections/>
- <buttongroups>
-  <buttongroup name="catBtnGroup"/>
- </buttongroups>
 </ui>
