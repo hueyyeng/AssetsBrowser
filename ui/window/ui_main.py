@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'K:\Library\Python\AssetsBrowser\ui\main.ui'
+# Form implementation generated from reading ui file 'K:\Library\Python\AssetsBrowser\ui\window\main.ui'
 #
-# Created by: PyQt5 UI code generator 5.7.1
+# Created by: PyQt5 UI code generator 5.11.3
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -99,7 +99,6 @@ class Ui_MainWindow(object):
         self.tabHelp = QtWidgets.QWidget()
         self.tabHelp.setObjectName("tabHelp")
         self.horizontalLayout_3 = QtWidgets.QHBoxLayout(self.tabHelp)
-        self.horizontalLayout_3.setContentsMargins(0, 0, 0, 0)
         self.horizontalLayout_3.setObjectName("horizontalLayout_3")
         self.frameHelp = QtWidgets.QFrame(self.tabHelp)
         self.frameHelp.setFrameShape(QtWidgets.QFrame.StyledPanel)

@@ -3,7 +3,6 @@ import logging
 import os
 import sys
 
-import sip
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 import ui.functions
@@ -19,75 +18,61 @@ class Asset(QtWidgets.QDialog, Ui_AssetDialog):
         super(Asset, self).__init__(parent)
         self.setupUi(self)
         ui.functions.set_window_icon(self)
+        self._setup_ui_buttons()
+        self._setup_asset_validator()
+        self._setup_category_combobox()
+        self._append_max_chars_suffix()
 
-        # 1.1 Setup buttons here
-        self.btnCreate.setDisabled(True)
-        self.btnCreate.clicked.connect(self._create_asset)
-        self.btnCancel.clicked.connect(self.close)
-        self.previewGroup.clicked.connect(self._preview)
+    def _append_max_chars_suffix(self):
+        """Append Max Chars to Asset's Name label"""
+        max_chars = configurations.get_setting('Assets', 'MaxChars')
+        label = self.shortNameLabel.text()
+        self.shortNameLabel.setText(f"{label} (Max chars: {max_chars})")
 
-        # 1.2 Setup category radio buttons
+    def _setup_category_combobox(self):
+        """setup Category combobox"""
         asset_categories = configurations.get_setting('Assets', 'CategoryList')
-        # TODO: Rework dynamic radio buttons to retrieve categories per project basis
-        placeholder = bool(len(asset_categories))
-        self._remove_radio_button(placeholder)
         for asset_category in asset_categories:
-            self._generate_radio_button(asset_category)
+            self.categoryComboBox.addItem(asset_category)
 
-        # 1.3 Set the first radio button as default choice
-        radio_buttons = self.catGroup.findChildren(QtWidgets.QRadioButton)
-        radio_buttons[0].setChecked(True)
-
-        # 2.1 Limit the range of acceptable characters input by the user using regex
+    def _setup_asset_validator(self):
+        """Setup Asset validator"""
+        # Limit the range of acceptable characters input by the user using regex
         regex = QtCore.QRegularExpression("^[a-zA-Z0-9]+$")
-        self.validator = QtGui.QRegularExpressionValidator(regex, self)
-        self.assetLineEdit.setValidator(self.validator)
+        validator = QtGui.QRegularExpressionValidator(regex, self)
+        self.shortNameLineEdit.setValidator(validator)
+        # Runs text_uppercase and preview whenever Qt detects textChanged
+        self.shortNameLineEdit.textChanged.connect(self.text_uppercase)
+        self.shortNameLineEdit.textChanged.connect(self.preview)
 
-        # 2.2 Runs text_uppercase and preview whenever Qt detects textChanged
-        self.assetLineEdit.textChanged.connect(self._text_uppercase)
-        self.assetLineEdit.textChanged.connect(self._preview)
+    def _setup_ui_buttons(self):
+        self.btnCreate.setDisabled(True)
+        self.btnCreate.clicked.connect(self.create_asset)
+        self.btnCancel.clicked.connect(self.close)
+        self.previewGroup.clicked.connect(self.preview)
 
-    def _remove_radio_button(self, placeholder=False):
-        """Remove radio button."""
-        # TODO: Allow removal of any radio buttons
-        if not placeholder:
-            self.layoutVtlCat.removeWidget(self.catPlaceholder)
-            sip.delete(self.catPlaceholder)
-            self.catPlaceholder = None
-
-    def _generate_radio_button(self, name):
-        """Generate category radio button."""
-        _translate = QtCore.QCoreApplication.translate
-        self.catRadioButton = QtWidgets.QRadioButton(self.catGroup)
-        self.catRadioButton.setObjectName("cat" + name)
-        self.catBtnGroup.addButton(self.catRadioButton)
-        self.layoutVtlCat.addWidget(self.catRadioButton)
-        self.catRadioButton.setText(_translate("AssetDialog", name))
-        self.catRadioButton.clicked.connect(self._preview)
-
-    def _text_uppercase(self):
+    def text_uppercase(self):
         """Convert text to UPPERCASE."""
-        asset_name = self.assetLineEdit.text()
-        self.assetLineEdit.setText(asset_name.upper())
+        asset_name = self.shortNameLineEdit.text()
+        self.shortNameLineEdit.setText(asset_name.upper())
 
-    def _create_asset(self):
+    def create_asset(self):
         """Create asset with preconfigure directories structure."""
-        # 1. Prepare variables
-        category = str(self.catBtnGroup.checkedButton().text())
+        category = self.catBtnGroup.checkedButton().text()
         project = configurations.get_setting('Settings', 'CurrentProject')
         project_path = configurations.get_setting('Settings', 'ProjectPath')
         asset_path = os.path.join(project_path, project, "Assets", category)
-        asset_name = str(self._preview())
+        asset_name = str(self.preview())
         full_path = os.path.join(asset_path, asset_name)
 
-        # 2.1 Raise error if `full_path` exists
+        # 1. Raise error if `full_path` exists
         try:
             os.mkdir(full_path)
         except OSError:
             alert_window('Warning', 'ERROR! Asset already exists!')
         logger.debug('Assets will be created at %s', full_path)
 
-        # 2.2 Create Assets directory
+        # 2. Create Assets directory
         folders = configurations.get_setting('Assets', 'SubfolderList')
         logger.debug(folders)
         for folder in folders:
@@ -98,10 +83,10 @@ class Asset(QtWidgets.QDialog, Ui_AssetDialog):
 
         self.accept()
 
-    def _generate_asset_name(self):
+    def generate_asset_name(self):
         """Generate asset's name with category prefix.
 
-        Use input from `assetLineEdit` to generate asset's name with
+        Use input from `shortNameLineEdit` to generate asset's name with
 
         Returns
         -------
@@ -109,18 +94,18 @@ class Asset(QtWidgets.QDialog, Ui_AssetDialog):
             Asset's name with category prefix
 
         """
-        category = str(self.catBtnGroup.checkedButton().text())
+        category = self.categoryComboBox.currentText()
         prefix = category[0].lower()
-        suffix = str(self.assetLineEdit.text())
-        asset_name = (prefix + suffix)
+        suffix = self.shortNameLineEdit.text()
+        asset_name = f"{prefix}{suffix}"
         return asset_name
 
-    def _preview(self):
+    def preview(self):
         """Previews asset's creation name in non-editable text field.
 
         Notes
         -----
-        Since both `catBtnGroup` and `assetLineEdit` emits signal to this
+        Since both `catBtnGroup` and `shortNameLineEdit` emits signal to this
         method, it allows the text field to "dynamically" update.
 
         Returns
@@ -134,23 +119,19 @@ class Asset(QtWidgets.QDialog, Ui_AssetDialog):
         self.btnCreate.setDisabled(True)
 
         # 2.1 Generate preview message
-        name_length = len(self.assetLineEdit.text())
+        name_length = len(self.shortNameLineEdit.text())
         checked = self.previewGroup.isChecked()
-        asset_name = self._generate_asset_name()
-        message = ''
+        asset_name = self.generate_asset_name()
 
         # 2.2 Enable Create button and display the expected asset name
-        if checked and name_length != 3:
-            message = "Ensure asset's name is three characters length!"
+        message = "Ensure asset's name is three characters length!"
         if checked and name_length == 3:
             self.btnCreate.setDisabled(False)
             project = configurations.get_setting('Settings', 'CurrentProject')
-            message = (
-                    'The asset name will be ' + asset_name + '.\n'
-                    + 'Ensure the asset name is correct before proceeding.\n'
-                    + '\n'
-                    + 'Project: ' + project
-            )
+            message = f"The asset name will be {asset_name}.\n" \
+                      f"Ensure the asset name is correct before proceeding.\n" \
+                      f"\n" \
+                      f"Project:  {project}"
         self.previewText.appendPlainText(message)
         return asset_name
 
