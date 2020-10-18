@@ -30,7 +30,7 @@ class Asset(QtWidgets.QDialog, Ui_AssetDialog):
         self.shortNameLabel.setText(f"{label} (Max chars: {max_chars})")
 
     def _setup_category_combobox(self):
-        """setup Category combobox"""
+        """Setup Category combobox"""
         asset_categories = configurations.get_setting('Assets', 'CategoryList')
         for asset_category in asset_categories:
             self.categoryComboBox.addItem(asset_category)
