@@ -28,11 +28,16 @@ class Preferences(QtWidgets.QDialog, Ui_PrefsDialog):
         super(Preferences, self).__init__(parent)
         self.setupUi(self)
         ui.functions.set_window_icon(self)
+        self._setup_ui_buttons()
+        self._setup_description_check()
+        self._setup_project_path()
+        self._setup_theme()
+        self._setup_font()
+        self._setup_assets_config()
+        self._setup_preview()
+        self._setup_log()
 
-        project_path = configurations.get_setting('Settings', 'ProjectPath')
-        self.default_path = project_path
-
-        # 1. Setup QDialogButtonBox
+    def _setup_ui_buttons(self):
         self.btnDialogBox.button(QtWidgets.QDialogButtonBox.RestoreDefaults).setToolTip('Restore Defaults')
         self.btnDialogBox.button(QtWidgets.QDialogButtonBox.RestoreDefaults).clicked.connect(helpers.functions.ham)
         self.btnDialogBox.button(QtWidgets.QDialogButtonBox.Apply).setToolTip('Apply')
@@ -40,16 +45,28 @@ class Preferences(QtWidgets.QDialog, Ui_PrefsDialog):
         self.btnDialogBox.accepted.connect(self.apply)
         self.btnDialogBox.rejected.connect(self.reject)
 
-        # 2.1 Setup Settings input/button here
-        self.projectPathLine.setText(project_path)
-        self.projectPathTool.clicked.connect(self.project_path_dialog)
+    def _setup_description_check(self):
+        """Setup Description Check"""
         self.descCheck.setChecked(configurations.get_setting('Settings', 'ShowDescriptionPanel'))
+
+    def _setup_project_path(self):
+        """Setup Project Path"""
+        self.project_path = configurations.get_setting('Settings', 'ProjectPath')
+        self.default_path = self.project_path
+        self.projectPathLine.setText(self.project_path)
+        self.projectPathTool.clicked.connect(self.project_path_dialog)
+
+    def _setup_theme(self):
+        """Setup Theme"""
         theme = getattr(ThemeRadio, configurations.get_setting('UI', 'Theme').upper())
         theme_radios = {
             "LIGHT": self.themeRadioLight,
             "DARK": self.themeRadioDark,
         }
         ui.functions.checked_radio(theme, theme_radios)
+
+    def _setup_font(self):
+        """Setup Font"""
         font_mode = FontRadio(configurations.get_setting('UI', 'FontMode'))
         font_radios = {
             "DEFAULT": self.fontRadioDefault,
@@ -71,7 +88,8 @@ class Preferences(QtWidgets.QDialog, Ui_PrefsDialog):
             )
         )
 
-        # 2.2 Setup Assets input/button here
+    def _setup_assets_config(self):
+        """Setup Assets Config"""
         self.maxCharSpinner.setValue(configurations.get_setting('Assets', 'MaxChars'))
         self.separatorCombo.setCurrentIndex(
             self.separatorCombo.findText(
@@ -102,7 +120,8 @@ class Preferences(QtWidgets.QDialog, Ui_PrefsDialog):
         self.subfolderBtnAdd.clicked.connect(lambda: self.add_item_list(self.subfolderList, "Subfolder"))
         self.subfolderBtnRemove.clicked.connect(lambda: self.remove_item_list(self.subfolderList))
 
-        # 2.3 Setup Advanced input/button here
+    def _setup_preview(self):
+        """Setup Preview"""
         preview = PreviewRadio(configurations.get_setting('Advanced', 'Preview'))
         preview_radios = {
             "SMALL": self.previewRadioSmall,
@@ -118,6 +137,9 @@ class Preferences(QtWidgets.QDialog, Ui_PrefsDialog):
         }
         ui.functions.checked_radio(icon, icon_radios)
         self.previewSpinnerCustom.setValue(configurations.get_setting('Advanced', 'PreviewCustomMaxSize'))
+
+    def _setup_log(self):
+        """Setup Log"""
         self.logButtonOpen.clicked.connect(helpers.functions.ham)
         self.logButtonClear.clicked.connect(helpers.functions.ham)
         self.logDebugCheck.setChecked(configurations.get_setting('Advanced', 'UseDebugLog'))
@@ -142,7 +164,7 @@ class Preferences(QtWidgets.QDialog, Ui_PrefsDialog):
             "",
         )
 
-        if ok and text != '':
+        if ok and text:
             item.setText(str(text))
             widget.addItem(item)
 
@@ -162,9 +184,13 @@ class Preferences(QtWidgets.QDialog, Ui_PrefsDialog):
             return
         for item in items:
             widget.takeItem(widget.row(item))
-            return
 
-    def populate_list_value(self, list_widget: QtWidgets.QListWidget, section: str, setting: str):
+    def populate_list_value(
+            self,
+            list_widget: QtWidgets.QListWidget,
+            section: str,
+            setting: str,
+    ):
         value_list = configurations.get_setting(section, setting)
 
         # 1. Exit early and log error if not a valid list object

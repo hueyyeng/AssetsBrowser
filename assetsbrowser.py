@@ -26,27 +26,38 @@ EXIT_CODE_REBOOT = -123
 class AssetsBrowser(QtWidgets.QMainWindow, ui_main.Ui_MainWindow):
     def __init__(self, parent=None):
         super(AssetsBrowser, self).__init__(parent)
-        self.categories = []
         self.setupUi(self)
+        ui.functions.set_window_icon(self)
+        self._setup_window_properties()
+        self._setup_menu_actions()
+        self._setup_ui_buttons()
+        self._setup_debug_log()
+        self._setup_project_list_dropdown()
+        self._setup_initial_tabs()
+        self._setup_help_tab()
+
+    def _setup_window_properties(self):
+        """Setup Window Properties"""
         self.setWindowTitle('Assets Browser [PID: %d]' % QtWidgets.QApplication.applicationPid())
         self.setWindowFlags(QtCore.Qt.WindowMinimizeButtonHint | QtCore.Qt.WindowMaximizeButtonHint)
         self.splitter.setSizes([150, 500])
-
-        # 1.1 Initialize main window
         ui.functions.center_screen(self)
-        ui.functions.set_window_icon(self)
 
+    def _setup_menu_actions(self):
         # 1.2 Menu action goes here
         self.actionAbout.triggered.connect(about.show_dialog)
         self.actionAlwaysOnTop.triggered.connect(lambda: ui.functions.always_on_top(self))
         self.actionPreferences.triggered.connect(preferences.show_dialog)
         self.actionQuit.triggered.connect(helpers.functions.close_app)
 
+    def _setup_ui_buttons(self):
         # 1.3 Setup input/button here
         self.pushBtnNew.clicked.connect(asset.show_dialog)
         self.checkBoxDebug.clicked.connect(self.show_debug)
 
-        # 1.3.1 Debug textbox
+    def _setup_debug_log(self):
+        """Setup Debug Log"""
+        # 1. Debug textbox
         self.textEdit.clear()
         self.textEdit.setHidden(True)
         self.textEdit.setEnabled(False)
@@ -57,7 +68,8 @@ class AssetsBrowser(QtWidgets.QMainWindow, ui_main.Ui_MainWindow):
         formatter = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
         logging.basicConfig(stream=sys.stdout, level=logging.DEBUG, format=formatter)
 
-        # 3. Project List Dropdown ComboBox
+    def _setup_project_list_dropdown(self):
+        """Setup Project List Dropdown"""
         self.project_path = configurations.get_setting('Settings', 'ProjectPath')
         self.combobox_fsm = QtWidgets.QFileSystemModel()
         self.comboBox.setModel(self.combobox_fsm)
@@ -66,10 +78,16 @@ class AssetsBrowser(QtWidgets.QMainWindow, ui_main.Ui_MainWindow):
         self.combobox_fsm.directoryLoaded.connect(self.populate_project_list)
         self.comboBox.activated[str].connect(self.select_project)
 
-        # 4. Create ColumnView tabs using TOML CurrentProject value
+    def _setup_initial_tabs(self):
+        """Setup initial tabs
+
+        Create ColumnView tabs using TOML CurrentProject value
+
+        """
         self.select_project()
 
-        # 5. Help Tab
+    def _setup_help_tab(self):
+        """Setup Help tab"""
         help_file = Path(__file__).parent / 'ui' / 'help' / 'help.html'
         self.textBrowserHelp.setSource(QtCore.QUrl.fromLocalFile(str(help_file)))
 
