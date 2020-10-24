@@ -8,18 +8,15 @@ from database.models import (
     Client,
     Project,
 )
-from database.models import DB_PROXY
 from database.constants import DEFAULT_MODELS
-from database.utils import create_db_schema
+from database.db import Database
 
 
 def test_create_db_schema():
-    test_db = pw.SqliteDatabase(':memory:')
-    DB_PROXY.initialize(test_db)
-    test_db.connect()
-    create_db_schema(test_db)
+    test_db = Database()
+    test_db.create_db_schema()
     for model in DEFAULT_MODELS:
-        result = test_db.table_exists(model._meta.table_name)
+        result = test_db.db.table_exists(model._meta.table_name)
         assert result is True
 
 

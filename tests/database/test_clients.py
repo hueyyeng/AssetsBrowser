@@ -1,24 +1,21 @@
-from pytest import mark
-import pytest
 import peewee as pw
+import pytest
+from pytest import mark
 
+from database.db import Database
 from database.models import (
     Asset,
     Category,
     Client,
-    User,
     Project,
+    User,
 )
-from database.models import DB_PROXY
-from database.utils import create_db_schema, insert_entry, get_entry
 
 
 class TestClients:
     def setup(self):
-        self.test_db = pw.SqliteDatabase(':memory:')
-        DB_PROXY.initialize(self.test_db)
-        self.test_db.connect()
-        self.test_db.create_tables([
+        self.test_db = Database()
+        self.test_db.create_db_tables([
             Client,
         ])
         self.client_data = {
@@ -30,8 +27,8 @@ class TestClients:
         }
 
     def test_create_client_successful(self):
-        insert_entry(self.test_db, Client, **self.client_data)
-        client = get_entry(self.test_db, Client, id=1)
+        self.test_db.insert_entry(Client, **self.client_data)
+        client = self.test_db.get_entry(Client, id=1)
         assert client.name == self.client_data['name']
         assert client.description == self.client_data['description']
         assert client.email == self.client_data['email']
@@ -41,14 +38,14 @@ class TestClients:
     def test_create_client_invalid_email(self):
         self.client_data['email'] = "aloha@com"
         with pytest.raises(Exception):
-            insert_entry(self.test_db, Client, **self.client_data)
+            self.test_db.insert_entry(Client, **self.client_data)
 
     def test_create_client_invalid_website(self):
         self.client_data['website'] = "http:/slashy.co"
         with pytest.raises(Exception):
-            insert_entry(self.test_db, Client, **self.client_data)
+            self.test_db.insert_entry(Client, **self.client_data)
 
     def test_create_client_invalid_phone(self):
         self.client_data['phone_number'] = "+I23456789"
         with pytest.raises(Exception):
-            insert_entry(self.test_db, Client, **self.client_data)
+            self.test_db.insert_entry(Client, **self.client_data)

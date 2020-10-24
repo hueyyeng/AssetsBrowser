@@ -1,16 +1,17 @@
 """Database Models"""
 import getpass
+
 import peewee as pw
 
-from database.mixins import NameDescriptionMixin, DateTimeMixin, EmailPhoneMixin
+from database.mixins import DateTimeMixin, EmailPhoneMixin, NameDescriptionMixin
 from database.validators import ModelValidator
 
-DB_PROXY = pw.Proxy()
+SQLITE_DB = pw.SqliteDatabase(None)
 
 
 class BaseModel(pw.Model, ModelValidator):
     class Meta:
-        database = DB_PROXY
+        database = SQLITE_DB
 
     def validate(self):
         return None

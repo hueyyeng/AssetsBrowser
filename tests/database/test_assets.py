@@ -1,22 +1,19 @@
-from pytest import mark
 import peewee as pw
+from pytest import mark
 
+from database.db import Database
 from database.models import (
     Asset,
     Category,
-    User,
     Project,
+    User,
 )
-from database.models import DB_PROXY
-from database.utils import create_db_schema, insert_entry, get_entry
 
 
 class TestAssets:
     def setup(self):
-        self.test_db = pw.SqliteDatabase(':memory:')
-        DB_PROXY.initialize(self.test_db)
-        self.test_db.connect()
-        self.test_db.create_tables([
+        self.test_db = Database()
+        self.test_db.create_db_tables([
             Asset,
             Category,
             User,
@@ -38,9 +35,9 @@ class TestAssets:
         }
 
     def test_create_asset(self):
-        insert_entry(self.test_db, Category, **self.category_data)
-        insert_entry(self.test_db, User, **self.user_data)
-        insert_entry(self.test_db, Project, **self.project_data)
+        self.test_db.insert_entry(Category, **self.category_data)
+        self.test_db.insert_entry(User, **self.user_data)
+        self.test_db.insert_entry(Project, **self.project_data)
         asset_name = "Explosion"
         asset_desc = "Fire Magic"
         asset_short_name = "EXP"
@@ -54,8 +51,8 @@ class TestAssets:
             "project": 1,
         }
 
-        insert_entry(self.test_db, Asset, **asset_data)
-        a = get_entry(self.test_db, Asset, id=1)
+        self.test_db.insert_entry(Asset, **asset_data)
+        a = self.test_db.get_entry(Asset, id=1)
         assert a.name == asset_name
         assert a.description == asset_desc
         assert a.short_name == asset_short_name

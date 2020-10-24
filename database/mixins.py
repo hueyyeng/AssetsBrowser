@@ -1,5 +1,6 @@
 """Database Mixins"""
 from datetime import datetime
+
 import peewee as pw
 import pytz
 

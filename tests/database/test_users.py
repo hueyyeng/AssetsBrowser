@@ -1,22 +1,19 @@
-from pytest import mark
 import peewee as pw
+from pytest import mark
 
+from database.db import Database
 from database.models import (
     Asset,
     Category,
-    User,
     Project,
+    User,
 )
-from database.models import DB_PROXY
-from database.utils import create_db_schema, insert_entry, get_entry
 
 
 class TestUsers:
     def setup(self):
-        self.test_db = pw.SqliteDatabase(':memory:')
-        DB_PROXY.initialize(self.test_db)
-        self.test_db.connect()
-        self.test_db.create_tables([
+        self.test_db = Database()
+        self.test_db.create_db_tables([
             User,
         ])
 
@@ -31,7 +28,7 @@ class TestUsers:
             "phone_number": user_phone_number,
             "username": user_username,
         }
-        u = insert_entry(self.test_db, User, **user_data)
+        u = self.test_db.insert_entry(User, **user_data)
         # TODO: Look into `(<CharField: (unbound)>,)` when GET query from DB for username value
         # v = get_entry(self.test_db, User, name=user_name)
         assert u.name == user_name
