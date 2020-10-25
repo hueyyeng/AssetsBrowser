@@ -1,6 +1,4 @@
 """Database Models"""
-import getpass
-
 import peewee as pw
 
 from database.mixins import DateTimeMixin, EmailPhoneMixin, NameDescriptionMixin
@@ -31,55 +29,6 @@ class Project(
         return f"{self.name} ({self.short_name})"
 
 
-class User(
-    BaseModel,
-    DateTimeMixin,
-    EmailPhoneMixin,
-):
-    username = pw.CharField(
-        null=True,
-        max_length=255,
-        verbose_name='Username',
-        unique=True,
-    )
-    name = pw.CharField(
-        # Retrieve name from environment variables in Windows and workaround
-        # for OSError: [Errno 25] Inappropriate ioctl for device
-        default=getpass.getuser(),
-        max_length=255,
-        verbose_name='Name (Full or Preferred Name)',
-    )
-
-    def __str__(self):
-        return str(self.username)
-
-    def validate(self):
-        self.validate_username(self.username)
-        self.validate_email(self.email)
-        self.validate_phone_number(self.phone_number)
-
-
-class Client(
-    BaseModel,
-    DateTimeMixin,
-    EmailPhoneMixin,
-    NameDescriptionMixin,
-):
-    users = pw.ManyToManyField(
-        User,
-        backref='clients',
-    )
-    website = pw.CharField(
-        null=True,
-        verbose_name='Website',
-    )
-
-    def validate(self):
-        self.validate_url(self.website)
-        self.validate_email(self.email)
-        self.validate_phone_number(self.phone_number)
-
-
 class Category(
     BaseModel,
     NameDescriptionMixin,
@@ -93,10 +42,6 @@ class Asset(
     DateTimeMixin,
     NameDescriptionMixin,
 ):
-    author = pw.ForeignKeyField(
-        User,
-        verbose_name='Author',
-    )
     category = pw.ForeignKeyField(
         Category,
         verbose_name='Category',

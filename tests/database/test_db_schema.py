@@ -4,8 +4,6 @@ import peewee as pw
 from database.models import (
     Asset,
     Category,
-    User,
-    Client,
     Project,
 )
 from database.constants import DEFAULT_MODELS
@@ -22,7 +20,6 @@ def test_create_db_schema():
 
 @mark.parametrize("model,fields", [
     (Asset, [
-        'author',
         'category',
         'format',
         'project',
@@ -36,22 +33,6 @@ def test_create_db_schema():
     (Category, [
         'name',
         'description',
-    ]),
-    (User, [
-        'username',
-        'name',
-        'created_dt',
-        'modified_dt',
-        'email',
-        'phone_number',
-    ]),
-    (Client, [
-        'name',
-        'description',
-        'email',
-        'phone_number',
-        'users',
-        'website',
     ]),
     (Project, [
         'name',

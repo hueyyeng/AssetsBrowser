@@ -4,7 +4,6 @@ import peewee as pw
 from database.models import (
     Asset,
     Category,
-    User,
     Project,
 )
 from database.db import Database

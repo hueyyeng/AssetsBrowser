@@ -5,12 +5,12 @@ import os
 import peewee as pw
 
 from database.constants import DEFAULT_MODELS
-from database.models import SQLITE_DB, Client
+from database.models import SQLITE_DB
 
 logger = logging.getLogger(__name__)
 
 
-DEFAULT_DB_PATH = os.path.join(os.path.dirname(__file__), 'db.sqlite3')
+DEFAULT_DB = os.path.join(os.path.dirname(__file__), 'db.sqlite3')
 SQLITE_MEMORY = ':memory:'
 
 
@@ -21,8 +21,10 @@ class Database:
     relying on another DB driver like MySQL or Postgres
 
     """
-    def __init__(self, db=None, sqlite_on_delete=True):
+    def __init__(self, db=None, sqlite_on_delete=True, use_default_db=False):
         self.db = SQLITE_DB
+        if not db and use_default_db:
+            db = DEFAULT_DB
         self.connect_db(db, sqlite_on_delete)
 
     def connect_db(self, db=None, sqlite_on_delete: bool = True):
@@ -66,7 +68,7 @@ class Database:
                 open(db, 'w').close()
                 logger.error('DB file not found! Creating new empty DB at: %s', db)
 
-    def delete_db(self, db: str = DEFAULT_DB_PATH):
+    def delete_db(self, db: str = DEFAULT_DB):
         """Delete DB
 
         Parameters
@@ -115,7 +117,4 @@ class Database:
     def create_db_schema(self):
         """Create DB schema."""
         tables = DEFAULT_MODELS
-        # Peewee requires explicit handling for through model unlike Django
-        user_client_through = Client.users.get_through_model()
-        tables.append(user_client_through)
         self.create_db_tables(tables)

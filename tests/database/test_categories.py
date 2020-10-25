@@ -6,7 +6,6 @@ from database.models import (
     Asset,
     Category,
     Project,
-    User,
 )
 
 
