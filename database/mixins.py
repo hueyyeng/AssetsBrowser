@@ -1,5 +1,6 @@
 """Database Mixins"""
 from datetime import datetime
+
 import peewee as pw
 import pytz
 
@@ -8,6 +9,7 @@ UTC = pytz.utc
 
 class NameDescriptionMixin(pw.Model):
     name = pw.CharField(
+        null=True,
         max_length=50,
         verbose_name='Name',
     )
@@ -29,6 +31,7 @@ class DateTimeMixin(pw.Model):
     )
 
 
+# TODO: Currently unused. Will revisit if to remain or remove
 class EmailPhoneMixin(pw.Model):
     email = pw.CharField(
         null=True,

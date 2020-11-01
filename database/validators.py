@@ -1,6 +1,7 @@
 """Database Field Validators"""
 import re
-from voluptuous import Schema, Url, Email
+
+from voluptuous import Email, Schema, Url
 
 
 # pylint: disable=no-value-for-parameter

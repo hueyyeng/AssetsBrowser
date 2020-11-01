@@ -1,10 +1,12 @@
 """Database Constants"""
-from database.models import Asset, Category, Client, User, Project
+from database.models import (
+    Asset,
+    Category,
+    Project,
+)
 
 DEFAULT_MODELS = [
     Asset,
     Category,
-    Client,
-    User,
     Project,
 ]

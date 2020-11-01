@@ -125,6 +125,11 @@ class AssetsBrowser(QtWidgets.QMainWindow, ui_main.Ui_MainWindow):
         By using directoryLoaded signal, this function will be called and populate the
         combobox using setCurrentIndex and findText to retrieve the current project index.
 
+        Parameters
+        ----------
+        path : str
+            Project directory path
+
         """
         # 1. Loop and add the project directories name
         fsm_index = self.combobox_fsm.index(path)
@@ -145,6 +150,11 @@ class AssetsBrowser(QtWidgets.QMainWindow, ui_main.Ui_MainWindow):
 
         Select project, clear existing tabs and create new tabs using the subdirectories
         in the project's Assets directory.
+
+        Parameters
+        ----------
+        project : str or None
+            Project name. By default, None
 
         """
         # 1. Use CurrentProject value from TOML on startup
