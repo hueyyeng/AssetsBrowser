@@ -12,11 +12,6 @@ from database.models import (
 class TestAssets:
     def setup(self):
         self.test_db = Database()
-        self.test_db.create_db_tables([
-            Asset,
-            Category,
-            Project,
-        ])
         self.category_data = {
             "name": "FX",
             "description": "Effects",
@@ -26,27 +21,27 @@ class TestAssets:
             "short_name": "SG",
             "description": "Sequel to Good",
         }
+        self.category = Category.create(**self.category_data)
+        self.project = Project.create(**self.project_data)
 
     def test_create_asset(self):
-        self.test_db.insert_entry(Category, **self.category_data)
-        self.test_db.insert_entry(Project, **self.project_data)
         asset_name = "Explosion"
         asset_desc = "Fire Magic"
         asset_short_name = "EXP"
         asset_data = {
-            "category": 1,
+            "category": self.category.id,
             "description": asset_desc,
             "format": "Maya",
             "name": asset_name,
             "short_name": asset_short_name,
-            "project": 1,
+            "project": self.project.id,
         }
 
-        self.test_db.insert_entry(Asset, **asset_data)
-        a = self.test_db.get_entry(Asset, id=1)
+        Asset.create(**asset_data)
+        a = Asset.get(**asset_data)
         assert a.name == asset_name
         assert a.description == asset_desc
         assert a.short_name == asset_short_name
-        assert str(a) == "EXP_v001"
         assert a.category.name == "FX"
         assert a.project.name == "Super Good"
+        assert str(a) == "fEXP"

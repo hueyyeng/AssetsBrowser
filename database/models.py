@@ -1,7 +1,10 @@
 """Database Models"""
 import peewee as pw
 
-from database.mixins import DateTimeMixin, EmailPhoneMixin, NameDescriptionMixin
+from database.mixins import (
+    DateTimeMixin,
+    NameDescriptionMixin,
+)
 from database.validators import ModelValidator
 
 SQLITE_DB = pw.SqliteDatabase(None)
@@ -10,9 +13,6 @@ SQLITE_DB = pw.SqliteDatabase(None)
 class BaseModel(pw.Model, ModelValidator):
     class Meta:
         database = SQLITE_DB
-
-    def validate(self):
-        return None
 
 
 class Project(
@@ -23,10 +23,13 @@ class Project(
     short_name = pw.FixedCharField(
         max_length=4,
         verbose_name='Short Name',
+        unique=True,
     )
 
     def __str__(self):
-        return f"{self.name} ({self.short_name})"
+        if self.name:
+            return f"{self.short_name} - {self.name}"
+        return self.short_name
 
 
 class Category(
@@ -46,23 +49,20 @@ class Asset(
         Category,
         verbose_name='Category',
     )
-    format = pw.CharField(
-        verbose_name='Format',
-        max_length=50,
-    )
     project = pw.ForeignKeyField(
         Project,
         backref='assets',
         verbose_name='Project',
     )
+    format = pw.CharField(
+        null=True,
+        max_length=50,
+        verbose_name='Format',
+    )
     short_name = pw.FixedCharField(
         max_length=12,
         verbose_name='Short Name',
     )
-    version = pw.SmallIntegerField(
-        default=1,
-        verbose_name='Version',
-    )
 
     def __str__(self):
-        return f"{self.short_name}_v{self.version:03}"
+        return f"{self.category.name[0].lower()}{self.short_name}"

@@ -24,7 +24,6 @@ def test_create_db_schema():
         'format',
         'project',
         'short_name',
-        'version',
         'created_dt',
         'modified_dt',
         'name',

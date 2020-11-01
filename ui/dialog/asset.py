@@ -99,7 +99,7 @@ class Asset(QtWidgets.QDialog, Ui_AssetDialog):
             "name": asset_full_name,
             "short_name": asset_short_name,
         }
-        self.db.insert_entry(AssetModel, **asset_data)
+        AssetModel.create(**asset_data)
         logger.info({
             "msg": "Asset creation successful",
             "short_name": asset_short_name,

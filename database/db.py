@@ -15,7 +15,7 @@ SQLITE_MEMORY = ':memory:'
 
 
 class Database:
-    """"Asset's Browser Database.
+    """"Assets' Browser Database.
 
     Currently configure using sqlite for standalone execution without
     relying on another DB driver like MySQL or Postgres
@@ -26,6 +26,7 @@ class Database:
         if not db and use_default_db:
             db = DEFAULT_DB
         self.connect_db(db, sqlite_on_delete)
+        self.check_db_schema()
 
     def connect_db(self, db=None, sqlite_on_delete: bool = True):
         """Connect to database
@@ -51,7 +52,7 @@ class Database:
     def validate_db(self, db: str):
         """Validate DB
 
-        Verify if DB path is valid. If IOError,
+        Verify if DB path exists. If IOError,
         create a new DB file at the specify path.
 
         Parameters
@@ -84,37 +85,30 @@ class Database:
         except OSError as e:
             logger.error("Error deleting database: %s - %s.", e.filename, e.strerror)
 
-    def create_db_tables(self, tables: list):
+    def check_db_schema(self):
+        """Check DB Schema
+
+        Always create DB schema on creation startup if using SQLITE_MEMORY.
+        If a DB path are given, verify if the DB has existing tables
+        and create tables if none (for new DB file)
+
+        """
+        if not self.db.get_tables():
+            self.create_db_schema()
+
+    def create_db_schema(self):
+        """Create DB schema"""
+        self.create_db_tables(DEFAULT_MODELS)
+
+    def create_db_tables(self, tables: list or pw.Model):
         """Create DB tables
 
         Parameters
         ----------
-        tables : list or str
-            List of str. If str, it will convert to to list of str.
+        tables : list or peewee.Model
+            List of str. If Model, convert to list of Model.
 
         """
         if not isinstance(tables, list):
-            tables = list(tables)
+            tables = [tables]
         self.db.create_tables(tables)
-
-    def insert_entry(self, model, **kwargs):
-        try:
-            with self.db.atomic():
-                entry = model.create(**kwargs)
-                entry.validate()
-                return entry
-        except pw.IntegrityError as e:
-            raise e
-
-    def get_entry(self, model, **kwargs):
-        try:
-            with self.db.atomic():
-                entry = model.get(**kwargs)
-                return entry
-        except pw.IntegrityError as e:
-            raise e
-
-    def create_db_schema(self):
-        """Create DB schema."""
-        tables = DEFAULT_MODELS
-        self.create_db_tables(tables)
