@@ -18,14 +18,16 @@ from ui.enums import (
     SuffixRadio,
     ThemeRadio,
 )
-from ui.window.ui_preferences import Ui_PrefsDialog
+from ui.window.ui_preferences import (
+    Ui_PrefsDialog,
+)
 
 logger = logging.getLogger(__name__)
 
 
-class Preferences(QtWidgets.QDialog, Ui_PrefsDialog):
+class PreferencesDialog(QtWidgets.QDialog, Ui_PrefsDialog):
     def __init__(self, parent=None):
-        super(Preferences, self).__init__(parent)
+        super(PreferencesDialog, self).__init__(parent)
         self.setupUi(self)
         ui.functions.set_window_icon(self)
         self._setup_ui_buttons()
@@ -312,7 +314,7 @@ class Preferences(QtWidgets.QDialog, Ui_PrefsDialog):
 
 
 def show_dialog():
-    dialog = Preferences()
+    dialog = PreferencesDialog()
     if dialog.exec_():
         # Restart app to reinitialize new INI settings
         helpers.functions.restart_app()
@@ -320,6 +322,6 @@ def show_dialog():
 
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
-    window = Preferences()
+    window = PreferencesDialog()
     window.show()
     sys.exit(app.exec_())

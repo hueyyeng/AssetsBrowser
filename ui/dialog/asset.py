@@ -16,9 +16,9 @@ from ui.window.ui_asset import Ui_AssetDialog
 logger = logging.getLogger(__name__)
 
 
-class Asset(QtWidgets.QDialog, Ui_AssetDialog):
+class AssetDialog(QtWidgets.QDialog, Ui_AssetDialog):
     def __init__(self, parent=None):
-        super(Asset, self).__init__(parent)
+        super(AssetDialog, self).__init__(parent)
         self.setupUi(self)
         self.db = Database(use_default_db=True)
         ui.functions.set_window_icon(self)
@@ -155,7 +155,7 @@ class Asset(QtWidgets.QDialog, Ui_AssetDialog):
 
 
 def show_dialog():
-    dialog = Asset()
+    dialog = AssetDialog()
     if dialog.exec_():
         logger.debug('Creating new asset...')
     else:
@@ -164,6 +164,6 @@ def show_dialog():
 
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
-    window = Asset()
+    window = AssetDialog()
     window.show()
     sys.exit(app.exec_())
