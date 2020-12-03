@@ -2,11 +2,13 @@
 
 # Form implementation generated from reading ui file 'K:\Library\Python\AssetsBrowser\ui\window\preferences.ui'
 #
-# Created by: PyQt5 UI code generator 5.11.3
+# Created by: PyQt5 UI code generator 5.14.1
 #
 # WARNING! All changes made in this file will be lost!
 
+
 from PyQt5 import QtCore, QtGui, QtWidgets
+
 
 class Ui_PrefsDialog(object):
     def setupUi(self, PrefsDialog):
@@ -481,4 +483,3 @@ class Ui_PrefsDialog(object):
         self.iconRadioDisable.setText(_translate("PrefsDialog", "Disable (fastest)"))
         self.iconRadioGeneric.setToolTip(_translate("PrefsDialog", "Display generic icons by disabling icon thumbnail generation for supported images."))
         self.iconRadioGeneric.setText(_translate("PrefsDialog", "Use generic icons"))
-

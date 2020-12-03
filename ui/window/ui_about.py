@@ -2,11 +2,13 @@
 
 # Form implementation generated from reading ui file 'K:\Library\Python\AssetsBrowser\ui\window\about.ui'
 #
-# Created by: PyQt5 UI code generator 5.11.3
+# Created by: PyQt5 UI code generator 5.14.1
 #
 # WARNING! All changes made in this file will be lost!
 
+
 from PyQt5 import QtCore, QtGui, QtWidgets
+
 
 class Ui_AboutDialog(object):
     def setupUi(self, AboutDialog):
@@ -20,7 +22,7 @@ class Ui_AboutDialog(object):
         self.labelGraphic = QtWidgets.QLabel(AboutDialog)
         self.labelGraphic.setText("")
         self.labelGraphic.setTextFormat(QtCore.Qt.AutoText)
-        self.labelGraphic.setPixmap(QtGui.QPixmap("../icons/about.png"))
+        self.labelGraphic.setPixmap(QtGui.QPixmap("K:\\Library\\Python\\AssetsBrowser\\ui\\window\\../ui/icons/about.png"))
         self.labelGraphic.setAlignment(QtCore.Qt.AlignCenter)
         self.labelGraphic.setObjectName("labelGraphic")
         self.verticalLayout.addWidget(self.labelGraphic)
@@ -43,4 +45,3 @@ class Ui_AboutDialog(object):
         _translate = QtCore.QCoreApplication.translate
         AboutDialog.setWindowTitle(_translate("AboutDialog", "About"))
         self.labelAbout.setText(_translate("AboutDialog", "<html><head/><body><p><span style=\" font-weight:600;\">Assets Browser<br/>Version 0.1.0</span></p><p>A Python based browser to manage various assets in a 3DCG/VFX production.</p></body></html>"))
-

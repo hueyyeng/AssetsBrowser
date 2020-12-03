@@ -1,0 +1,7 @@
+<RCC>
+  <qresource>
+    <file>resources/minus-circle.svg</file>
+    <file>resources/plus-circle.svg</file>
+    <file>resources/x-circle.svg</file>
+  </qresource>
+</RCC>
