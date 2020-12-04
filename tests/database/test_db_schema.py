@@ -21,7 +21,6 @@ def test_create_db_schema():
 @mark.parametrize("model,fields", [
     (Asset, [
         'category',
-        'format',
         'project',
         'short_name',
         'created_dt',

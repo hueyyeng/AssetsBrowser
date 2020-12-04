@@ -1,15 +1,11 @@
 """Applications List Dialog"""
 import logging
-import os
 import sys
 
-from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5 import QtWidgets
 
 import ui.functions
 from database.db import Database
-from database.models import (
-    Application,
-)
 from helpers.functions import ham
 from ui.window.ui_applications_list import (
     Ui_AppListDialog,

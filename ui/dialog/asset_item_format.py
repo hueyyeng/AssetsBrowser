@@ -1,19 +1,11 @@
 """Asset Item Format Dialog"""
 import logging
-import os
 import sys
 
-from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5 import QtWidgets
 
 import ui.functions
 from database.db import Database
-from database.models import (
-    Asset,
-    AssetItem,
-    AssetItemFormat,
-    Category,
-    Project,
-)
 from helpers.functions import ham
 from ui.window.ui_asset_item_format import (
     Ui_AssetItemFormatDialog,
