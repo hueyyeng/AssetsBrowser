@@ -21,7 +21,7 @@ class AboutDialog(QtWidgets.QDialog, Ui_AboutDialog):
 
     def _setup_logo(self):
         """Setup Logo"""
-        logo = Path.cwd() / 'icons' / 'about.png'
+        logo = Path.cwd() / 'ui' / 'icons' / 'about.png'
         self.labelGraphic.setPixmap(QtGui.QPixmap(str(logo)))
 
 
