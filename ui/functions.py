@@ -25,7 +25,7 @@ def set_window_icon(widget: QtWidgets.QWidget, icon=None):
 
     """
     if not icon:
-        icon = Path.cwd() / 'icons' / ICON_FILE
+        icon = Path.cwd() / 'ui' / 'icons' / ICON_FILE
     widget.setWindowIcon(QtGui.QIcon(str(icon)))
 
 

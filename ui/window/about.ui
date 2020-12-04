@@ -38,7 +38,7 @@
       <enum>Qt::AutoText</enum>
      </property>
      <property name="pixmap">
-      <pixmap>../icons/about.png</pixmap>
+      <pixmap>../ui/icons/about.png</pixmap>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>

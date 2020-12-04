@@ -30,7 +30,7 @@ def alert_window(title: str, text: str):
     """
     # 1. Set up QApplication, QWidget and QMessageBox instance
     app = QtWidgets.QApplication(sys.argv)
-    app.setWindowIcon(QtGui.QIcon('icons/logo.ico'))
+    app.setWindowIcon(QtGui.QIcon('ui/icons/logo.ico'))
     widget = QtWidgets.QWidget()
     message = QtWidgets.QMessageBox
 

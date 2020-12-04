@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>600</height>
+    <width>851</width>
+    <height>603</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -61,9 +61,12 @@
      <height>550</height>
     </size>
    </property>
-   <layout class="QHBoxLayout" name="horizontalLayout_2">
-    <item>
+   <layout class="QGridLayout" name="gridLayout">
+    <item row="0" column="0">
      <widget class="QSplitter" name="splitter">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
       </property>
@@ -72,20 +75,20 @@
       </property>
       <widget class="QWidget" name="actionWidget" native="true">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
        <property name="minimumSize">
         <size>
-         <width>150</width>
+         <width>230</width>
          <height>0</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>250</width>
+         <width>230</width>
          <height>16777215</height>
         </size>
        </property>
@@ -98,7 +101,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QComboBox" name="comboBox">
+         <widget class="QComboBox" name="projectComboBox">
           <property name="layoutDirection">
            <enum>Qt::LeftToRight</enum>
           </property>
@@ -111,14 +114,28 @@
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="pushBtnNew">
+         <widget class="QPushButton" name="pushBtnNewAsset">
           <property name="text">
            <string>Create New Asset</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QCheckBox" name="checkBoxDebug">
+         <widget class="QPushButton" name="pushBtnNewAssetItem">
+          <property name="text">
+           <string>Create New Asset Item</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="pushBtnManageFormat">
+          <property name="text">
+           <string>Manage Asset Item Format</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="debugCheckBox">
           <property name="enabled">
            <bool>true</bool>
           </property>
@@ -162,7 +179,7 @@
         <item>
          <widget class="QLabel" name="labelCredits">
           <property name="text">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Huey Yeng © 2017&lt;br/&gt;&lt;a href=&quot;https://taukeke.com&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;https://taukeke.com&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Huey Yeng © 2017-2021&lt;/p&gt;&lt;p&gt;&lt;a href=&quot;https://taukeke.com&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;taukeke.com&lt;br/&gt;&lt;/span&gt;&lt;/a&gt;&lt;a href=&quot;https://github.com/hueyyeng/AssetsBrowser&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Assets Browser@  GitHub&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
           <property name="textFormat">
            <enum>Qt::AutoText</enum>
@@ -174,14 +191,22 @@
         </item>
        </layout>
        <zorder>labelCredits</zorder>
-       <zorder>checkBoxDebug</zorder>
-       <zorder>pushBtnNew</zorder>
+       <zorder>debugCheckBox</zorder>
+       <zorder>pushBtnNewAsset</zorder>
        <zorder>labelProject</zorder>
        <zorder>textEdit</zorder>
-       <zorder>comboBox</zorder>
+       <zorder>projectComboBox</zorder>
        <zorder>textSpacer</zorder>
+       <zorder>pushBtnNewAssetItem</zorder>
+       <zorder>pushBtnManageFormat</zorder>
       </widget>
       <widget class="QTabWidget" name="tabWidget">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="currentIndex">
         <number>0</number>
        </property>
@@ -221,7 +246,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>800</width>
+     <width>851</width>
      <height>21</height>
     </rect>
    </property>
@@ -229,6 +254,10 @@
     <property name="title">
      <string>&amp;File</string>
     </property>
+    <addaction name="actionNewAsset"/>
+    <addaction name="actionNewAssetItem"/>
+    <addaction name="actionManageFormat"/>
+    <addaction name="separator"/>
     <addaction name="actionQuit"/>
    </widget>
    <widget class="QMenu" name="menuView">
@@ -248,6 +277,7 @@
      <string>&amp;Settings</string>
     </property>
     <addaction name="actionPreferences"/>
+    <addaction name="actionApplicationsList"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuView"/>
@@ -280,6 +310,26 @@
   <action name="actionPreferences">
    <property name="text">
     <string>&amp;Preferences...</string>
+   </property>
+  </action>
+  <action name="actionNewAsset">
+   <property name="text">
+    <string>&amp;New Asset</string>
+   </property>
+  </action>
+  <action name="actionNewAssetItem">
+   <property name="text">
+    <string>New &amp;Asset Item</string>
+   </property>
+  </action>
+  <action name="actionApplicationsList">
+   <property name="text">
+    <string>&amp;Applications List...</string>
+   </property>
+  </action>
+  <action name="actionManageFormat">
+   <property name="text">
+    <string>&amp;Manage Asset Item Format</string>
    </property>
   </action>
  </widget>

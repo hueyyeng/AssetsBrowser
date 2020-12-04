@@ -2,11 +2,13 @@
 
 # Form implementation generated from reading ui file 'K:\Library\Python\AssetsBrowser\ui\window\asset.ui'
 #
-# Created by: PyQt5 UI code generator 5.11.3
+# Created by: PyQt5 UI code generator 5.14.1
 #
 # WARNING! All changes made in this file will be lost!
 
+
 from PyQt5 import QtCore, QtGui, QtWidgets
+
 
 class Ui_AssetDialog(object):
     def setupUi(self, AssetDialog):
@@ -43,12 +45,14 @@ class Ui_AssetDialog(object):
         self.variantGroupBox.setObjectName("variantGroupBox")
         self.horizontalLayout = QtWidgets.QHBoxLayout(self.variantGroupBox)
         self.horizontalLayout.setObjectName("horizontalLayout")
-        self.variantRadioNumber = QtWidgets.QRadioButton(self.variantGroupBox)
-        self.variantRadioNumber.setObjectName("variantRadioNumber")
-        self.horizontalLayout.addWidget(self.variantRadioNumber)
         self.variantRadioAlphabet = QtWidgets.QRadioButton(self.variantGroupBox)
+        self.variantRadioAlphabet.setChecked(True)
         self.variantRadioAlphabet.setObjectName("variantRadioAlphabet")
         self.horizontalLayout.addWidget(self.variantRadioAlphabet)
+        self.variantRadioNumber = QtWidgets.QRadioButton(self.variantGroupBox)
+        self.variantRadioNumber.setChecked(False)
+        self.variantRadioNumber.setObjectName("variantRadioNumber")
+        self.horizontalLayout.addWidget(self.variantRadioNumber)
         self.layoutVtlCat.addWidget(self.variantGroupBox)
         self.verticalLayout.addWidget(self.categoryGroup)
         self.detailsGroup = QtWidgets.QGroupBox(AssetDialog)
@@ -75,12 +79,6 @@ class Ui_AssetDialog(object):
         self.descTextEdit = QtWidgets.QPlainTextEdit(self.detailsGroup)
         self.descTextEdit.setObjectName("descTextEdit")
         self.verticalLayout_2.addWidget(self.descTextEdit)
-        self.formatLabel = QtWidgets.QLabel(self.detailsGroup)
-        self.formatLabel.setObjectName("formatLabel")
-        self.verticalLayout_2.addWidget(self.formatLabel)
-        self.formatComboBox = QtWidgets.QComboBox(self.detailsGroup)
-        self.formatComboBox.setObjectName("formatComboBox")
-        self.verticalLayout_2.addWidget(self.formatComboBox)
         self.verticalLayout.addWidget(self.detailsGroup)
         self.previewGroup = QtWidgets.QGroupBox(AssetDialog)
         self.previewGroup.setFlat(False)
@@ -112,16 +110,14 @@ class Ui_AssetDialog(object):
         AssetDialog.setWindowTitle(_translate("AssetDialog", "Create New Asset"))
         self.categoryGroup.setTitle(_translate("AssetDialog", "Category"))
         self.variantGroupBox.setTitle(_translate("AssetDialog", "Variant"))
-        self.variantRadioNumber.setText(_translate("AssetDialog", "Number"))
         self.variantRadioAlphabet.setText(_translate("AssetDialog", "Alphabet"))
+        self.variantRadioNumber.setText(_translate("AssetDialog", "Number"))
         self.detailsGroup.setTitle(_translate("AssetDialog", "Details"))
         self.shortNameLabel.setText(_translate("AssetDialog", "Shortname"))
         self.shortNameLineEdit.setToolTip(_translate("AssetDialog", "Alphanumeric only"))
         self.nameLabel.setText(_translate("AssetDialog", "Full Name"))
         self.descLabel.setText(_translate("AssetDialog", "Description"))
         self.descTextEdit.setPlaceholderText(_translate("AssetDialog", "Asset\'s description goes here"))
-        self.formatLabel.setText(_translate("AssetDialog", "Format"))
         self.previewGroup.setTitle(_translate("AssetDialog", "Preview"))
         self.btnCreate.setText(_translate("AssetDialog", "Create"))
         self.btnCancel.setText(_translate("AssetDialog", "Cancel"))
-

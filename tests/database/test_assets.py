@@ -31,7 +31,6 @@ class TestAssets:
         asset_data = {
             "category": self.category.id,
             "description": asset_desc,
-            "format": "Maya",
             "name": asset_name,
             "short_name": asset_short_name,
             "project": self.project.id,

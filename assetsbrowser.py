@@ -1,4 +1,4 @@
-"""Assets Browser Mainwindow"""
+"""Assets Browser MainWindow"""
 import logging
 import os
 import sys
@@ -12,9 +12,18 @@ import ui.functions
 from config import configurations
 from config.constants import TOML_PATH
 from config.utils import check_config_file
-from helpers.exceptions import ApplicationAlreadyExists
+from helpers.exceptions import (
+    ApplicationAlreadyExists,
+)
 from helpers.widgets import ColumnViewWidget
-from ui.dialog import about, asset, preferences
+from ui.dialog import (
+    about,
+    applications_list,
+    asset,
+    asset_item,
+    asset_item_format,
+    preferences,
+)
 from ui.window import ui_main
 
 logger = logging.getLogger(__name__)
@@ -45,6 +54,10 @@ class AssetsBrowser(QtWidgets.QMainWindow, ui_main.Ui_MainWindow):
 
     def _setup_menu_actions(self):
         # 1.2 Menu action goes here
+        self.actionNewAsset.triggered.connect(asset.show_dialog)
+        self.actionNewAssetItem.triggered.connect(asset_item.show_dialog)
+        self.actionManageFormat.triggered.connect(asset_item_format.show_dialog)
+        self.actionApplicationsList.triggered.connect(applications_list.show_dialog)
         self.actionAbout.triggered.connect(about.show_dialog)
         self.actionAlwaysOnTop.triggered.connect(lambda: ui.functions.always_on_top(self))
         self.actionPreferences.triggered.connect(preferences.show_dialog)
@@ -52,8 +65,10 @@ class AssetsBrowser(QtWidgets.QMainWindow, ui_main.Ui_MainWindow):
 
     def _setup_ui_buttons(self):
         # 1.3 Setup input/button here
-        self.pushBtnNew.clicked.connect(asset.show_dialog)
-        self.checkBoxDebug.clicked.connect(self.show_debug)
+        self.pushBtnNewAsset.clicked.connect(asset.show_dialog)
+        self.pushBtnNewAssetItem.clicked.connect(asset_item.show_dialog)
+        self.pushBtnManageFormat.clicked.connect(asset_item_format.show_dialog)
+        self.debugCheckBox.clicked.connect(self.show_debug)
 
     def _setup_debug_log(self):
         """Setup Debug Log"""
@@ -72,11 +87,11 @@ class AssetsBrowser(QtWidgets.QMainWindow, ui_main.Ui_MainWindow):
         """Setup Project List Dropdown"""
         self.project_path = configurations.get_setting('Settings', 'ProjectPath')
         self.combobox_fsm = QtWidgets.QFileSystemModel()
-        self.comboBox.setModel(self.combobox_fsm)
+        self.projectComboBox.setModel(self.combobox_fsm)
         root_idx = self.combobox_fsm.setRootPath(self.project_path)
-        self.comboBox.setRootModelIndex(root_idx)
+        self.projectComboBox.setRootModelIndex(root_idx)
         self.combobox_fsm.directoryLoaded.connect(self.populate_project_list)
-        self.comboBox.activated[str].connect(self.select_project)
+        self.projectComboBox.activated[str].connect(self.select_project)
 
     def _setup_initial_tabs(self):
         """Setup initial tabs
@@ -135,11 +150,11 @@ class AssetsBrowser(QtWidgets.QMainWindow, ui_main.Ui_MainWindow):
         fsm_index = self.combobox_fsm.index(path)
         for i in range(self.combobox_fsm.rowCount(fsm_index)):
             project_idx = self.combobox_fsm.index(i, 0, fsm_index)
-            self.comboBox.addItem(project_idx.data(), self.combobox_fsm.filePath(project_idx))
+            self.projectComboBox.addItem(project_idx.data(), self.combobox_fsm.filePath(project_idx))
 
         # 2. Set the current project based on TOML settings
-        self.comboBox.setCurrentIndex(
-            self.comboBox.findText(
+        self.projectComboBox.setCurrentIndex(
+            self.projectComboBox.findText(
                 configurations.get_setting('Settings', 'CurrentProject'),
                 QtCore.Qt.MatchContains,
             )
@@ -161,7 +176,7 @@ class AssetsBrowser(QtWidgets.QMainWindow, ui_main.Ui_MainWindow):
         if not project:
             project = configurations.get_setting('Settings', 'CurrentProject')
         else:
-            project = self.comboBox.currentText()
+            project = self.projectComboBox.currentText()
             configurations.update_setting('Settings', 'CurrentProject', project)
 
         # 2. Raised warning if Assets directory not found in project path
@@ -194,7 +209,7 @@ class AssetsBrowser(QtWidgets.QMainWindow, ui_main.Ui_MainWindow):
     def show_debug(self):
         """Toggle Debug Display."""
         text = self.textEdit
-        if self.checkBoxDebug.isChecked():
+        if self.debugCheckBox.isChecked():
             text.clear()
             text.setHidden(False)
             text.setEnabled(True)
